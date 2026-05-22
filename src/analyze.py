@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 """
-Quant Signal Agent v3 — Victor Kane Daily Stock Report
-Architecture: fetch real data via yfinance (free, no API key) → send to Claude for analysis
+Quant Signal Agent v3 -- Victor Kane Daily Stock Report
+Architecture: fetch real data via yfinance (free, no API key) -> send to Claude for analysis
 This avoids web-search token explosions and rate limit issues entirely.
 """
 
@@ -9,13 +10,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime, timezone
 
-# ── CREDENTIALS ───────────────────────────────────────────────────────────────
+# -- CREDENTIALS ---------------------------------------------------------------
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 EMAIL_FROM        = os.environ["EMAIL_FROM"]
 EMAIL_PASSWORD    = os.environ["EMAIL_PASSWORD"]
 EMAIL_TO          = os.environ["EMAIL_TO"]
 
-# ── WATCHLIST ─────────────────────────────────────────────────────────────────
+# -- WATCHLIST -----------------------------------------------------------------
 _raw  = os.environ.get("PERSONAL_WATCHLIST", "")
 _extra= os.environ.get("EXTRA_TICKERS", "")
 PERSONAL_WATCHLIST = [t.strip().upper() for t in _raw.split(",")   if t.strip()]
@@ -25,11 +26,11 @@ ALL_PERSONAL       = list(dict.fromkeys(PERSONAL_WATCHLIST + EXTRA_TICKERS))
 TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 NOW   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-# ── DEFAULT DISCOVERY LIST (when no personal watchlist set) ───────────────────
+# -- DEFAULT DISCOVERY LIST (when no personal watchlist set) -------------------
 DEFAULT_TICKERS = ["NVDA","AAPL","MSFT","AMD","TSLA","META","GOOGL","AMZN","PLTR","ARM"]
 
 # =============================================================================
-# STEP 1 — FETCH REAL MARKET DATA VIA YFINANCE (no API key needed)
+# STEP 1 -- FETCH REAL MARKET DATA VIA YFINANCE (no API key needed)
 # =============================================================================
 def install_yfinance():
     subprocess.check_call([sys.executable, "-m", "pip", "install", "yfinance", "--quiet", "--break-system-packages"])
@@ -43,7 +44,7 @@ def fetch_stock_data(tickers):
         import yfinance as yf
 
     results = {}
-    print(f"  → Fetching data for {len(tickers)} tickers: {', '.join(tickers)}")
+    print(f"  -> Fetching data for {len(tickers)} tickers: {', '.join(tickers)}")
 
     for ticker in tickers:
         try:
@@ -112,9 +113,9 @@ def fetch_stock_data(tickers):
                 "next_earnings_est":    str(info.get("earningsDate", ["N/A"])[0]) if info.get("earningsDate") else "N/A",
                 "institutional_ownership_pct": round((info.get("heldPercentInstitutions", 0) or 0) * 100, 1),
             }
-            print(f"    ✓ {ticker}: ${price} | RSI {rsi} | PE {results[ticker]['pe_ratio']}")
+            print(f"    ok {ticker}: ${price} | RSI {rsi} | PE {results[ticker]['pe_ratio']}")
         except Exception as e:
-            print(f"    ✗ {ticker}: {e}")
+            print(f"    x {ticker}: {e}")
             results[ticker] = {"ticker": ticker, "company_name": ticker, "error": str(e)}
 
     return results
@@ -134,15 +135,15 @@ def fetch_market_overview():
 
         return {"sp500_pct": sp_chg, "nasdaq_pct": nq_chg, "vix": vix_v}
     except Exception as e:
-        print(f"  ✗ Market overview error: {e}")
+        print(f"  x Market overview error: {e}")
         return {"sp500_pct": 0, "nasdaq_pct": 0, "vix": 0}
 
 
 # =============================================================================
-# STEP 2 — SEND DATA TO CLAUDE FOR ANALYSIS (no web search, tiny prompt)
+# STEP 2 -- SEND DATA TO CLAUDE FOR ANALYSIS (no web search, tiny prompt)
 # =============================================================================
 def trim_for_claude(stock_data):
-    """Keep only the fields Claude needs — reduces prompt size significantly."""
+    """Keep only the fields Claude needs -- reduces prompt size significantly."""
     keep = ["ticker","company_name","sector","current_price","price_change_today_pct",
             "market_cap_b","pe_ratio","forward_pe","eps_ttm","eps_growth_yoy_pct",
             "revenue_growth_yoy_pct","gross_margin_pct","operating_margin_pct",
@@ -168,12 +169,12 @@ Score each: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). GROWTH=
 top_picks=score>=65 only. Keep ALL text fields to 1 sentence. Be concise.
 
 JSON only, no other text:
-{{"report_date":"{TODAY}","macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL","vix":{market_overview['vix']},"sp500_pct":{market_overview['sp500_pct']},"nasdaq_pct":{market_overview['nasdaq_pct']},"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"","current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"BALANCED","current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],"disclaimer":"For educational purposes only. Not financial advice."}}
+{{"report_date":"{TODAY}","macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL","vix":{market_overview['vix']},"sp500_pct":{market_overview['sp500_pct']},"nasdaq_pct":{market_overview['nasdaq_pct']},"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"","current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"BALANCED","current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],"disclaimer":"For educational purposes only. Not financial advice."}}"""
 
 
 def call_claude_analysis(prompt):
-    """Call Claude WITHOUT web search — just pure analysis of pre-fetched data."""
-    print("  → Sending data to Claude for Victor Kane analysis...")
+    """Call Claude WITHOUT web search - pure analysis of pre-fetched data."""
+    print("  -> Sending data to Claude for Victor Kane analysis...")
     payload = json.dumps({
         "model": "claude-sonnet-4-5",
         "max_tokens": 4000,
@@ -198,16 +199,16 @@ def call_claude_analysis(prompt):
             break
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8")
-            print(f"  ✗ API error {e.code}: {body[:200]}")
+            print(f"  x API error {e.code}: {body[:200]}")
             if e.code in (429, 500, 502, 503, 529) and attempt < 3:
                 wait = 30 * (attempt + 1)
-                print(f"  → Retrying in {wait}s (attempt {attempt+2}/4)...")
+                print(f"  -> Retrying in {wait}s (attempt {attempt+2}/4)...")
                 time.sleep(wait)
                 continue
             raise
         except Exception as e:
             if attempt < 3:
-                print(f"  ✗ Network error: {e}. Retrying in 30s...")
+                print(f"  x Network error: {e}. Retrying in 30s...")
                 time.sleep(30)
                 continue
             raise
@@ -233,10 +234,10 @@ def call_claude_analysis(prompt):
     try:
         return json.loads(json_str)
     except json.JSONDecodeError as e:
-        print(f"  ✗ JSON error at pos {e.pos}: ...{json_str[max(0,e.pos-60):e.pos+60]}...")
+        print(f"  x JSON error at pos {e.pos}: ...{json_str[max(0,e.pos-60):e.pos+60]}...")
         # Return skeleton so email still sends
         return {
-            "report_date": TODAY, "macro_summary": "Analysis error — partial data only.",
+            "report_date": TODAY, "macro_summary": "Analysis error -- partial data only.",
             "risk_level": "MODERATE", "sector_rotation": "N/A",
             "market_mood": "NEUTRAL", "vix": 0, "sp500_pct": 0, "nasdaq_pct": 0,
             "top_picks": [], "watchlist_analysis": [], "full_scan_brief": [],
@@ -322,7 +323,7 @@ def pick_card(s, idx, watchlist=False):
     personal= s.get("is_personal_watchlist",False)
 
     p_badge = ('<span style="font-size:10px;padding:2px 8px;border-radius:20px;'
-               'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;margin-left:6px">★ Watchlist</span>'
+               'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;margin-left:6px">_ Watchlist</span>'
                ) if personal else ""
 
     # Targets row
@@ -334,10 +335,10 @@ def pick_card(s, idx, watchlist=False):
             f'{"<div style=font-size:9px;color:#94a3b8>"+sub+"</div>" if sub else ""}'
             f'</div>'
             for lb,vl,col,sub in [
-              ("Entry",      f"${f(s.get('entry_range_low'))}–${f(s.get('entry_range_high'))}", "#0369a1",""),
-              ("1-month",    f"${f(s.get('target_1m'))}",  "#059669", f"{fp(s.get('upside_1m_pct'))} · {s.get('target_1m_probability_pct','?')}%"),
-              ("6-month",    f"${f(s.get('target_6m'))}",  "#059669", f"{fp(s.get('upside_6m_pct'))} · {s.get('target_6m_probability_pct','?')}%"),
-              ("1-year",     f"${f(s.get('target_1y'))}",  "#059669", f"{fp(s.get('upside_1y_pct'))} · {s.get('target_1y_probability_pct','?')}%"),
+              ("Entry",      f"${f(s.get('entry_range_low'))}-${f(s.get('entry_range_high'))}", "#0369a1",""),
+              ("1-month",    f"${f(s.get('target_1m'))}",  "#059669", f"{fp(s.get('upside_1m_pct'))} * {s.get('target_1m_probability_pct','?')}%"),
+              ("6-month",    f"${f(s.get('target_6m'))}",  "#059669", f"{fp(s.get('upside_6m_pct'))} * {s.get('target_6m_probability_pct','?')}%"),
+              ("1-year",     f"${f(s.get('target_1y'))}",  "#059669", f"{fp(s.get('upside_1y_pct'))} * {s.get('target_1y_probability_pct','?')}%"),
               ("Stop loss",  f"${f(s.get('stop_loss'))}",  "#dc2626", f"R:R {f(s.get('risk_reward_ratio'),1)}:1"),
             ]
         ])
@@ -348,7 +349,7 @@ def pick_card(s, idx, watchlist=False):
             f'<div style="font-size:9px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">{lb}</div>'
             f'<div style="font-size:12px;font-weight:600;color:{col}">{vl}</div></div>'
             for lb,vl,col in [
-              ("Entry",   f"${f(s.get('entry_range_low'))}–${f(s.get('entry_range_high'))}", "#0369a1"),
+              ("Entry",   f"${f(s.get('entry_range_low'))}-${f(s.get('entry_range_high'))}", "#0369a1"),
               ("1-year",  f"${f(s.get('target_1y'))}",  "#059669"),
               ("Upside",  fp(s.get('upside_1y_pct')),   "#059669"),
               ("Stop",    f"${f(s.get('stop_loss'))}",  "#dc2626"),
@@ -400,20 +401,20 @@ def pick_card(s, idx, watchlist=False):
             f'<p style="font-size:12px;color:#374151;line-height:1.7;margin:0">{s.get("fundamental_analysis","N/A")}</p></div></div>'
             f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
             f'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:10px">'
-            f'<div style="font-size:9px;color:#166534;text-transform:uppercase;font-weight:600;margin-bottom:4px">⚡ Why now</div>'
+            f'<div style="font-size:9px;color:#166534;text-transform:uppercase;font-weight:600;margin-bottom:4px">_ Why now</div>'
             f'<p style="font-size:11px;color:#166534;line-height:1.6;margin:0">{s.get("why_now","N/A")}</p></div>'
             f'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px">'
-            f'<div style="font-size:9px;color:#92400e;text-transform:uppercase;font-weight:600;margin-bottom:4px">🎯 Catalyst</div>'
+            f'<div style="font-size:9px;color:#92400e;text-transform:uppercase;font-weight:600;margin-bottom:4px">_ Catalyst</div>'
             f'<p style="font-size:11px;color:#92400e;line-height:1.6;margin:0">{s.get("catalyst_summary","N/A")}</p></div>'
             f'<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px">'
-            f'<div style="font-size:9px;color:#1e40af;text-transform:uppercase;font-weight:600;margin-bottom:4px">🌐 Macro</div>'
+            f'<div style="font-size:9px;color:#1e40af;text-transform:uppercase;font-weight:600;margin-bottom:4px">_ Macro</div>'
             f'<p style="font-size:11px;color:#1e40af;line-height:1.6;margin:0">{s.get("geopolitical_factor","N/A")}</p></div>'
             f'</div></div>'
             f'<div style="padding:12px 18px;border-bottom:1px solid #e5e7eb;background:linear-gradient(135deg,#f8fafc,#f0fdf4)">'
             f'<div style="font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600;margin-bottom:4px">Victor Kane\'s verdict</div>'
             f'<p style="font-size:13px;color:#0f172a;line-height:1.7;margin:0;font-style:italic">"{s.get("victor_verdict","N/A")}"</p></div>'
             f'<div style="padding:10px 18px;background:#fef2f2">'
-            f'<span style="font-size:9px;color:#991b1b;text-transform:uppercase;font-weight:600">⚠ Risks: </span>'
+            f'<span style="font-size:9px;color:#991b1b;text-transform:uppercase;font-weight:600">_ Risks: </span>'
             f'<span style="font-size:11px;color:#991b1b">{s.get("risks","N/A")}</span></div>')
     else:
         analysis=(f'<div style="padding:12px 18px;background:linear-gradient(135deg,#f8fafc,#f0fdf4)">'
@@ -426,8 +427,8 @@ def pick_card(s, idx, watchlist=False):
             f'<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">'
             f'{num}<span style="font-size:20px;font-weight:700;color:#0f172a;font-family:monospace">{ticker}</span>'
             f'<span style="font-size:10px;padding:2px 8px;border-radius:20px;{cat_style(cat)};font-weight:600">{cat}</span>{p_badge}</div>'
-            f'<div style="font-size:12px;color:#64748b">{s.get("company_name","")} · {s.get("sector","")}'
-            f'{"  ·  Next earnings: "+str(s.get("next_earnings_est","")) if s.get("next_earnings_est") and not watchlist else ""}</div></div>'
+            f'<div style="font-size:12px;color:#64748b">{s.get("company_name","")} * {s.get("sector","")}'
+            f'{"  *  Next earnings: "+str(s.get("next_earnings_est","")) if s.get("next_earnings_est") and not watchlist else ""}</div></div>'
             f'<div style="text-align:right">'
             f'<div style="font-size:22px;font-weight:700;color:#0f172a">${f(s.get("current_price"))}</div>'
             f'<div style="font-size:12px;color:{cc(chg)};font-weight:500">{fp(chg)} today</div>'
@@ -496,34 +497,34 @@ def build_email(report, market):
                       + (f'<div style="margin-top:8px;margin-bottom:6px"><span style="font-size:10px;color:#075985;font-weight:600">Balanced</span></div>{bi(b)}' if b else "")
                       + '</div>')
 
-    personal_line = f'<div style="font-size:11px;color:#64748b;margin-top:3px">Tracking: {" · ".join(ALL_PERSONAL)}</div>' if ALL_PERSONAL else ""
+    personal_line = f'<div style="font-size:11px;color:#64748b;margin-top:3px">Tracking: {" * ".join(ALL_PERSONAL)}</div>' if ALL_PERSONAL else ""
 
+    badge_items = [("Risk",risk,risk_col),("Picks",str(len(picks)),"#fff"),("G/B",f"{len(growth)}/{len(balanced)}","#fff")]
+    badges = "".join([f'<div style="text-align:center;padding:8px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px"><div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:2px">{lb}</div><div style="font-size:14px;font-weight:700;color:{col}">{vl}</div></div>' for lb,vl,col in badge_items])
+    font_stack = "-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
     return f"""<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Victor Kane Report {date_str}</title></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:{font_stack}">
 <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 32px">
   <div style="max-width:860px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
     <div>
       <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px">Quant Signal Agent</div>
-      <div style="font-size:22px;font-weight:700;color:#fff">Victor Kane's Daily Report</div>
-      <div style="font-size:11px;color:#64748b;margin-top:3px">{date_str} · {NOW}</div>
+      <div style="font-size:22px;font-weight:700;color:#fff">Victor Kane Daily Report</div>
+      <div style="font-size:11px;color:#64748b;margin-top:3px">{date_str} * {NOW}</div>
       {personal_line}
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      {''.join([f'<div style="text-align:center;padding:8px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px"><div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:2px">{lb}</div><div style="font-size:14px;font-weight:700;color:{col}">{vl}</div></div>'
-                for lb,vl,col in [("Risk",risk,risk_col),("Picks",str(len(picks)),"#fff"),("G/B",f"{len(growth)}/{len(balanced)}","#fff")]])}
-    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">{badges}</div>
   </div>
 </div>
 {macro_html}
 <div style="max-width:860px;margin:0 auto;padding:20px 14px">
-  {section("🚀 Growth Picks","","#7c3aed",growth)}
-  {section("🏛 Balanced Picks","","#0369a1",balanced)}
-  {section("⭐ Your Watchlist","","#f59e0b",watchlist,wl=True) if watchlist else ""}
+  {section("Growth Picks","","#7c3aed",growth)}
+  {section("Balanced Picks","","#0369a1",balanced)}
+  {section("Your Watchlist","","#f59e0b",watchlist,wl=True) if watchlist else ""}
   {brief_html}
   <div style="text-align:center;padding:14px;font-size:10px;color:#94a3b8;line-height:1.7">
     {report.get("disclaimer","For educational purposes only.")}<br>
-    Data via yfinance · Analysis by Claude AI · Victor Kane persona · {NOW}
+    Data via yfinance * Analysis by Claude AI * Victor Kane persona * {NOW}
   </div>
 </div>
 </body></html>"""
@@ -533,7 +534,7 @@ def build_email(report, market):
 # SEND EMAIL
 # =============================================================================
 def send_email(html, subject):
-    print(f"  → Sending to {EMAIL_TO}...")
+    print(f"  -> Sending to {EMAIL_TO}...")
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"]    = EMAIL_FROM
@@ -543,27 +544,27 @@ def send_email(html, subject):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as srv:
         srv.login(EMAIL_FROM, EMAIL_PASSWORD)
         srv.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
-    print("  → Sent.")
+    print("  -> Sent.")
 
 
 # =============================================================================
 # MAIN
 # =============================================================================
 def main():
-    print(f"\n{'='*60}\n  Quant Signal Agent — {NOW}")
+    print(f"\n{'='*60}\n  Quant Signal Agent -- {NOW}")
     if ALL_PERSONAL: print(f"  Watchlist: {', '.join(ALL_PERSONAL)}")
     print(f"{'='*60}\n")
 
-    # Step 1 — Fetch real market data (no API needed)
+    # Step 1 -- Fetch real market data (no API needed)
     print("[Step 1] Fetching market data via yfinance...")
     market = fetch_market_overview()
-    print(f"  → S&P {market['sp500_pct']:+.2f}% | Nasdaq {market['nasdaq_pct']:+.2f}% | VIX {market['vix']:.1f}")
+    print(f"  -> S&P {market['sp500_pct']:+.2f}% | Nasdaq {market['nasdaq_pct']:+.2f}% | VIX {market['vix']:.1f}")
 
     # Use personal watchlist + defaults; cap at 15 to keep Claude prompt small
     tickers = list(dict.fromkeys(ALL_PERSONAL + DEFAULT_TICKERS))[:15]
     stock_data = fetch_stock_data(tickers)
 
-    # Step 2 — Claude analysis (NO web search — just analyzing pre-fetched data)
+    # Step 2 -- Claude analysis (NO web search -- just analyzing pre-fetched data)
     print("\n[Step 2] Victor Kane analysis via Claude...")
     trimmed    = trim_for_claude(stock_data)
     stock_json = json.dumps(trimmed, separators=(',', ':'))  # compact, no spaces
@@ -573,17 +574,17 @@ def main():
     picks    = report.get("top_picks",[])
     growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
     balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
-    print(f"  → {len(picks)} picks: {len(growth)} growth, {len(balanced)} balanced")
+    print(f"  -> {len(picks)} picks: {len(growth)} growth, {len(balanced)} balanced")
 
-    # Step 3 — Build + send email
+    # Step 3 -- Build + send email
     print("\n[Step 3] Building and sending email...")
     html    = build_email(report, market)
     mood    = report.get("market_mood","?")
     risk    = report.get("risk_level","?")
-    subject = f"📈 Victor Kane — {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}"
+    subject = f"_ Victor Kane -- {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}"
     send_email(html, subject)
 
-    print(f"\n{'='*60}\n  Done — report sent to {EMAIL_TO}\n{'='*60}\n")
+    print(f"\n{'='*60}\n  Done -- report sent to {EMAIL_TO}\n{'='*60}\n")
 
 
 if __name__ == "__main__":
