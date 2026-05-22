@@ -5,78 +5,75 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Victor Kane -- 2026-05-22</title>
 <style>
-  :root{--bg:#0f172a;--card:#1e293b;--card2:#263148;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--indigo:#6366f1}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-  .header{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 20px;border-bottom:1px solid var(--border)}
-  .header-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-  .logo{font-size:10px;color:#475569;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}
-  .title{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.02em}
-  .subtitle{font-size:11px;color:#64748b;margin-top:4px}
-  .badges{display:flex;gap:8px;flex-wrap:wrap}
-  .badge{padding:8px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;text-align:center}
-  .badge-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
-  .badge-val{font-size:15px;font-weight:800;color:#fff}
-  .market-bar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px}
-  .market-inner{max-width:1100px;margin:0 auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-  .mstat{text-align:center;padding:8px 16px;background:var(--card2);border-radius:8px;min-width:80px}
-  .mstat-l{font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
-  .mstat-v{font-size:14px;font-weight:700}
-  .macro-text{font-size:12px;color:var(--muted);flex:1;min-width:200px;line-height:1.6}
-  .nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto}
-  .nav-btn{padding:12px 18px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}
-  .nav-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
-  .nav-btn:hover{color:var(--text)}
-  .main{max-width:1100px;margin:0 auto;padding:20px}
-  .section{display:none}.section.active{display:block}
-  .picks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:16px}
-  .pick-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s}
-  .pick-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-  .card-header{padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
-  .card-ticker{font-size:22px;font-weight:800;letter-spacing:-.02em}
-  .card-name{font-size:11px;color:var(--muted);margin-top:2px}
-  .card-price{text-align:right}
-  .price-val{font-size:20px;font-weight:700}
-  .price-chg{font-size:11px;font-weight:600;margin-top:2px}
-  .signal-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-top:4px}
-  .cat-badge{font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px}
-  .score-section{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center}
-  .score-num{font-size:36px;font-weight:800;min-width:54px;text-align:center;line-height:1}
-  .score-sub{font-size:9px;color:var(--muted);text-align:center;margin-top:2px}
-  .score-bars{flex:1}
-  .bar-row{margin-bottom:4px}
-  .bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:2px}
-  .bar-track{height:4px;background:var(--border);border-radius:2px}
-  .bar-fill{height:4px;border-radius:2px;transition:.5s}
-  .targets-grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}
-  .tgt-cell{padding:10px 8px;text-align:center;border-right:1px solid var(--border)}
-  .tgt-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-  .tgt-val{font-size:12px;font-weight:700}
-  .tgt-sub{font-size:9px;color:var(--muted);margin-top:1px}
-  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}
-  .stat-cell{padding:8px;text-align:center;border-right:1px solid var(--border)}
-  .stat-label{font-size:8px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
-  .stat-val{font-size:12px;font-weight:600}
-  .thesis{padding:14px 16px;border-bottom:1px solid var(--border)}
-  .thesis-title{font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-  .thesis-text{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px}
-  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .pill{padding:6px 10px;border-radius:8px;font-size:11px;line-height:1.5;flex:1;min-width:120px}
-  .pill-title{font-size:8px;font-weight:700;text-transform:uppercase;margin-bottom:3px}
-  .risks-bar{padding:8px 16px;font-size:11px}
-  .watch-table{width:100%;border-collapse:collapse;margin-top:12px}
-  .watch-table th{padding:10px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
-  .watch-table td{padding:12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top}
-  .watch-table tr:hover td{background:var(--card2)}
-  .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700}
-  .brief-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .brief-chip{padding:6px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
-  .brief-reason{font-size:10px;color:var(--muted)}
-  .empty{text-align:center;padding:40px;color:var(--muted);font-size:13px;background:var(--card2);border-radius:12px}
-  .section-title{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-  .section-sub{font-size:11px;color:var(--muted);margin-bottom:16px}
-  .green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}.muted{color:var(--muted)}
-  @media(max-width:600px){.picks-grid{grid-template-columns:1fr}.targets-grid{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263148;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;
+      --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--indigo:#6366f1}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.header{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:20px;border-bottom:1px solid var(--border)}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.logo{font-size:10px;color:#475569;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.title{font-size:22px;font-weight:800;color:#fff}
+.subtitle{font-size:11px;color:#64748b;margin-top:3px}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:8px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;text-align:center}
+.badge-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.badge-val{font-size:14px;font-weight:800;color:#fff}
+.market-bar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px}
+.market-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.mstat{text-align:center;padding:6px 14px;background:var(--card2);border-radius:8px;min-width:72px}
+.mstat-l{font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.mstat-v{font-size:13px;font-weight:700}
+.macro-text{font-size:12px;color:var(--muted);flex:1;min-width:180px;line-height:1.6}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto}
+.nav-btn{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}
+.nav-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.main{max-width:1200px;margin:0 auto;padding:16px}
+.section{display:none}.section.active{display:block}
+
+/* PICK CARDS */
+.picks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;margin-top:12px}
+.pick-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s;cursor:pointer}
+.pick-card:hover{border-color:var(--blue);transform:translateY(-1px)}
+.card-header{padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.card-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg);font-size:12px;line-height:1.7;color:var(--muted)}
+.card-detail.open{display:block}
+
+/* WATCHLIST TABLE */
+.tbl-wrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:10px 10px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
+    border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;cursor:pointer;user-select:none;
+    background:var(--card2);position:sticky;top:0}
+th:hover{color:var(--blue)}
+th.sort-asc::after{content:" ^"}
+th.sort-desc::after{content:" v"}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+tr:hover td{background:var(--card2)}
+.sector-header{padding:10px 16px;background:var(--card2);border-radius:8px;margin:16px 0 8px;
+               font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;
+               display:flex;align-items:center;gap:8px}
+.company-cell{white-space:normal;min-width:160px}
+.company-name{font-size:13px;font-weight:700;color:var(--text)}
+.company-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.company-desc{font-size:10px;color:#64748b;margin-top:3px;line-height:1.4;max-width:220px;white-space:normal}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;margin-top:2px}
+.signal-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.score-cell{text-align:center}
+.score-num{font-size:16px;font-weight:800}
+.score-sub{font-size:9px;color:var(--muted)}
+
+/* MISC */
+.brief-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.brief-chip{padding:5px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:11px;display:flex;align-items:center;gap:6px}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px;background:var(--card2);border-radius:12px}
+.section-hdr{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;margin-top:8px}
+.section-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filter-btn{padding:5px 12px;font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--muted);transition:.2s}
+.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.search-box{padding:6px 12px;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);flex:1;min-width:150px;max-width:220px}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}.muted{color:var(--muted)}
+@media(max-width:600px){.picks-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -86,22 +83,18 @@
     <div>
       <div class="logo">Quant Signal Agent</div>
       <div class="title">Victor Kane Daily Report</div>
-      <div class="subtitle">2026-05-22 &middot; 2026-05-22 22:15 UTC &middot; Tracking: AAPL, TSLA, NVDA, VSEC, OKTA, ONDS, MU, QCOM, SNDK, ANET, ZS, AMD, CAT, MSFT</div>
+      <div class="subtitle">2026-05-22 &middot; 2026-05-22 23:00 UTC</div>
+      <div class="subtitle">Tracking: AAPL, TSLA, NVDA, VSEC, OKTA, ONDS, MU, QCOM, SNDK, ANET, ZS, AMD, CAT, MSFT</div>
     </div>
-    <div class="badges" id="header-badges"></div>
+    <div class="badges" id="hdr-badges"></div>
   </div>
 </div>
-
-<div class="market-bar">
-  <div class="market-inner" id="market-bar"></div>
-</div>
-
+<div class="market-bar"><div class="market-inner" id="mkt-bar"></div></div>
 <nav class="nav">
-  <button class="nav-btn active" onclick="showSection('picks')">Top Picks</button>
-  <button class="nav-btn" onclick="showSection('watchlist')">Watchlist</button>
-  <button class="nav-btn" onclick="showSection('scan')">Full Scan</button>
+  <button class="nav-btn active" onclick="showTab('picks',this)">Top Picks</button>
+  <button class="nav-btn" onclick="showTab('watchlist',this)">Watchlist</button>
+  <button class="nav-btn" onclick="showTab('scan',this)">Full Scan</button>
 </nav>
-
 <div class="main">
   <div id="picks" class="section active"></div>
   <div id="watchlist" class="section"></div>
@@ -109,228 +102,295 @@
 </div>
 
 <script>
-const PICKS     = [];
-const WATCHLIST = [{"ticker": "SNDK", "name": "Sandisk Corporation", "category": "GROWTH", "price": 1478.69, "chg_pct": -4.12, "signal": "AVOID", "score": 35, "entry_low": 1200.0, "entry_high": 1300.0, "t1y": 1600.0, "stop": 1350.0, "upr_1y": 8.2, "pe": 50.5, "rsi": 61.2, "wk52h": 1600.0, "wk52l": 35.79, "atgt": 1493.36, "cons": "buy", "note": "Extreme volatility, 52w low $35.79 suspicious, data quality concerns, overvalued at 50.5 PE, wait for sub-$1300"}, {"ticker": "ANET", "name": "Arista Networks, Inc.", "category": "GROWTH", "price": 154.03, "chg_pct": 3.66, "signal": "BUY", "score": 78, "entry_low": 150.0, "entry_high": 160.0, "t1y": 195.0, "stop": 138.0, "upr_1y": 26.6, "pe": 52.9, "rsi": 37.1, "wk52h": 179.8, "wk52l": 83.86, "atgt": 188.2, "cons": "strong_buy", "note": "Low RSI 37.1, strong fundamentals (63.5% GM, 31.5% ROE), analyst target $188, 14.3% below 52w high"}, {"ticker": "ZS", "name": "Zscaler, Inc.", "category": "GROWTH", "price": 182.37, "chg_pct": 6.64, "signal": "HOLD", "score": 52, "entry_low": 160.0, "entry_high": 170.0, "t1y": 225.0, "stop": 155.0, "upr_1y": 23.4, "pe": 0, "rsi": 79.3, "wk52h": 336.99, "wk52l": 114.62, "atgt": 223.39, "cons": "strong_buy", "note": "RSI 79.3 overbought, unprofitable (-2.3% NM), high D/E 85, wait for pullback to $160-170"}, {"ticker": "AMD", "name": "Advanced Micro Devices, Inc.", "category": "GROWTH", "price": 467.51, "chg_pct": 3.99, "signal": "WATCH", "score": 68, "entry_low": 430.0, "entry_high": 450.0, "t1y": 550.0, "stop": 410.0, "upr_1y": 17.6, "pe": 155.3, "rsi": 75.2, "wk52h": 481.37, "wk52l": 107.67, "atgt": 472.17, "cons": "strong_buy", "note": "RSI 75.2 elevated, high PE 155.3, strong growth 91.2% EPS, wait for pullback to $430-450"}, {"ticker": "CAT", "name": "Caterpillar Inc.", "category": "VALUE", "price": 879.89, "chg_pct": 1.61, "signal": "HOLD", "score": 65, "entry_low": 820.0, "entry_high": 860.0, "t1y": 950.0, "stop": 790.0, "upr_1y": 8.0, "pe": 43.8, "rsi": 51.0, "wk52h": 931.35, "wk52l": 336.24, "atgt": 920.14, "cons": "buy", "note": "High D/E 230.79, neutral RSI 51, quality industrial, wait for $820-860 entry"}, {"ticker": "MSFT", "name": "Microsoft Corporation", "category": "QUALITY", "price": 418.57, "chg_pct": -0.12, "signal": "STRONG BUY", "score": 85, "entry_low": 410.0, "entry_high": 430.0, "t1y": 530.0, "stop": 380.0, "upr_1y": 26.6, "pe": 24.9, "rsi": 55.1, "wk52h": 555.45, "wk52l": 356.28, "atgt": 560.63, "cons": "strong_buy", "note": "24.6% off highs, reasonable PE 24.9, strong margins (68.3% GM, 39.3% NM), $78B cash, best risk/reward"}];
-const SCAN      = [];
-const MACRO     = {"macro_summary": "", "risk_level": "MODERATE", "sector_rotation": "", "market_mood": "NEUTRAL"};
-const MKT       = {"sp": 0.39, "nq": 0.42, "vix": 16.7};
-const TODAY     = "2026-05-22";
+const PICKS=[],WATCHLIST=[],SCAN=[];
+const MACRO={"macro_summary": "", "risk_level": "MODERATE", "sector_rotation": "", "market_mood": "NEUTRAL"},MKT={"sp": 0.39, "nq": 0.42, "vix": 16.7},STOCKS={"META": {"ticker": "META", "name": "Meta Platforms, Inc.", "fullname": "Meta Platforms, Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "country": "United States", "desc": "Meta Platforms, Inc. engages in the development of products that enable people to connect and share with friends and family through mobile devices, personal computers, virtual reality (VR) headsets, a...", "website": "https://www.meta.com", "employees": 77986, "founded": "", "price": 610.26, "chg_pct": 0.47, "mktcap_b": 1549.1, "ev_b": 1547.4, "pe": 22.2, "fwd_pe": 16.9, "peg": 0.87, "ps": 7.2, "pb": 6.4, "ev_ebitda": 14.2, "eps": 27.51, "eps_g": 62.4, "rev_g": 33.1, "rev_b": 215.0, "gm": 81.9, "om": 40.6, "nm": 32.8, "roe": 32.9, "roa": 16.4, "de": 35.61, "cr": 2.35, "cash_b": 81.2, "fcf_b": 25.6, "div_yield": 35.0, "beta": 1.24, "short_pct": 1.3, "wk52h": 796.25, "wk52l": 520.26, "vs52h": -23.4, "vs52l": 17.3, "rsi": 49.9, "vs50ma": -1.2, "vs200ma": -8.7, "vol": 11103030, "avgvol": 14884264, "volr": 0.75, "cons": "strong_buy", "atgt": 826.69, "atgt_hi": 1015.0, "atgt_lo": 614.0, "nans": 58, "inst": 79.5, "insider": 0.1, "earn": "N/A"}, "GOOGL": {"ticker": "GOOGL", "name": "Alphabet Inc.", "fullname": "Alphabet Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "country": "United States", "desc": "Alphabet Inc. offers various products and platforms in the United States, Europe, the Middle East, Africa, the Asia-Pacific, Canada, and Latin America.", "website": "https://abc.xyz", "employees": 194668, "founded": "", "price": 382.97, "chg_pct": -1.21, "mktcap_b": 4639.9, "ev_b": 4665.9, "pe": 29.2, "fwd_pe": 26.5, "peg": 1.53, "ps": 11.0, "pb": 9.7, "ev_ebitda": 28.9, "eps": 13.1, "eps_g": 82.0, "rev_g": 21.8, "rev_b": 422.5, "gm": 60.4, "om": 36.1, "nm": 37.9, "roe": 38.9, "roa": 14.6, "de": 20.03, "cr": 1.92, "cash_b": 126.8, "fcf_b": 27.9, "div_yield": 23.0, "beta": 1.27, "short_pct": 1.3, "wk52h": 408.61, "wk52l": 162.0, "vs52h": -6.3, "vs52l": 136.4, "rsi": 49.8, "vs50ma": 12.3, "vs200ma": 29.4, "vol": 19134802, "avgvol": 27156266, "volr": 0.7, "cons": "strong_buy", "atgt": 428.96, "atgt_hi": 515.0, "atgt_lo": 334.22, "nans": 53, "inst": 81.3, "insider": 1.2, "earn": "N/A"}, "AMZN": {"ticker": "AMZN", "name": "Amazon.com, Inc.", "fullname": "Amazon.com, Inc.", "sector": "Consumer Cyclical", "industry": "Internet Retail", "country": "United States", "desc": "Amazon.com, Inc. engages in the retail sale of consumer products, advertising, and subscriptions service through online and physical stores in North America and internationally.", "website": "https://www.amazon.com", "employees": 1575000, "founded": "", "price": 266.32, "chg_pct": -0.8, "mktcap_b": 2864.8, "ev_b": 2980.3, "pe": 31.4, "fwd_pe": 27.0, "peg": 1.83, "ps": 3.9, "pb": 6.5, "ev_ebitda": 19.1, "eps": 8.48, "eps_g": 74.8, "rev_g": 16.6, "rev_b": 742.8, "gm": 50.6, "om": 13.1, "nm": 12.2, "roe": 24.3, "roa": 6.8, "de": 53.3, "cr": 1.18, "cash_b": 143.1, "fcf_b": 9.8, "div_yield": 0, "beta": 1.47, "short_pct": 0.9, "wk52h": 278.56, "wk52l": 196.0, "vs52h": -4.4, "vs52l": 35.9, "rsi": 43.3, "vs50ma": 10.1, "vs200ma": 15.5, "vol": 26386815, "avgvol": 44642183, "volr": 0.59, "cons": "strong_buy", "atgt": 312.63, "atgt_hi": 370.0, "atgt_lo": 207.0, "nans": 62, "inst": 68.1, "insider": 8.9, "earn": "N/A"}, "PLTR": {"ticker": "PLTR", "name": "Palantir Technologies Inc.", "fullname": "Palantir Technologies Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Palantir Technologies Inc. builds and deploys software platforms for the intelligence community to assist in counterterrorism investigations and operations in the United States, the United Kingdom, an...", "website": "https://www.palantir.com", "employees": 4395, "founded": "", "price": 136.88, "chg_pct": -0.39, "mktcap_b": 328.1, "ev_b": 321.7, "pe": 153.8, "fwd_pe": 66.0, "peg": 1.95, "ps": 62.8, "pb": 44.3, "ev_ebitda": 159.4, "eps": 0.89, "eps_g": 325.0, "rev_g": 84.7, "rev_b": 5.2, "gm": 84.1, "om": 46.2, "nm": 43.7, "roe": 32.6, "roa": 14.7, "de": 2.48, "cr": 6.91, "cash_b": 8.0, "fcf_b": 1.8, "div_yield": 0, "beta": 1.52, "short_pct": 2.8, "wk52h": 207.52, "wk52l": 118.93, "vs52h": -34.0, "vs52l": 15.1, "rsi": 35.7, "vs50ma": -4.0, "vs200ma": -15.8, "vol": 27261935, "avgvol": 43110381, "volr": 0.63, "cons": "buy", "atgt": 183.73, "atgt_hi": 255.0, "atgt_lo": 70.0, "nans": 27, "inst": 62.5, "insider": 3.5, "earn": "N/A"}, "ARM": {"ticker": "ARM", "name": "Arm Holdings plc", "fullname": "Arm Holdings plc", "sector": "Technology", "industry": "Semiconductors", "country": "United Kingdom", "desc": "Arm Holdings plc architects, develops, and licenses central processing unit products and related technologies for semiconductor companies and original equipment manufacturers. The company is involved ...", "website": "https://www.arm.com", "employees": 9584, "founded": "", "price": 306.51, "chg_pct": 2.78, "mktcap_b": 326.1, "ev_b": 314.1, "pe": 356.4, "fwd_pe": 100.3, "peg": 1.95, "ps": 66.3, "pb": 41.7, "ev_ebitda": 272.7, "eps": 0.86, "eps_g": 45.7, "rev_g": 20.1, "rev_b": 4.9, "gm": 97.5, "om": 29.6, "nm": 18.4, "roe": 12.0, "roa": 5.7, "de": 5.21, "cr": 6.0, "cash_b": 3.6, "fcf_b": 0.8, "div_yield": 0, "beta": 3.41, "short_pct": 11.4, "wk52h": 315.0, "wk52l": 100.02, "vs52h": -2.7, "vs52l": 206.4, "rsi": 75.7, "vs50ma": 68.4, "vs200ma": 108.4, "vol": 13736758, "avgvol": 11085788, "volr": 1.24, "cons": "buy", "atgt": 232.14, "atgt_hi": 326.0, "atgt_lo": 125.0, "nans": 37, "inst": 95.7, "insider": 0.1, "earn": "N/A"}, "CRWD": {"ticker": "CRWD", "name": "CrowdStrike Holdings, Inc.", "fullname": "CrowdStrike Holdings, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "CrowdStrike Holdings, Inc. provides cybersecurity solutions in the United States and internationally.", "website": "https://www.crowdstrike.com", "employees": 10698, "founded": "", "price": 663.46, "chg_pct": 2.35, "mktcap_b": 168.9, "ev_b": 160.0, "pe": 0, "fwd_pe": 107.7, "peg": 5.09, "ps": 35.1, "pb": 38.0, "ev_ebitda": -3429.5, "eps": -0.65, "eps_g": 0, "rev_g": 23.3, "rev_b": 4.8, "gm": 74.8, "om": 1.0, "nm": -3.4, "roe": -4.1, "roa": -1.6, "de": 18.34, "cr": 1.77, "cash_b": 5.2, "fcf_b": 1.6, "div_yield": 0, "beta": 1.06, "short_pct": 3.0, "wk52h": 674.84, "wk52l": 342.72, "vs52h": -1.7, "vs52l": 93.6, "rsi": 94.4, "vs50ma": 43.3, "vs200ma": 42.6, "vol": 2724252, "avgvol": 3061695, "volr": 0.89, "cons": "buy", "atgt": 527.63, "atgt_hi": 706.0, "atgt_lo": 368.0, "nans": 51, "inst": 75.0, "insider": 1.5, "earn": "N/A"}, "AAPL": {"ticker": "AAPL", "name": "Apple Inc.", "fullname": "Apple Inc.", "sector": "Technology", "industry": "Consumer Electronics", "country": "United States", "desc": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.", "website": "https://www.apple.com", "employees": 166000, "founded": "", "price": 308.82, "chg_pct": 1.26, "mktcap_b": 4535.7, "ev_b": 4495.7, "pe": 37.3, "fwd_pe": 32.2, "peg": 2.63, "ps": 10.0, "pb": 42.5, "ev_ebitda": 28.1, "eps": 8.27, "eps_g": 21.8, "rev_g": 16.6, "rev_b": 451.4, "gm": 47.9, "om": 32.3, "nm": 27.2, "roe": 141.5, "roa": 26.2, "de": 79.55, "cr": 1.07, "cash_b": 68.5, "fcf_b": 101.1, "div_yield": 35.0, "beta": 1.06, "short_pct": 0.9, "wk52h": 311.4, "wk52l": 193.46, "vs52h": -0.8, "vs52l": 59.6, "rsi": 91.1, "vs50ma": 14.2, "vs200ma": 18.3, "vol": 43605063, "avgvol": 46960285, "volr": 0.93, "cons": "buy", "atgt": 308.65, "atgt_hi": 400.0, "atgt_lo": 215.0, "nans": 43, "inst": 66.0, "insider": 1.6, "earn": "N/A"}, "TSLA": {"ticker": "TSLA", "name": "Tesla, Inc.", "fullname": "Tesla, Inc.", "sector": "Consumer Cyclical", "industry": "Auto Manufacturers", "country": "United States", "desc": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally.", "website": "https://www.tesla.com", "employees": 134785, "founded": "", "price": 426.01, "chg_pct": 1.95, "mktcap_b": 1600.0, "ev_b": 1541.2, "pe": 390.8, "fwd_pe": 169.7, "peg": 5.75, "ps": 16.3, "pb": 19.5, "ev_ebitda": 138.9, "eps": 1.09, "eps_g": 8.3, "rev_g": 15.8, "rev_b": 97.9, "gm": 19.1, "om": 4.2, "nm": 3.9, "roe": 4.9, "roa": 2.2, "de": 18.74, "cr": 2.04, "cash_b": 44.7, "fcf_b": 5.3, "div_yield": 0, "beta": 1.79, "short_pct": 2.3, "wk52h": 498.83, "wk52l": 273.21, "vs52h": -14.6, "vs52l": 55.9, "rsi": 61.5, "vs50ma": 9.7, "vs200ma": 3.9, "vol": 45068466, "avgvol": 60421328, "volr": 0.75, "cons": "buy", "atgt": 411.89, "atgt_hi": 600.0, "atgt_lo": 123.0, "nans": 41, "inst": 45.0, "insider": 11.1, "earn": "N/A"}, "NVDA": {"ticker": "NVDA", "name": "NVIDIA Corporation", "fullname": "NVIDIA Corporation", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "NVIDIA Corporation operates as a data center scale AI infrastructure company. The company operates through two segments, Compute & Networking, and Graphics segments.", "website": "https://www.nvidia.com", "employees": 42000, "founded": "", "price": 215.33, "chg_pct": -1.9, "mktcap_b": 5215.5, "ev_b": 5244.4, "pe": 33.0, "fwd_pe": 17.0, "peg": 0.71, "ps": 20.6, "pb": 33.3, "ev_ebitda": 31.7, "eps": 6.52, "eps_g": 214.5, "rev_g": 85.2, "rev_b": 253.5, "gm": 74.1, "om": 65.6, "nm": 63.0, "roe": 114.3, "roa": 52.7, "de": 6.55, "cr": 3.44, "cash_b": 80.6, "fcf_b": 73.7, "div_yield": 2.0, "beta": 2.24, "short_pct": 1.2, "wk52h": 236.54, "wk52l": 129.16, "vs52h": -9.0, "vs52l": 66.7, "rsi": 62.5, "vs50ma": 9.4, "vs200ma": 15.1, "vol": 166941160, "avgvol": 156261645, "volr": 1.07, "cons": "strong_buy", "atgt": 278.03, "atgt_hi": 400.0, "atgt_lo": 180.0, "nans": 57, "inst": 70.9, "insider": 4.0, "earn": "N/A"}, "VSEC": {"ticker": "VSEC", "name": "VSE Corporation", "fullname": "VSE Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "country": "United States", "desc": "VSE Corporation engages in providing aviation aftermarket parts distribution and maintenance, repair, and overhaul services for air transportation assets for commercial and government markets. It offe...", "website": "https://www.vsecorp.com", "employees": 1600, "founded": "", "price": 171.88, "chg_pct": -1.08, "mktcap_b": 4.8, "ev_b": 4.0, "pe": 59.7, "fwd_pe": 29.6, "peg": 3.0, "ps": 4.1, "pb": 2.8, "ev_ebitda": 22.4, "eps": 2.88, "eps_g": 0, "rev_g": 26.8, "rev_b": 1.2, "gm": 14.7, "om": 11.5, "nm": 4.2, "roe": 3.8, "roa": 3.4, "de": 15.11, "cr": 8.78, "cash_b": 1.2, "fcf_b": 0.1, "div_yield": 23.0, "beta": 1.25, "short_pct": 8.8, "wk52h": 232.61, "wk52l": 123.69, "vs52h": -26.1, "vs52l": 39.0, "rsi": 51.8, "vs50ma": -8.3, "vs200ma": -6.0, "vol": 322405, "avgvol": 513763, "volr": 0.63, "cons": "strong_buy", "atgt": 252.88, "atgt_hi": 270.0, "atgt_lo": 230.0, "nans": 8, "inst": 130.1, "insider": 1.8, "earn": "N/A"}, "OKTA": {"ticker": "OKTA", "name": "Okta, Inc.", "fullname": "Okta, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Okta, Inc. operates as an identity partner in the United States and internationally.", "website": "https://www.okta.com", "employees": 6366, "founded": "", "price": 92.24, "chg_pct": 3.13, "mktcap_b": 16.2, "ev_b": 14.2, "pe": 70.4, "fwd_pe": 21.8, "peg": 0.96, "ps": 5.5, "pb": 2.3, "ev_ebitda": 57.1, "eps": 1.31, "eps_g": 170.8, "rev_g": 11.6, "rev_b": 2.9, "gm": 77.4, "om": 6.6, "nm": 8.1, "roe": 3.5, "roa": 1.0, "de": 6.44, "cr": 1.43, "cash_b": 2.6, "fcf_b": 0.8, "div_yield": 0, "beta": 0.59, "short_pct": 5.6, "wk52h": 127.52, "wk52l": 62.66, "vs52h": -27.7, "vs52l": 47.2, "rsi": 75.3, "vs50ma": 18.6, "vs200ma": 8.6, "vol": 2991953, "avgvol": 3264761, "volr": 0.92, "cons": "buy", "atgt": 100.44, "atgt_hi": 140.0, "atgt_lo": 75.0, "nans": 43, "inst": 98.1, "insider": 0.6, "earn": "N/A"}, "ONDS": {"ticker": "ONDS", "name": "Ondas Inc", "fullname": "Ondas Inc.", "sector": "Technology", "industry": "Communication Equipment", "country": "United States", "desc": "Ondas Inc. provides private wireless, drone, and automated data solutions in the United States and internationally.", "website": "https://www.ondas.com", "employees": 459, "founded": "", "price": 9.06, "chg_pct": -1.31, "mktcap_b": 4.5, "ev_b": 2.9, "pe": 100.7, "fwd_pe": -129.4, "peg": 0, "ps": 46.5, "pb": 4.0, "ev_ebitda": -36.0, "eps": 0.09, "eps_g": 0, "rev_g": 1079.8, "rev_b": 0.1, "gm": 44.8, "om": -85.1, "nm": 251.9, "roe": 42.9, "roa": -4.2, "de": 1.22, "cr": 10.91, "cash_b": 1.5, "fcf_b": 0.0, "div_yield": 0, "beta": 2.56, "short_pct": 34.0, "wk52h": 15.28, "wk52l": 0.86, "vs52h": -40.7, "vs52l": 953.5, "rsi": 45.2, "vs50ma": -7.9, "vs200ma": 3.7, "vol": 58615820, "avgvol": 62899824, "volr": 0.93, "cons": "strong_buy", "atgt": 20.12, "atgt_hi": 25.0, "atgt_lo": 16.0, "nans": 8, "inst": 43.4, "insider": 1.6, "earn": "N/A"}, "MU": {"ticker": "MU", "name": "Micron Technology, Inc.", "fullname": "Micron Technology, Inc.", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "Micron Technology, Inc. designs, develops, manufactures, and sells memory and storage products in the United States, Taiwan, Japan, Mainland China, Hong Kong, Europe, and internationally.", "website": "https://www.micron.com", "employees": 53000, "founded": "", "price": 751.0, "chg_pct": -1.46, "mktcap_b": 846.9, "ev_b": 855.7, "pe": 35.4, "fwd_pe": 7.3, "peg": 0.25, "ps": 14.6, "pb": 11.7, "ev_ebitda": 23.2, "eps": 21.19, "eps_g": 756.0, "rev_g": 196.3, "rev_b": 58.1, "gm": 58.4, "om": 67.6, "nm": 41.5, "roe": 39.8, "roa": 20.1, "de": 14.9, "cr": 2.9, "cash_b": 14.6, "fcf_b": 2.9, "div_yield": 8.0, "beta": 1.92, "short_pct": 3.3, "wk52h": 818.67, "wk52l": 90.93, "vs52h": -8.3, "vs52l": 725.9, "rsi": 66.2, "vs50ma": 44.7, "vs200ma": 132.9, "vol": 35452282, "avgvol": 46430466, "volr": 0.76, "cons": "strong_buy", "atgt": 613.23, "atgt_hi": 1100.0, "atgt_lo": 249.0, "nans": 40, "inst": 81.4, "insider": 0.3, "earn": "N/A"}, "QCOM": {"ticker": "QCOM", "name": "QUALCOMM Incorporated", "fullname": "QUALCOMM Incorporated", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "QUALCOMM Incorporated engages in the development and commercialization of foundational technologies for the wireless industry worldwide. It operates through three segments: Qualcomm CDMA Technologies ...", "website": "https://www.qualcomm.com", "employees": 52000, "founded": "", "price": 238.16, "chg_pct": 11.6, "mktcap_b": 251.0, "ev_b": 230.4, "pe": 25.6, "fwd_pe": 22.4, "peg": 0.86, "ps": 5.6, "pb": 9.2, "ev_ebitda": 17.7, "eps": 9.3, "eps_g": 173.0, "rev_g": -3.5, "rev_b": 44.5, "gm": 54.8, "om": 22.1, "nm": 22.3, "roe": 36.1, "roa": 12.7, "de": 55.98, "cr": 2.37, "cash_b": 9.8, "fcf_b": 9.6, "div_yield": 172.0, "beta": 1.49, "short_pct": 5.3, "wk52h": 247.9, "wk52l": 121.99, "vs52h": -3.9, "vs52l": 95.2, "rsi": 71.0, "vs50ma": 52.1, "vs200ma": 49.4, "vol": 29938766, "avgvol": 25082022, "volr": 1.19, "cons": "hold", "atgt": 177.58, "atgt_hi": 300.0, "atgt_lo": 100.0, "nans": 31, "inst": 84.7, "insider": 0.1, "earn": "N/A"}, "SNDK": {"ticker": "SNDK", "name": "Sandisk Corporation", "fullname": "Sandisk Corporation", "sector": "Technology", "industry": "Computer Hardware", "country": "United States", "desc": "Sandisk Corporation develops, manufactures, and sells data storage devices and solutions using NAND flash technology in the United States, Europe, the Middle East, Africa, Asia, and internationally. T...", "website": "https://www.sandisk.com", "employees": 11000, "founded": "", "price": 1478.69, "chg_pct": -4.12, "mktcap_b": 219.0, "ev_b": 224.9, "pe": 50.5, "fwd_pe": 8.4, "peg": 0, "ps": 16.6, "pb": 21.4, "ev_ebitda": 39.9, "eps": 29.3, "eps_g": 0, "rev_g": 251.0, "rev_b": 13.2, "gm": 56.0, "om": 70.0, "nm": 34.2, "roe": 39.3, "roa": 22.8, "de": 1.5, "cr": 4.78, "cash_b": 3.7, "fcf_b": 2.3, "div_yield": 0, "beta": 0, "short_pct": 11.4, "wk52h": 1600.0, "wk52l": 35.79, "vs52h": -7.6, "vs52l": 4031.6, "rsi": 61.2, "vs50ma": 47.1, "vs200ma": 223.9, "vol": 9524317, "avgvol": 15335167, "volr": 0.62, "cons": "buy", "atgt": 1493.36, "atgt_hi": 2350.0, "atgt_lo": 1000.0, "nans": 22, "inst": 80.8, "insider": 5.5, "earn": "N/A"}, "ANET": {"ticker": "ANET", "name": "Arista Networks, Inc.", "fullname": "Arista Networks, Inc.", "sector": "Technology", "industry": "Computer Hardware", "country": "United States", "desc": "Arista Networks, Inc. engages in the development, marketing, and sale of data-driven, client to cloud networking solutions for AI, data center, campus, and routing environments in the Americas, Europe...", "website": "https://www.arista.com", "employees": 5115, "founded": "", "price": 154.03, "chg_pct": 3.66, "mktcap_b": 193.9, "ev_b": 174.8, "pe": 52.9, "fwd_pe": 34.6, "peg": 1.82, "ps": 20.0, "pb": 14.4, "ev_ebitda": 41.2, "eps": 2.91, "eps_g": 25.0, "rev_g": 35.1, "rev_b": 9.7, "gm": 63.5, "om": 42.7, "nm": 38.3, "roe": 31.5, "roa": 14.4, "de": 0, "cr": 2.83, "cash_b": 12.4, "fcf_b": 4.4, "div_yield": 0, "beta": 1.67, "short_pct": 1.8, "wk52h": 179.8, "wk52l": 83.86, "vs52h": -14.3, "vs52l": 83.7, "rsi": 37.1, "vs50ma": 4.7, "vs200ma": 10.2, "vol": 9302725, "avgvol": 10854787, "volr": 0.86, "cons": "strong_buy", "atgt": 188.2, "atgt_hi": 220.0, "atgt_lo": 164.0, "nans": 27, "inst": 72.9, "insider": 17.3, "earn": "N/A"}, "ZS": {"ticker": "ZS", "name": "Zscaler, Inc.", "fullname": "Zscaler, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Zscaler, Inc. operates as a cloud security company worldwide.", "website": "https://www.zscaler.com", "employees": 7923, "founded": "", "price": 182.37, "chg_pct": 6.64, "mktcap_b": 29.3, "ev_b": 27.7, "pe": 0, "fwd_pe": 39.8, "peg": 1.88, "ps": 9.8, "pb": 13.3, "ev_ebitda": -406.9, "eps": -0.43, "eps_g": 0, "rev_g": 25.9, "rev_b": 3.0, "gm": 76.6, "om": -6.2, "nm": -2.3, "roe": -3.6, "roa": -1.4, "de": 85.0, "cr": 1.9, "cash_b": 3.5, "fcf_b": 1.0, "div_yield": 0, "beta": 0.96, "short_pct": 9.8, "wk52h": 336.99, "wk52l": 114.62, "vs52h": -45.9, "vs52l": 59.1, "rsi": 79.3, "vs50ma": 26.3, "vs200ma": -18.6, "vol": 3987876, "avgvol": 3012965, "volr": 1.32, "cons": "strong_buy", "atgt": 223.39, "atgt_hi": 330.0, "atgt_lo": 155.0, "nans": 45, "inst": 58.3, "insider": 35.2, "earn": "N/A"}, "AMD": {"ticker": "AMD", "name": "Advanced Micro Devices, Inc.", "fullname": "Advanced Micro Devices, Inc.", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "Advanced Micro Devices, Inc. operates as a semiconductor company internationally.", "website": "https://www.amd.com", "employees": 31000, "founded": "", "price": 467.51, "chg_pct": 3.99, "mktcap_b": 762.3, "ev_b": 724.6, "pe": 155.3, "fwd_pe": 36.1, "peg": 1.08, "ps": 20.4, "pb": 11.8, "ev_ebitda": 97.5, "eps": 3.01, "eps_g": 91.2, "rev_g": 37.8, "rev_b": 37.5, "gm": 53.1, "om": 14.4, "nm": 13.4, "roe": 8.1, "roa": 3.6, "de": 6.0, "cr": 2.73, "cash_b": 12.3, "fcf_b": 7.2, "div_yield": 0, "beta": 2.4, "short_pct": 2.2, "wk52h": 481.37, "wk52l": 107.67, "vs52h": -2.9, "vs52l": 334.2, "rsi": 75.2, "vs50ma": 54.2, "vs200ma": 102.5, "vol": 34611133, "avgvol": 42380487, "volr": 0.82, "cons": "strong_buy", "atgt": 472.17, "atgt_hi": 625.0, "atgt_lo": 225.0, "nans": 48, "inst": 72.2, "insider": 0.4, "earn": "N/A"}, "CAT": {"ticker": "CAT", "name": "Caterpillar, Inc.", "fullname": "Caterpillar Inc.", "sector": "Industrials", "industry": "Farm & Heavy Construction Machinery", "country": "United States", "desc": "Caterpillar Inc. provides construction and mining equipment, off-highway diesel and natural gas engines, industrial gas turbines, and diesel-electric locomotives in the United States and international...", "website": "https://www.caterpillar.com", "employees": 118000, "founded": "", "price": 879.89, "chg_pct": 1.61, "mktcap_b": 405.3, "ev_b": 438.6, "pe": 43.8, "fwd_pe": 29.5, "peg": 2.07, "ps": 5.7, "pb": 21.7, "ev_ebitda": 30.1, "eps": 20.09, "eps_g": 30.2, "rev_g": 22.2, "rev_b": 70.8, "gm": 28.6, "om": 18.2, "nm": 13.3, "roe": 51.3, "roa": 8.5, "de": 230.79, "cr": 1.35, "cash_b": 3.3, "fcf_b": 3.8, "div_yield": 70.0, "beta": 1.62, "short_pct": 2.0, "wk52h": 931.35, "wk52l": 336.24, "vs52h": -5.5, "vs52l": 161.7, "rsi": 51.0, "vs50ma": 10.3, "vs200ma": 41.0, "vol": 1987194, "avgvol": 2436973, "volr": 0.82, "cons": "buy", "atgt": 920.14, "atgt_hi": 1165.0, "atgt_lo": 575.0, "nans": 26, "inst": 73.0, "insider": 0.2, "earn": "N/A"}, "MSFT": {"ticker": "MSFT", "name": "Microsoft Corporation", "fullname": "Microsoft Corporation", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Microsoft Corporation develops and supports software, services, devices, and solutions worldwide. The Productivity and Business Processes segment offers Microsoft 365 commercial, enterprise mobility +...", "website": "https://www.microsoft.com", "employees": 228000, "founded": "", "price": 418.57, "chg_pct": -0.12, "mktcap_b": 3109.3, "ev_b": 3160.4, "pe": 24.9, "fwd_pe": 21.6, "peg": 1.3, "ps": 9.8, "pb": 7.5, "ev_ebitda": 17.1, "eps": 16.81, "eps_g": 23.4, "rev_g": 18.3, "rev_b": 318.3, "gm": 68.3, "om": 46.3, "nm": 39.3, "roe": 34.0, "roa": 14.8, "de": 30.27, "cr": 1.28, "cash_b": 78.2, "fcf_b": 37.0, "div_yield": 87.0, "beta": 1.09, "short_pct": 1.1, "wk52h": 555.45, "wk52l": 356.28, "vs52h": -24.6, "vs52l": 17.5, "rsi": 55.1, "vs50ma": 4.7, "vs200ma": -8.7, "vol": 21911688, "avgvol": 34869116, "volr": 0.63, "cons": "strong_buy", "atgt": 560.63, "atgt_hi": 870.0, "atgt_lo": 400.0, "nans": 54, "inst": 75.9, "insider": 0.1, "earn": "N/A"}};
+const TODAY="2026-05-22";
+const G="#10b981",R="#ef4444",A="#f59e0b",B="#3b82f6",P="#8b5cf6",M="#94a3b8";
 
-const GREEN="#10b981",RED="#ef4444",AMBER="#f59e0b",BLUE="#3b82f6",PURPLE="#8b5cf6",MUTED="#94a3b8";
+let sortCol=null,sortDir=1,filterSig="ALL",filterCat="ALL",searchQ="";
 
-function scoreColor(s){return s>=80?GREEN:s>=65?"#22c55e":s>=50?AMBER:RED}
-function sigColor(s){s=(s||"").toUpperCase();if(s.includes("STRONG BUY"))return GREEN;if(s.includes("BUY"))return GREEN;if(s.includes("WATCH"))return AMBER;if(s.includes("HOLD"))return BLUE;return RED}
-function chgColor(v){return parseFloat(v||0)>=0?GREEN:RED}
-function fp(v,d=1){try{let n=parseFloat(v||0);return (n>=0?"+":"")+n.toFixed(d)+"%"}catch{return"N/A"}}
+function sc(s){s=(s||"").toUpperCase();if(s.includes("STRONG BUY"))return G;if(s.includes("BUY"))return G;if(s.includes("WATCH"))return A;if(s.includes("HOLD"))return B;return R;}
+function scoreCol(s){return s>=80?G:s>=65?"#22c55e":s>=50?A:R}
+function chgCol(v){return parseFloat(v||0)>=0?G:R}
+function fp(v,d=1){try{let n=parseFloat(v||0);return(n>=0?"+":"")+n.toFixed(d)+"%"}catch{return"N/A"}}
 function fd(v,d=2){try{return parseFloat(v||0).toFixed(d)}catch{return"N/A"}}
-function catStyle(c){c=(c||"").toUpperCase();if(c=="GROWTH")return"background:#4c1d95;color:#ddd6fe";if(c=="BALANCED")return"background:#0c4a6e;color:#bae6fd";return"background:#374151;color:#e5e7eb"}
-function sigStyle(s){let c=sigColor(s);return`background:${c}22;color:${c};border:1px solid ${c}44`}
+function fB(v){try{let n=parseFloat(v||0);return n>0?"$"+n.toFixed(1)+"B":"N/A"}catch{return"N/A"}}
+function catStyle(c){c=(c||"").toUpperCase();if(c=="GROWTH")return"background:#4c1d95;color:#ddd6fe";if(c=="BALANCED")return"background:#0c4a6e;color:#bae6fd";if(c=="VALUE")return"background:#14532d;color:#bbf7d0";return"background:#374151;color:#e5e7eb"}
+function sigStyle(s){let c=sc(s);return`background:${c}22;color:${c};border:1px solid ${c}44`}
 
-function showSection(id){
+function showTab(id,btn){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  event.target.classList.add("active");
+  btn.classList.add("active");
 }
 
 function renderBadges(){
   const risk=MACRO.risk_level||"MODERATE";
-  const riskCol={LOW:GREEN,MODERATE:AMBER,HIGH:RED}[risk]||MUTED;
-  const growth=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH").length;
-  const balanced=PICKS.length-growth;
-  document.getElementById("header-badges").innerHTML=`
-    <div class="badge"><div class="badge-label">Risk</div><div class="badge-val" style="color:${riskCol}">${risk}</div></div>
-    <div class="badge"><div class="badge-label">Top Picks</div><div class="badge-val">${PICKS.length}</div></div>
-    <div class="badge"><div class="badge-label">G / B</div><div class="badge-val">${growth}/${balanced}</div></div>
+  const rCol={LOW:G,MODERATE:A,HIGH:R}[risk]||M;
+  const gr=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH").length;
+  document.getElementById("hdr-badges").innerHTML=`
+    <div class="badge"><div class="badge-label">Risk</div><div class="badge-val" style="color:${rCol}">${risk}</div></div>
+    <div class="badge"><div class="badge-label">Picks</div><div class="badge-val">${PICKS.length}</div></div>
+    <div class="badge"><div class="badge-label">G/B</div><div class="badge-val">${gr}/${PICKS.length-gr}</div></div>
+    <div class="badge"><div class="badge-label">VIX</div><div class="badge-val">${MKT.vix}</div></div>
   `;
 }
 
 function renderMarket(){
-  const spCol=chgColor(MKT.sp), nqCol=chgColor(MKT.nq);
-  const moodCol={BULLISH:GREEN,NEUTRAL:AMBER,BEARISH:RED}[MACRO.market_mood]||MUTED;
-  document.getElementById("market-bar").innerHTML=`
-    <div class="mstat"><div class="mstat-l">Mood</div><div class="mstat-v" style="color:${moodCol}">${MACRO.market_mood||"N/A"}</div></div>
-    <div class="mstat"><div class="mstat-l">VIX</div><div class="mstat-v">${MKT.vix||"N/A"}</div></div>
-    <div class="mstat"><div class="mstat-l">S&P 500</div><div class="mstat-v" style="color:${spCol}">${fp(MKT.sp)}</div></div>
-    <div class="mstat"><div class="mstat-l">Nasdaq</div><div class="mstat-v" style="color:${nqCol}">${fp(MKT.nq)}</div></div>
-    <div class="macro-text">${MACRO.macro_summary||""} <span style="color:${MUTED}">${MACRO.sector_rotation||""}</span></div>
+  const spC=chgCol(MKT.sp),nqC=chgCol(MKT.nq);
+  const mC={BULLISH:G,NEUTRAL:A,BEARISH:R}[MACRO.market_mood]||M;
+  document.getElementById("mkt-bar").innerHTML=`
+    <div class="mstat"><div class="mstat-l">Mood</div><div class="mstat-v" style="color:${mC}">${MACRO.market_mood||"N/A"}</div></div>
+    <div class="mstat"><div class="mstat-l">S&P 500</div><div class="mstat-v" style="color:${spC}">${fp(MKT.sp)}</div></div>
+    <div class="mstat"><div class="mstat-l">Nasdaq</div><div class="mstat-v" style="color:${nqC}">${fp(MKT.nq)}</div></div>
+    <div class="macro-text">${MACRO.macro_summary||""} <span style="color:#64748b">&nbsp;|&nbsp; ${MACRO.sector_rotation||""}</span></div>
   `;
 }
 
-function scoreBar(bd, col){
-  return [["Technical",bd.technical||0,30],["Fundamental",bd.fundamental||0,25],
-          ["Catalyst",bd.catalyst||0,20],["Macro",bd.macro||0,15],["R/R",bd.rr||0,10]]
-    .map(([n,v,mx])=>`
-      <div class="bar-row">
-        <div class="bar-labels"><span>${n}</span><span style="color:${col}">${v}/${mx}</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mx*100)}%;background:${col}"></div></div>
-      </div>`).join("");
+function scoreBar(bd,col){
+  return [["Tech",bd.technical||0,30],["Fund",bd.fundamental||0,25],["Cat",bd.catalyst||0,20],["Macro",bd.macro||0,15],["RR",bd.rr||0,10]]
+    .map(([n,v,mx])=>`<div style="margin-bottom:3px"><div style="display:flex;justify-content:space-between;font-size:9px;color:${M};margin-bottom:1px"><span>${n}</span><span>${v}/${mx}</span></div><div style="height:3px;background:#334155;border-radius:2px"><div style="height:3px;width:${Math.round(v/mx*100)}%;background:${col};border-radius:2px"></div></div></div>`).join("");
 }
 
-function renderPick(p, idx){
-  const sc=p.score||0, col=scoreColor(sc);
-  const bd=p.score_breakdown||{};
-  const chgC=chgColor(p.chg_pct);
-  const upr1yC=(p.upr_1y||0)>0?GREEN:RED;
+function renderPickCard(p,idx){
+  const sc2=p.score||0,col=scoreCol(sc2),bd=p.score_breakdown||{};
+  const chgC=chgCol(p.chg_pct);
+  const sd=STOCKS[p.ticker]||{};
   return `
-  <div class="pick-card">
+  <div class="pick-card" onclick="toggleDetail(this)">
     <div class="card-header">
       <div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="color:${MUTED};font-size:11px">#${idx}</span>
-          <span class="card-ticker">${p.ticker}</span>
-          <span class="cat-badge" style="${catStyle(p.category)}">${p.category}</span>
+          <span style="color:${M};font-size:10px">#${idx}</span>
+          <span style="font-size:20px;font-weight:800">${p.ticker}</span>
+          <span class="tag" style="${catStyle(p.category)}">${p.category}</span>
         </div>
-        <div class="card-name">${p.name} &middot; ${p.sector}</div>
-        <span class="signal-badge" style="${sigStyle(p.signal)}">${p.signal}</span>
+        <div style="font-size:11px;color:${M};margin-top:2px">${p.name} &middot; ${p.sector}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px;max-width:200px;white-space:normal">${sd.desc||""}</div>
+        <span class="signal-badge" style="${sigStyle(p.signal)};margin-top:5px;display:inline-block">${p.signal}</span>
       </div>
-      <div class="card-price">
-        <div class="price-val">$${fd(p.price)}</div>
-        <div class="price-chg" style="color:${chgC}">${fp(p.chg_pct)} today</div>
-        ${p.earn?`<div style="font-size:10px;color:${MUTED};margin-top:2px">Earn: ${p.earn}</div>`:""}</div>
-    </div>
-    <div class="score-section">
-      <div>
-        <div class="score-num" style="color:${col}">${sc}</div>
-        <div class="score-sub">/100</div>
-      </div>
-      <div class="score-bars">${scoreBar(bd,col)}</div>
-    </div>
-    <div class="targets-grid">
-      <div class="tgt-cell"><div class="tgt-label">Entry</div><div class="tgt-val" style="color:${BLUE}">$${fd(p.entry_low)}--$${fd(p.entry_high)}</div></div>
-      <div class="tgt-cell"><div class="tgt-label">1-Month</div><div class="tgt-val" style="color:${GREEN}">$${fd(p.t1m)}</div><div class="tgt-sub">${fp(p.upr_1m)} &middot; ${p.prob_1m||"?"}%</div></div>
-      <div class="tgt-cell"><div class="tgt-label">6-Month</div><div class="tgt-val" style="color:${GREEN}">$${fd(p.t6m)}</div><div class="tgt-sub">${fp(p.upr_6m)} &middot; ${p.prob_6m||"?"}%</div></div>
-      <div class="tgt-cell" style="border-right:none"><div class="tgt-label">1-Year</div><div class="tgt-val" style="color:${upr1yC}">$${fd(p.t1y)}</div><div class="tgt-sub">${fp(p.upr_1y)} &middot; RR ${fd(p.rr_ratio,1)}x</div></div>
-      <div class="tgt-cell"><div class="tgt-label">Stop Loss</div><div class="tgt-val" style="color:${RED}">$${fd(p.stop)}</div></div>
-      <div class="tgt-cell"><div class="tgt-label">Analyst Target</div><div class="tgt-val" style="color:${PURPLE}">$${fd(p.atgt)}</div><div class="tgt-sub">${p.nans||"?"} analysts</div></div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-cell"><div class="stat-label">P/E</div><div class="stat-val">${fd(p.pe)}x</div></div>
-      <div class="stat-cell"><div class="stat-label">Fwd P/E</div><div class="stat-val">${fd(p.fwd_pe)}x</div></div>
-      <div class="stat-cell"><div class="stat-label">Rev Growth</div><div class="stat-val" style="color:${parseFloat(p.rev_g||0)>15?GREEN:"inherit"}">${fp(p.rev_g)}</div></div>
-      <div class="stat-cell"><div class="stat-label">EPS Growth</div><div class="stat-val" style="color:${parseFloat(p.eps_g||0)>0?GREEN:RED}">${fp(p.eps_g)}</div></div>
-      <div class="stat-cell"><div class="stat-label">Gross Margin</div><div class="stat-val">${fp(p.gm)}</div></div>
-      <div class="stat-cell"><div class="stat-label">Net Margin</div><div class="stat-val">${fp(p.nm)}</div></div>
-      <div class="stat-cell"><div class="stat-label">RSI (14)</div><div class="stat-val" style="color:${parseFloat(p.rsi||50)>70?AMBER:parseFloat(p.rsi||50)<35?GREEN:"inherit"}">${p.rsi}</div></div>
-      <div class="stat-cell"><div class="stat-label">Vs 50MA</div><div class="stat-val" style="color:${chgColor(p.vs50ma)}">${fp(p.vs50ma)}</div></div>
-      <div class="stat-cell"><div class="stat-label">Vs 200MA</div><div class="stat-val" style="color:${chgColor(p.vs200ma)}">${fp(p.vs200ma)}</div></div>
-      <div class="stat-cell"><div class="stat-label">Mkt Cap</div><div class="stat-val">$${fd(p.mktcap_b,0)}B</div></div>
-      <div class="stat-cell"><div class="stat-label">52W High</div><div class="stat-val">$${fd(p.wk52h)}</div></div>
-      <div class="stat-cell"><div class="stat-label">Vs 52W Hi</div><div class="stat-val" style="color:${chgColor(p.vs52h)}">${fp(p.vs52h)}</div></div>
-    </div>
-    <div class="thesis">
-      <div class="thesis-title">Victor Kane's Investment Thesis</div>
-      <div class="thesis-text">${p.why_buy||"N/A"}</div>
-      <div class="pill-row">
-        <div class="pill" style="background:#052e16;border:1px solid #166534;color:#86efac">
-          <div class="pill-title" style="color:#4ade80">Technical Setup</div>
-          ${p.technical_read||"N/A"}
-        </div>
-        <div class="pill" style="background:#0c1a3e;border:1px solid #1e40af;color:#93c5fd">
-          <div class="pill-title" style="color:#60a5fa">Key Catalyst</div>
-          ${p.catalyst||"N/A"}
-        </div>
-        <div class="pill" style="background:#2d1b00;border:1px solid #92400e;color:#fcd34d">
-          <div class="pill-title" style="color:#fbbf24">Macro Tailwind</div>
-          ${p.macro_factor||"N/A"}
-        </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:700">$${fd(p.price)}</div>
+        <div style="font-size:11px;font-weight:600;color:${chgC}">${fp(p.chg_pct)} today</div>
+        <div style="font-size:10px;color:${col};font-weight:800;margin-top:4px">Score: ${sc2}/100</div>
+        ${p.earn?`<div style="font-size:9px;color:${M};margin-top:2px">Earn: ${p.earn}</div>`:""}
       </div>
     </div>
-    <div class="risks-bar" style="background:#1a0a0a;border-top:1px solid #7f1d1d">
-      <span style="font-size:9px;font-weight:700;color:#ef4444;text-transform:uppercase">Risks: </span>
-      <span style="color:#fca5a5;font-size:11px">${p.risks||"N/A"}</span>
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="min-width:50px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:${col};line-height:1">${sc2}</div>
+          <div style="font-size:8px;color:${M}">/ 100</div>
+        </div>
+        <div style="flex:1">${scoreBar(bd,col)}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)">
+      ${[["Entry",[`$${fd(p.entry_low)}`,`$${fd(p.entry_high)}`].join("--"),B,""],
+         ["1M Target",`$${fd(p.t1m)}`,G,fp(p.upr_1m)+" "+p.prob_1m+"%"],
+         ["6M Target",`$${fd(p.t6m)}`,G,fp(p.upr_6m)+" "+p.prob_6m+"%"],
+         ["1Y Target",`$${fd(p.t1y)}`,parseFloat(p.upr_1y||0)>0?G:R,fp(p.upr_1y)+" "+p.prob_1y+"%"],
+         ["Stop Loss",`$${fd(p.stop)}`,R,"RR: "+fd(p.rr_ratio,1)+"x"],
+         ["Analyst Tgt",`$${fd(p.atgt)}`,P,p.nans+" analysts"]]
+        .map(([l,v,c,s])=>`<div style="padding:8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:8px;color:${M};text-transform:uppercase;margin-bottom:2px">${l}</div><div style="font-size:11px;font-weight:700;color:${c}">${v}</div>${s?`<div style="font-size:9px;color:${M}">${s}</div>`:""}`)
+        .join("")}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border);background:#1a2540">
+      ${[["P/E",fd(p.pe)+"x",""],["Fwd P/E",fd(p.fwd_pe)+"x",""],["Rev G",fp(p.rev_g),parseFloat(p.rev_g||0)>15?G:""],
+         ["Gross M",fp(p.gm),""],["Net M",fp(p.nm),""],["RSI",p.rsi,parseFloat(p.rsi||50)>70?A:parseFloat(p.rsi||50)<35?G:""],
+         ["Vs 50MA",fp(p.vs50ma),chgCol(p.vs50ma)],["Vs 52Whi",fp(p.vs52h),chgCol(p.vs52h)]]
+        .map(([l,v,c])=>`<div style="padding:6px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:8px;color:${M};text-transform:uppercase">${l}</div><div style="font-size:11px;font-weight:600;color:${c||"inherit"}">${v}</div>`)
+        .join("")}
+    </div>
+    <div class="card-detail">
+      <div style="margin-bottom:8px;padding:8px;background:var(--card2);border-radius:6px">
+        <div style="font-size:9px;font-weight:700;color:${P};text-transform:uppercase;margin-bottom:4px">Victor's Thesis</div>
+        <div style="color:var(--text)">${p.why_buy||"N/A"}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="padding:8px;background:#052e16;border-radius:6px;border:1px solid #166534">
+          <div style="font-size:8px;font-weight:700;color:#4ade80;text-transform:uppercase;margin-bottom:3px">Technical</div>
+          <div style="color:#86efac">${p.technical_read||"N/A"}</div>
+        </div>
+        <div style="padding:8px;background:#0c1a3e;border-radius:6px;border:1px solid #1e40af">
+          <div style="font-size:8px;font-weight:700;color:#60a5fa;text-transform:uppercase;margin-bottom:3px">Catalyst</div>
+          <div style="color:#93c5fd">${p.catalyst||"N/A"}</div>
+        </div>
+        <div style="padding:8px;background:#2d1b00;border-radius:6px;border:1px solid #92400e">
+          <div style="font-size:8px;font-weight:700;color:#fbbf24;text-transform:uppercase;margin-bottom:3px">Macro</div>
+          <div style="color:#fcd34d">${p.macro_factor||"N/A"}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px;background:#1a0a0a;border-radius:6px;border:1px solid #7f1d1d">
+        <span style="font-size:8px;font-weight:700;color:${R};text-transform:uppercase">Risks: </span>
+        <span style="color:#fca5a5">${p.risks||"N/A"}</span>
+      </div>
+      ${sd.desc?`<div style="margin-top:8px;padding:8px;background:var(--card2);border-radius:6px;font-size:10px;color:${M};line-height:1.6"><span style="font-size:8px;font-weight:700;color:${B};text-transform:uppercase">About: </span>${sd.desc}</div>`:""}
     </div>
   </div>`;
 }
 
+function toggleDetail(card){
+  card.querySelector(".card-detail").classList.toggle("open");
+}
+
 function renderPicks(){
-  const el = document.getElementById("picks");
-  if(!PICKS.length){
-    el.innerHTML=`<div class="empty" style="margin-top:16px">No high-conviction picks today -- market conditions not ideal.</div>`;return;
-  }
-  const growth=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH");
-  const balanced=PICKS.filter(p=>(p.category||"").toUpperCase()!="GROWTH");
+  const el=document.getElementById("picks");
+  if(!PICKS.length){el.innerHTML=`<div class="empty" style="margin-top:12px">No high-conviction picks today.</div>`;return;}
+  const gr=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH");
+  const ba=PICKS.filter(p=>(p.category||"").toUpperCase()!="GROWTH");
   let html="";
-  if(growth.length){
-    html+=`<div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${PURPLE};border-radius:2px"></span>Growth Picks</div>
-    <div class="section-sub">${growth.length} high-conviction growth setups</div>
-    <div class="picks-grid">${growth.map((p,i)=>renderPick(p,i+1)).join("")}</div>`;
+  if(gr.length){
+    html+=`<div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${P};border-radius:2px"></span>Growth Picks</div>
+    <div class="section-sub">${gr.length} high-conviction -- click card for full thesis</div>
+    <div class="picks-grid">${gr.map((p,i)=>renderPickCard(p,i+1)).join("")}</div>`;
   }
-  if(balanced.length){
-    html+=`<div class="section-title" style="margin-top:24px"><span style="display:inline-block;width:4px;height:24px;background:${BLUE};border-radius:2px"></span>Balanced Picks</div>
-    <div class="section-sub">${balanced.length} solid setups with lower volatility</div>
-    <div class="picks-grid">${balanced.map((p,i)=>renderPick(p,i+1)).join("")}</div>`;
+  if(ba.length){
+    html+=`<div class="section-hdr" style="margin-top:20px"><span style="display:inline-block;width:4px;height:22px;background:${B};border-radius:2px"></span>Balanced Picks</div>
+    <div class="section-sub">${ba.length} solid setups</div>
+    <div class="picks-grid">${ba.map((p,i)=>renderPickCard(p,i+1)).join("")}</div>`;
   }
   el.innerHTML=html;
 }
 
+// WATCHLIST -- sortable, filterable, sector-grouped
+function getWatchlistData(){
+  return WATCHLIST.filter(w=>{
+    if(filterSig!="ALL" && w.signal!==filterSig) return false;
+    if(filterCat!="ALL" && (w.category||"").toUpperCase()!==filterCat) return false;
+    if(searchQ && !(w.ticker||"").includes(searchQ.toUpperCase()) && !(w.name||"").toUpperCase().includes(searchQ.toUpperCase()) && !(w.sector||"").toUpperCase().includes(searchQ.toUpperCase())) return false;
+    return true;
+  });
+}
+
+function sortData(data){
+  if(!sortCol) return data;
+  return [...data].sort((a,b)=>{
+    let va=a[sortCol],vb=b[sortCol];
+    if(typeof va==="string") return sortDir*va.localeCompare(vb||"");
+    return sortDir*(parseFloat(va||0)-parseFloat(vb||0));
+  });
+}
+
+function watchlistRow(w){
+  const sc2=w.score||0,col=scoreCol(sc2),chgC=chgCol(w.chg_pct);
+  const upr=parseFloat(w.upr_1y||0);
+  const sd=STOCKS[w.ticker]||{};
+  return `<tr>
+    <td class="company-cell">
+      <div class="company-name">${w.ticker}</div>
+      <div class="company-sub">${(w.name||"").substring(0,28)}</div>
+      <div class="company-sub" style="color:#475569">${w.industry||w.sector||""}</div>
+      <div class="company-desc">${sd.desc||""}</div>
+      <span class="tag" style="${catStyle(w.category)}">${w.category||""}</span>
+    </td>
+    <td><div style="font-weight:700">$${fd(w.price)}</div><div style="font-size:10px;color:${chgC}">${fp(w.chg_pct)}</div></td>
+    <td><span class="signal-badge" style="${sigStyle(w.signal)}">${w.signal}</span></td>
+    <td class="score-cell"><div class="score-num" style="color:${col}">${sc2}</div><div class="score-sub">/ 100</div></td>
+    <td style="color:${B};font-size:11px">$${fd(w.entry_low)} -- $${fd(w.entry_high)}</td>
+    <td><div style="color:${upr>0?G:R};font-weight:700">$${fd(w.t1y)}</div><div style="font-size:10px;color:${upr>0?G:R}">${fp(w.upr_1y)}</div></td>
+    <td style="color:${R}">$${fd(w.stop)}</td>
+    <td>${fd(w.pe)}x</td>
+    <td>${fd(w.fwd_pe)}x</td>
+    <td style="color:${parseFloat(w.rev_g||0)>15?G:"inherit"}">${fp(w.rev_g)}</td>
+    <td style="color:${parseFloat(w.gm||0)>50?"#22c55e":"inherit"}">${fp(w.gm)}</td>
+    <td style="color:${parseFloat(w.nm||0)>0?G:R}">${fp(w.nm)}</td>
+    <td style="color:${parseFloat(w.rsi||50)>70?A:parseFloat(w.rsi||50)<35?G:"inherit"}">${w.rsi}</td>
+    <td style="color:${chgCol(w.vs50ma)}">${fp(w.vs50ma)}</td>
+    <td style="color:${chgCol(w.vs200ma)}">${fp(w.vs200ma)}</td>
+    <td style="color:${parseFloat(w.volr||1)>1.3?G:"inherit"}">${fd(w.volr)}x</td>
+    <td>$${fd(w.atgt)}</td>
+    <td>${w.nans||"?"}</td>
+    <td style="color:${M};font-size:11px;font-style:italic;white-space:normal;min-width:180px">${w.note||""}</td>
+  </tr>`;
+}
+
 function renderWatchlist(){
   const el=document.getElementById("watchlist");
-  if(!WATCHLIST.length){el.innerHTML=`<div class="empty" style="margin-top:16px">No watchlist data.</div>`;return;}
-  const rows=WATCHLIST.map(w=>{
-    const sc=w.score||0,col=scoreColor(sc),chgC=chgColor(w.chg_pct);
-    const upr=parseFloat(w.upr_1y||0);
-    return `<tr>
-      <td>
-        <div style="font-size:16px;font-weight:800">${w.ticker}</div>
-        <div style="font-size:10px;color:${MUTED}">${(w.name||"").substring(0,25)}</div>
-        <span class="cat-badge" style="${catStyle(w.category)}">${w.category}</span>
-      </td>
-      <td>
-        <div style="font-size:15px;font-weight:700">$${fd(w.price)}</div>
-        <div style="font-size:11px;color:${chgC}">${fp(w.chg_pct)}</div>
-      </td>
-      <td><span class="signal-badge" style="${sigStyle(w.signal)}">${w.signal}</span></td>
-      <td>
-        <div style="font-size:18px;font-weight:800;color:${col}">${sc}</div>
-        <div style="font-size:9px;color:${MUTED}">/ 100</div>
-      </td>
-      <td style="color:${BLUE}">$${fd(w.entry_low)} -- $${fd(w.entry_high)}</td>
-      <td>
-        <div style="color:${upr>0?GREEN:RED};font-weight:700">$${fd(w.t1y)}</div>
-        <div style="font-size:10px;color:${upr>0?GREEN:RED}">${fp(w.upr_1y)}</div>
-      </td>
-      <td style="color:${RED}">$${fd(w.stop)}</td>
-      <td>${fd(w.pe)}x</td>
-      <td style="color:${parseFloat(w.rsi||50)>70?AMBER:parseFloat(w.rsi||50)<35?GREEN:"inherit"}">${w.rsi}</td>
-      <td style="color:${PURPLE}">$${fd(w.atgt)}</td>
-      <td style="color:${MUTED};font-size:11px;font-style:italic">${w.note||""}</td>
-    </tr>`;
-  }).join("");
+  const cols=[
+    ["company-cell","Stock","ticker"],["price","Price","price"],["signal","Signal","signal"],
+    ["score","Score","score"],["entry","Entry Range","entry_low"],["t1y","1Y Target","t1y"],
+    ["stop","Stop","stop"],["pe","P/E","pe"],["fwd_pe","Fwd P/E","fwd_pe"],
+    ["rev_g","Rev Gr","rev_g"],["gm","Gross M","gm"],["nm","Net M","nm"],
+    ["rsi","RSI","rsi"],["vs50ma","Vs 50MA","vs50ma"],["vs200ma","Vs 200MA","vs200ma"],
+    ["volr","Vol Ratio","volr"],["atgt","Analyst Tgt","atgt"],["nans","# Analysts","nans"],
+    ["note","Victor's Note","note"]
+  ];
+  const thead=cols.map(([id,label,key])=>
+    `<th id="th-${id}" onclick="doSort('${key}')">${label}</th>`
+  ).join("");
+
+  const data=sortData(getWatchlistData());
+
+  // Group by sector
+  const sectors={};
+  data.forEach(w=>{
+    const s=w.sector||"Other";
+    if(!sectors[s]) sectors[s]=[];
+    sectors[s].push(w);
+  });
+
+  let bodyHtml="";
+  const sectorIcons={
+    "Technology":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><rect x=2 y=3 width=20 height=14 rx=2/><line x1=8 y1=21 x2=16 y2=21/><line x1=12 y1=17 x2=12 y2=21/></svg>",
+    "Healthcare":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>",
+    "Financial Services":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><line x1=12 y1=1 x2=12 y2=23/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>",
+    "Consumer Cyclical":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><circle cx=9 cy=21 r=1/><circle cx=20 cy=21 r=1/><path d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/></svg>",
+  };
+
+  Object.entries(sectors).sort(([a],[b])=>a.localeCompare(b)).forEach(([sector,rows])=>{
+    const icon=sectorIcons[sector]||"";
+    bodyHtml+=`<tr><td colspan="19"><div class="sector-header">${icon} ${sector} <span style="color:#475569;font-weight:400">(${rows.length} stocks)</span></div></td></tr>`;
+    bodyHtml+=rows.map(watchlistRow).join("");
+  });
+
+  const signals=["ALL",...new Set(WATCHLIST.map(w=>w.signal).filter(Boolean))];
+  const cats=["ALL","GROWTH","BALANCED","VALUE"];
+  const filterBtns=signals.map(s=>`<button class="filter-btn ${filterSig===s?"active":""}" onclick="setFilter('sig','${s}')">${s}</button>`).join("");
+  const catBtns=cats.map(c=>`<button class="filter-btn ${filterCat===c?"active":""}" onclick="setFilter('cat','${c}')">${c}</button>`).join("");
+
   el.innerHTML=`
-    <div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${AMBER};border-radius:2px"></span>Your Watchlist</div>
-    <div class="section-sub">${WATCHLIST.length} stocks tracked daily</div>
-    <div style="overflow-x:auto">
-    <table class="watch-table">
-      <thead><tr>
-        <th>Stock</th><th>Price</th><th>Signal</th><th>Score</th>
-        <th>Entry Range</th><th>1Y Target</th><th>Stop</th>
-        <th>P/E</th><th>RSI</th><th>Analyst Tgt</th><th>Victor's Note</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>`;
+    <div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${A};border-radius:2px"></span>Your Watchlist</div>
+    <div class="section-sub">${WATCHLIST.length} stocks tracked &middot; click column headers to sort &middot; grouped by sector</div>
+    <div class="filter-row">
+      <input class="search-box" placeholder="Search ticker / name / sector..." oninput="setSearch(this.value)" value="${searchQ}">
+      ${filterBtns}
+      <span style="color:#475569;font-size:10px">|</span>
+      ${catBtns}
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr>${thead}</tr></thead><tbody>${bodyHtml || '<tr><td colspan=19 style="text-align:center;padding:24px;color:#64748b">No stocks match filter</td></tr>'}</tbody></table>
+    </div>`;
+  // Re-apply sort indicators
+  if(sortCol){
+    const el2=document.querySelector(`th[onclick="doSort('${sortCol}')"]`);
+    if(el2) el2.classList.add(sortDir>0?"sort-asc":"sort-desc");
+  }
 }
+
+function doSort(col){
+  if(sortCol===col){sortDir*=-1;}else{sortCol=col;sortDir=1;}
+  renderWatchlist();
+}
+function setFilter(type,val){
+  if(type==="sig") filterSig=val; else filterCat=val;
+  renderWatchlist();
+}
+function setSearch(v){searchQ=v;renderWatchlist();}
 
 function renderScan(){
   const el=document.getElementById("scan");
-  if(!SCAN.length){el.innerHTML=`<div class="empty" style="margin-top:16px">No scan data.</div>`;return;}
+  if(!SCAN.length){el.innerHTML=`<div class="empty" style="margin-top:12px">No scan data.</div>`;return;}
   const items=SCAN.map(b=>{
-    const col={BULLISH:GREEN,BEARISH:RED,NEUTRAL:AMBER}[b.bias]||MUTED;
-    return `<div class="brief-chip">
-      <span style="font-weight:800;color:${col}">${b.ticker}</span>
-      <span class="brief-reason">${b.reason||""}</span>
-    </div>`;
+    const col={BULLISH:G,BEARISH:R,NEUTRAL:A}[b.bias]||M;
+    return `<div class="brief-chip"><span style="font-weight:800;color:${col}">${b.ticker}</span><span style="color:${M};font-size:10px">${b.reason||""}</span></div>`;
   }).join("");
-  el.innerHTML=`
-    <div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${MUTED};border-radius:2px"></span>Full Scan Brief</div>
-    <div class="section-sub">All stocks scanned today</div>
-    <div class="brief-grid">${items}</div>`;
+  el.innerHTML=`<div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${M};border-radius:2px"></span>Full Scan Brief</div>
+  <div class="section-sub">${SCAN.length} stocks scanned today</div>
+  <div class="brief-grid">${items}</div>`;
 }
 
-renderBadges();
-renderMarket();
-renderPicks();
-renderWatchlist();
-renderScan();
+renderBadges(); renderMarket(); renderPicks(); renderWatchlist(); renderScan();
 </script>
 </body></html>
