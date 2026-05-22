@@ -141,33 +141,34 @@ def fetch_market_overview():
 # =============================================================================
 # STEP 2 — SEND DATA TO CLAUDE FOR ANALYSIS (no web search, tiny prompt)
 # =============================================================================
+def trim_for_claude(stock_data):
+    """Keep only the fields Claude needs — reduces prompt size significantly."""
+    keep = ["ticker","company_name","sector","current_price","price_change_today_pct",
+            "market_cap_b","pe_ratio","forward_pe","eps_ttm","eps_growth_yoy_pct",
+            "revenue_growth_yoy_pct","gross_margin_pct","operating_margin_pct",
+            "net_margin_pct","roe_pct","debt_to_equity","cash_position_b",
+            "week52_high","week52_low","price_vs_52h_pct","rsi_14",
+            "price_vs_50ma","price_vs_200ma","volume_ratio",
+            "analyst_consensus","analyst_avg_target","num_analysts",
+            "institutional_ownership_pct","next_earnings_est"]
+    trimmed = {}
+    for ticker, data in stock_data.items():
+        trimmed[ticker] = {k: data[k] for k in keep if k in data}
+    return trimmed
+
+
 def build_analysis_prompt(stock_data_json, market_overview, personal_tickers):
-    watchlist_note = f"Personal watchlist tickers (include ALL in watchlist_analysis): {', '.join(personal_tickers)}" if personal_tickers else ""
-    return f"""You are Victor Kane, elite quant analyst, 25yr Wall St veteran. Blunt, precise, min R:R 2.5:1.
-Date: {TODAY}. Market: S&P {market_overview['sp500_pct']:+.2f}% | Nasdaq {market_overview['nasdaq_pct']:+.2f}% | VIX {market_overview['vix']:.1f}
+    watchlist_note = f"Personal watchlist (MUST include ALL in watchlist_analysis): {', '.join(personal_tickers)}" if personal_tickers else ""
+    return f"""Victor Kane, elite quant analyst. Date:{TODAY}. S&P{market_overview['sp500_pct']:+.2f}% Nasdaq{market_overview['nasdaq_pct']:+.2f}% VIX{market_overview['vix']:.1f}
 {watchlist_note}
 
-REAL MARKET DATA (fetched live today):
-{stock_data_json}
+DATA:{stock_data_json}
 
-Using ONLY the data above:
-1. Classify each stock: GROWTH (rev growth >20%/yr) or BALANCED (5-20%/yr)
-2. Score each 0-100: technical(30) + fundamental(25) + catalyst(20) + macro(15) + rr(10)
-3. Select top picks: STRONG BUY (>=80) or BUY (>=65) only
-4. For each pick: set entry range, 1m/6m/1y targets, stop loss, R:R ratio
-5. Write Victor's analysis: blunt, specific price levels, no fluff
-6. All personal watchlist tickers must appear in watchlist_analysis regardless of signal
+Score each: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). GROWTH=rev>20%,BALANCED=5-20%.
+top_picks=score>=65 only. Keep ALL text fields to 1 sentence. Be concise.
 
-Reply with ONLY valid JSON, no markdown, no text before or after:
-{{"report_date":"{TODAY}","macro_summary":"Victor 2-sentence market read","risk_level":"LOW|MODERATE|HIGH","sector_rotation":"one line on sector flows","market_mood":"BULLISH|NEUTRAL|BEARISH","vix":{market_overview['vix']},"sp500_pct":{market_overview['sp500_pct']},"nasdaq_pct":{market_overview['nasdaq_pct']},"top_picks":[],"watchlist_analysis":[],"full_scan_brief":[],"disclaimer":"For educational purposes only. Not financial advice."}}
-
-For each item in top_picks use this schema:
-{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","sector":"","current_price":0,"price_change_today_pct":0,"signal":"STRONG BUY|BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"BULLISH|NEUTRAL|BEARISH","macd_histogram":"POSITIVE|NEGATIVE","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"Buying|Selling|Neutral","institutional_ownership_pct":0,"institutional_change":"Increasing|Decreasing|Stable","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}
-
-For watchlist_analysis:
-{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","current_price":0,"price_change_today_pct":0,"signal":"STRONG BUY|BUY|WATCH|AVOID","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"Victor 1-sentence verdict","is_personal_watchlist":true}}
-
-For full_scan_brief: {{"ticker":"","bias":"BULLISH|NEUTRAL|BEARISH","note":"one line","category":"GROWTH|BALANCED"}}"""
+JSON only, no other text:
+{{"report_date":"{TODAY}","macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL","vix":{market_overview['vix']},"sp500_pct":{market_overview['sp500_pct']},"nasdaq_pct":{market_overview['nasdaq_pct']},"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"","current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"BALANCED","current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],"disclaimer":"For educational purposes only. Not financial advice."}}
 
 
 def call_claude_analysis(prompt):
@@ -175,7 +176,7 @@ def call_claude_analysis(prompt):
     print("  → Sending data to Claude for Victor Kane analysis...")
     payload = json.dumps({
         "model": "claude-sonnet-4-5",
-        "max_tokens": 8000,
+        "max_tokens": 4000,
         "messages": [{"role": "user", "content": prompt}]
     }).encode("utf-8")
 
@@ -564,7 +565,8 @@ def main():
 
     # Step 2 — Claude analysis (NO web search — just analyzing pre-fetched data)
     print("\n[Step 2] Victor Kane analysis via Claude...")
-    stock_json = json.dumps(stock_data, indent=2)
+    trimmed    = trim_for_claude(stock_data)
+    stock_json = json.dumps(trimmed, separators=(',', ':'))  # compact, no spaces
     prompt     = build_analysis_prompt(stock_json, market, ALL_PERSONAL)
     report     = call_claude_analysis(prompt)
 
