@@ -40,63 +40,21 @@ TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 NOW   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PHASE 1 PROMPT — Market Discovery
-# Finds the best candidates from the whole market + evaluates personal watchlist
+# SINGLE PROMPT — Discovery + Analysis in one call
+# Avoids chaining two large web-search calls which bloats context
 # ─────────────────────────────────────────────────────────────────────────────
-DISCOVERY_PROMPT = f"""
-Today is {TODAY}. You are a quantitative research system running a pre-market scan.
+def build_full_prompt(personal_tickers):
+    watchlist_line = f"User's personal tickers (always include in watchlist_analysis): {', '.join(personal_tickers)}" if personal_tickers else ""
+    return f"""Date: {TODAY}. You are Victor Kane, elite quant analyst, 25yr Wall St veteran. Brutally precise, exact levels, min 2.5:1 R:R. GROWTH=rev>20%/yr, BALANCED=5-20%/yr.
 
-Use web_search extensively to find the following RIGHT NOW with live data:
+Step 1: Search web for TODAY's top momentum/breakout stocks, analyst upgrades, unusual volume, hot sectors, VIX, S&P500/Nasdaq moves. Pick the 4 best BUY candidates.
+Step 2: Search web for current price + key stats for each candidate + any personal tickers.
+Step 3: Score each (technical30+fundamental25+catalyst20+macro15+rr10). Only include in top_picks if score>=65.
 
-TASK 1 — MARKET DISCOVERY (find the best setups in the whole market):
-Search for:
-- "top momentum stocks {TODAY}"
-- "stocks breaking out today {TODAY}"
-- "analyst upgrades today {TODAY}"
-- "unusual volume stocks premarket {TODAY}"
-- "best growth stocks to buy {TODAY}"
-- "hot sectors today {TODAY}"
-- "stocks with earnings catalyst {TODAY}"
-- Current S&P 500, Nasdaq, and sector ETF performance
-
-TASK 2 — PERSONAL WATCHLIST STATUS:
-{"Evaluate these specific tickers the user always wants tracked: " + ", ".join(ALL_PERSONAL) if ALL_PERSONAL else "No personal watchlist set."}
-For each: fetch current price, recent news, analyst rating changes, any catalysts.
-
-TASK 3 — MACRO CONTEXT:
-Search for current: Fed policy news, interest rate expectations, inflation data,
-geopolitical headlines affecting markets, dollar index, VIX level, oil price.
+{watchlist_line}
 
 Return ONLY valid JSON (no markdown, no backticks):
-{{
-  "scan_date": "{TODAY}",
-  "macro": {{
-    "market_mood": "BULLISH|NEUTRAL|BEARISH",
-    "vix": 0.0,
-    "sp500_today_pct": 0.0,
-    "nasdaq_today_pct": 0.0,
-    "fed_note": "one sentence on Fed/rates",
-    "key_risk": "biggest macro risk today in one sentence",
-    "sector_leaders": ["sector1", "sector2"],
-    "sector_laggards": ["sector1", "sector2"],
-    "geopolitical_note": "one sentence on geopolitical factor"
-  }},
-  "discovered_tickers": ["TICK1","TICK2","TICK3","TICK4","TICK5","TICK6","TICK7","TICK8","TICK9","TICK10"],
-  "discovery_reasons": {{
-    "TICK1": "why discovered — one line",
-    "TICK2": "why discovered — one line"
-  }},
-  "personal_watchlist_status": [
-    {{
-      "ticker": "XXX",
-      "current_price": 0.00,
-      "price_change_pct_today": 0.0,
-      "signal": "STRONG BUY|BUY|WATCH|AVOID",
-      "one_line": "brief status note"
-    }}
-  ]
-}}
-"""
+{{"report_date":"{TODAY}","macro_summary":"Victor 2-sentence market read","risk_level":"LOW|MODERATE|HIGH","sector_rotation":"one line","market_mood":"BULLISH|NEUTRAL|BEARISH","vix":0.0,"sp500_pct":0.0,"nasdaq_pct":0.0,"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","sector":"","current_price":0.0,"price_change_today_pct":0.0,"signal":"STRONG BUY|BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0.0,"entry_range_high":0.0,"target_1m":0.0,"target_6m":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1m_pct":0.0,"upside_6m_pct":0.0,"upside_1y_pct":0.0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0.0,"pe_ratio":0.0,"forward_pe":0.0,"peg_ratio":0.0,"ps_ratio":0.0,"ev_ebitda":0.0,"eps_ttm":0.0,"eps_growth_yoy_pct":0.0,"market_cap_b":0.0,"revenue_growth_yoy_pct":0.0,"revenue_growth_qoq_pct":0.0,"gross_margin_pct":0.0,"operating_margin_pct":0.0,"net_margin_pct":0.0,"fcf_yield_pct":0.0,"roe_pct":0.0,"debt_to_equity":0.0,"cash_position_b":0.0,"earnings_streak":"","last_earnings_surprise_pct":0.0,"guidance":"Raised|Maintained|Lowered|N/A","volume_today":0,"avg_volume_30d":0,"volume_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"price_vs_52h_pct":0.0,"rsi_14":0,"macd_signal":"BULLISH|NEUTRAL|BEARISH","macd_histogram":"POSITIVE|NEGATIVE","price_vs_50ma":0.0,"price_vs_200ma":0.0,"ma_signal":"","chart_pattern":"","support_level":0.0,"resistance_level":0.0,"analyst_consensus":"","analyst_avg_target":0.0,"num_analysts":0,"insider_activity":"Buying|Selling|Neutral","institutional_ownership_pct":0.0,"institutional_change":"Increasing|Decreasing|Stable","next_earnings_est":"","catalyst_summary":"2 sentences","geopolitical_factor":"1 sentence","technical_analysis":"Victor 3-sentence technical read with exact levels","fundamental_analysis":"Victor 3-sentence fundamental read","victor_verdict":"Victor 2-sentence blunt verdict","why_now":"2 sentences","risks":"2 specific risks","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","current_price":0.0,"price_change_today_pct":0.0,"signal":"STRONG BUY|BUY|WATCH|AVOID","confidence_score":0,"entry_range_low":0.0,"entry_range_high":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1y_pct":0.0,"pe_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0.0,"victor_note":"Victor 1-sentence note","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH|NEUTRAL|BEARISH","note":"one line","category":"GROWTH|BALANCED"}}],"disclaimer":"For educational purposes only. Not financial advice."}}"""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PHASE 2 PROMPT — Deep Analysis (Victor Kane persona)
@@ -803,57 +761,39 @@ def main():
     if ALL_PERSONAL:
         print(f"  Personal watchlist: {', '.join(ALL_PERSONAL)}")
     if EXTRA_TICKERS:
-        print(f"  Extra tickers (manual run): {', '.join(EXTRA_TICKERS)}")
+        print(f"  Extra tickers: {', '.join(EXTRA_TICKERS)}")
     print(f"{'='*60}\n")
 
-    # Phase 1 — Discovery
-    print("[Phase 1] Market discovery scan...")
-    discovery      = call_claude_with_retry(DISCOVERY_PROMPT, "Discovery scan")
-    macro          = discovery.get("macro", {})
-    discovered     = discovery.get("discovered_tickers", [])
-    personal_status= discovery.get("personal_watchlist_status", [])
+    all_personal = list(dict.fromkeys(ALL_PERSONAL + EXTRA_TICKERS))
 
-    print(f"  → Discovered {len(discovered)} tickers: {', '.join(discovered)}")
-    print(f"  → Market mood: {macro.get('market_mood','?')} | VIX: {macro.get('vix','?')}")
+    # Single API call — discovery + analysis combined
+    print("[Phase 1] Running full market scan + Victor Kane analysis...")
+    prompt = build_full_prompt(all_personal)
+    report = call_claude_with_retry(prompt, "Full scan + analysis")
 
-    # Combine — cap at 8 total to stay within rate limits on free tier
-    # Priority: top discovered (4) + personal watchlist (up to 4)
-    top_discovered = discovered[:4]
-    personal_capped = ALL_PERSONAL[:4]
-    all_tickers = list(dict.fromkeys(top_discovered + personal_capped))
-    print(f"  → Tickers for deep analysis: {len(all_tickers)} — {', '.join(all_tickers)}")
+    macro = {
+        "market_mood":      report.get("market_mood", "NEUTRAL"),
+        "vix":              report.get("vix", 0),
+        "sp500_today_pct":  report.get("sp500_pct", 0),
+        "nasdaq_today_pct": report.get("nasdaq_pct", 0),
+        "fed_note":         "",
+        "key_risk":         "",
+        "sector_leaders":   [],
+        "sector_laggards":  [],
+        "geopolitical_note":"",
+    }
 
-    # Phase 2 — Deep Analysis in batches of 4
-    BATCH_SIZE = 4
-    batches = [all_tickers[i:i+BATCH_SIZE] for i in range(0, len(all_tickers), BATCH_SIZE)]
-    print(f"\n[Phase 2] Deep analysis in {len(batches)} batch(es) of up to {BATCH_SIZE} tickers...")
-
-    batch_reports = []
-    for i, batch in enumerate(batches):
-        print(f"  → Batch {i+1}/{len(batches)}: {', '.join(batch)}")
-        if i > 0:
-            print(f"  → Pausing 90s between batches to respect rate limits...")
-            time.sleep(90)
-        prompt = build_analysis_prompt(batch, macro, personal_status)
-        result = call_claude_with_retry(prompt, f"Deep analysis batch {i+1}")
-        batch_reports.append(result)
-
-    # Merge all batches
-    report   = merge_reports(batch_reports)
     picks    = report.get("top_picks", [])
     growth   = [p for p in picks if (p.get("category","") or "").upper() == "GROWTH"]
     balanced = [p for p in picks if (p.get("category","") or "").upper() == "BALANCED"]
+    print(f"  → {len(picks)} picks: {len(growth)} growth, {len(balanced)} balanced")
 
-    print(f"  → {len(picks)} total picks: {len(growth)} growth, {len(balanced)} balanced")
-
-    # Phase 3 — Build + send email
-    print("\n[Phase 3] Building report and sending email...")
+    print("\n[Phase 2] Building report and sending email...")
     html    = build_html_email(report, macro)
-    mood    = macro.get("market_mood","?")
-    risk    = report.get("risk_level","?")
+    mood    = macro.get("market_mood", "?")
+    risk    = report.get("risk_level", "?")
     subject = (f"📈 Victor Kane — {TODAY} | {len(picks)} picks "
                f"({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}")
-
     send_email(html, subject)
 
     print(f"\n{'='*60}")
