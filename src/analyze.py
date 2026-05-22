@@ -902,6 +902,61 @@ def send_email(html_body, subject):
 # ─────────────────────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────────────────────
+def call_claude_with_retry(prompt, label, max_retries=3):
+    """Call Claude with automatic retry on rate limit (429)."""
+    for attempt in range(max_retries):
+        try:
+            return call_claude(prompt, label)
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < max_retries - 1:
+                wait = 65 * (attempt + 1)  # 65s, 130s, 195s
+                print(f"  → Rate limited. Waiting {wait}s before retry {attempt+2}/{max_retries}...")
+                time.sleep(wait)
+            else:
+                raise
+
+
+def merge_reports(reports):
+    """Merge multiple batch report JSONs into one."""
+    merged = {
+        "report_date": TODAY,
+        "generated_at": NOW,
+        "macro_summary": "",
+        "risk_level": "MODERATE",
+        "sector_rotation": "",
+        "top_picks": [],
+        "watchlist_analysis": [],
+        "full_scan_brief": [],
+        "disclaimer": "For educational purposes only. Not financial advice."
+    }
+    for r in reports:
+        if not merged["macro_summary"] and r.get("macro_summary"):
+            merged["macro_summary"]  = r.get("macro_summary", "")
+            merged["risk_level"]     = r.get("risk_level", "MODERATE")
+            merged["sector_rotation"]= r.get("sector_rotation", "")
+            merged["disclaimer"]     = r.get("disclaimer", merged["disclaimer"])
+        merged["top_picks"]        += r.get("top_picks", [])
+        merged["watchlist_analysis"]+= r.get("watchlist_analysis", [])
+        merged["full_scan_brief"]  += r.get("full_scan_brief", [])
+
+    # Deduplicate by ticker, keep highest confidence
+    def dedup(items):
+        seen = {}
+        for item in items:
+            t = item.get("ticker","")
+            if t not in seen or (item.get("confidence_score",0) > seen[t].get("confidence_score",0)):
+                seen[t] = item
+        return list(seen.values())
+
+    merged["top_picks"]         = dedup(merged["top_picks"])
+    merged["watchlist_analysis"]= dedup(merged["watchlist_analysis"])
+    merged["full_scan_brief"]   = dedup(merged["full_scan_brief"])
+
+    # Sort top picks by confidence score descending
+    merged["top_picks"].sort(key=lambda x: x.get("confidence_score", 0), reverse=True)
+    return merged
+
+
 def main():
     print(f"\n{'='*60}")
     print(f"  Quant Signal Agent — {NOW}")
@@ -913,37 +968,51 @@ def main():
 
     # Phase 1 — Discovery
     print("[Phase 1] Market discovery scan...")
-    discovery = call_claude(DISCOVERY_PROMPT, "Discovery scan")
-    macro     = discovery.get("macro", {})
-    discovered = discovery.get("discovered_tickers", [])
-    personal_status = discovery.get("personal_watchlist_status", [])
+    discovery      = call_claude_with_retry(DISCOVERY_PROMPT, "Discovery scan")
+    macro          = discovery.get("macro", {})
+    discovered     = discovery.get("discovered_tickers", [])
+    personal_status= discovery.get("personal_watchlist_status", [])
 
     print(f"  → Discovered {len(discovered)} tickers: {', '.join(discovered)}")
     print(f"  → Market mood: {macro.get('market_mood','?')} | VIX: {macro.get('vix','?')}")
 
-    # Combine all tickers for deep analysis
-    all_tickers = list(dict.fromkeys(discovered + ALL_PERSONAL))
-    print(f"  → Total for deep analysis: {len(all_tickers)} tickers")
+    # Combine — cap at 16 total to stay within rate limits
+    # Priority: top discovered (8) + personal watchlist (up to 8)
+    top_discovered = discovered[:8]
+    personal_capped = ALL_PERSONAL[:8]
+    all_tickers = list(dict.fromkeys(top_discovered + personal_capped))
+    print(f"  → Tickers for deep analysis: {len(all_tickers)} — {', '.join(all_tickers)}")
 
-    # Phase 2 — Deep Analysis
-    print("\n[Phase 2] Deep analysis (Victor Kane)...")
-    time.sleep(2)  # brief pause between API calls
-    prompt = build_analysis_prompt(all_tickers, macro, personal_status)
-    report = call_claude(prompt, "Deep analysis")
+    # Phase 2 — Deep Analysis in batches of 8
+    BATCH_SIZE = 8
+    batches = [all_tickers[i:i+BATCH_SIZE] for i in range(0, len(all_tickers), BATCH_SIZE)]
+    print(f"\n[Phase 2] Deep analysis in {len(batches)} batch(es) of up to {BATCH_SIZE} tickers...")
 
+    batch_reports = []
+    for i, batch in enumerate(batches):
+        print(f"  → Batch {i+1}/{len(batches)}: {', '.join(batch)}")
+        if i > 0:
+            print(f"  → Pausing 65s between batches to respect rate limits...")
+            time.sleep(65)
+        prompt = build_analysis_prompt(batch, macro, personal_status)
+        result = call_claude_with_retry(prompt, f"Deep analysis batch {i+1}")
+        batch_reports.append(result)
+
+    # Merge all batches
+    report   = merge_reports(batch_reports)
     picks    = report.get("top_picks", [])
     growth   = [p for p in picks if (p.get("category","") or "").upper() == "GROWTH"]
     balanced = [p for p in picks if (p.get("category","") or "").upper() == "BALANCED"]
 
-    print(f"  → {len(picks)} top picks: {len(growth)} growth, {len(balanced)} balanced")
+    print(f"  → {len(picks)} total picks: {len(growth)} growth, {len(balanced)} balanced")
 
-    # Build + send email
+    # Phase 3 — Build + send email
     print("\n[Phase 3] Building report and sending email...")
-    html     = build_html_email(report, macro)
-    mood     = macro.get("market_mood","?")
-    risk     = report.get("risk_level","?")
-    subject  = (f"📈 Victor Kane — {TODAY} | {len(picks)} picks "
-                f"({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}")
+    html    = build_html_email(report, macro)
+    mood    = macro.get("market_mood","?")
+    risk    = report.get("risk_level","?")
+    subject = (f"📈 Victor Kane — {TODAY} | {len(picks)} picks "
+               f"({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}")
 
     send_email(html, subject)
 
