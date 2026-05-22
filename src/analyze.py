@@ -44,21 +44,20 @@ NOW   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 # Avoids chaining two large web-search calls which bloats context
 # ─────────────────────────────────────────────────────────────────────────────
 def build_full_prompt(personal_tickers):
-    watchlist_line = f"Also analyse these personal watchlist tickers and include each in watchlist_analysis: {', '.join(personal_tickers)}" if personal_tickers else ""
-    return f"""Date: {TODAY}. You are Victor Kane, elite quant analyst, 25yr Wall St veteran. GROWTH=rev>20%/yr, BALANCED=5-20%/yr. Min R:R 2.5:1.
-
-INSTRUCTIONS:
-1. Search web for today's top 4 momentum/breakout stocks with strong BUY signals
-2. Search for current price, P/E, RSI, 52w high/low, volume, analyst targets for each
-3. Score each 0-100: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10)
-4. Search for VIX, S&P500 and Nasdaq performance today
+    watchlist_line = f"Personal tickers to always include in watchlist_analysis: {', '.join(personal_tickers)}" if personal_tickers else ""
+    return f"""You are Victor Kane, elite quant analyst. Date: {TODAY}.
 {watchlist_line}
 
-Respond with ONLY a JSON object. No text before or after. No markdown. No trailing commas. Use this exact structure filled with real data:
+Do these web searches:
+- "top momentum stocks breakout {TODAY}"
+- "analyst upgrades unusual volume {TODAY}"  
+- "VIX S&P500 Nasdaq performance {TODAY}"
+- current price + RSI + P/E + 52w high/low for your top 4 picks and all personal tickers
 
-{{"report_date":"{TODAY}","macro_summary":"2 sentence market read","risk_level":"MODERATE","sector_rotation":"tech leading","market_mood":"BULLISH","vix":16.5,"sp500_pct":0.5,"nasdaq_pct":0.8,"top_picks":[{{"ticker":"NVDA","company_name":"NVIDIA Corp","category":"GROWTH","sector":"Technology","current_price":135.50,"price_change_today_pct":1.2,"signal":"STRONG BUY","confidence_score":85,"confidence_breakdown":{{"technical":26,"fundamental":22,"catalyst":18,"macro_alignment":12,"risk_reward":7}},"entry_range_low":133.0,"entry_range_high":137.0,"target_1m":148.0,"target_6m":165.0,"target_1y":190.0,"stop_loss":127.0,"upside_1m_pct":9.2,"upside_6m_pct":21.8,"upside_1y_pct":40.2,"target_1m_probability_pct":65,"target_6m_probability_pct":55,"target_1y_probability_pct":45,"risk_reward_ratio":3.2,"pe_ratio":35.2,"forward_pe":28.1,"peg_ratio":1.4,"ps_ratio":18.2,"ev_ebitda":42.1,"eps_ttm":2.94,"eps_growth_yoy_pct":125.0,"market_cap_b":3320.0,"revenue_growth_yoy_pct":122.0,"revenue_growth_qoq_pct":12.0,"gross_margin_pct":75.0,"operating_margin_pct":54.0,"net_margin_pct":55.0,"fcf_yield_pct":2.1,"roe_pct":91.0,"debt_to_equity":0.41,"cash_position_b":34.0,"earnings_streak":"Beat Beat Beat Beat","last_earnings_surprise_pct":8.5,"guidance":"Raised","volume_today":45000000,"avg_volume_30d":38000000,"volume_ratio":1.18,"week52_high":153.13,"week52_low":86.22,"price_vs_52h_pct":-11.5,"rsi_14":58,"macd_signal":"BULLISH","macd_histogram":"POSITIVE","price_vs_50ma":3.2,"price_vs_200ma":18.5,"ma_signal":"ABOVE BOTH","chart_pattern":"Bull Flag","support_level":130.0,"resistance_level":140.0,"analyst_consensus":"Strong Buy","analyst_avg_target":175.0,"num_analysts":42,"insider_activity":"Neutral","institutional_ownership_pct":65.2,"institutional_change":"Increasing","next_earnings_est":"2026-08-20","catalyst_summary":"Blackwell GPU demand surging. Next earnings expected to show continued growth.","geopolitical_factor":"AI export restrictions eased slightly benefiting datacenter sales.","technical_analysis":"Bull flag consolidation above 50MA. RSI 58 with room to run. Breakout above 140 targets 148.","fundamental_analysis":"Revenue +122% YoY with 75% gross margins. Raised guidance 3 consecutive quarters.","victor_verdict":"Cleanest setup I see. Entry 133-137, target 165 in 6 months, stop 127.","why_now":"Flag breakout setting up after 3-week consolidation with institutional accumulation.","risks":"Export restriction escalation. Valuation stretched if AI capex slows.","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"AAPL","company_name":"Apple Inc","category":"BALANCED","current_price":201.5,"price_change_today_pct":0.3,"signal":"WATCH","confidence_score":58,"entry_range_low":195.0,"entry_range_high":205.0,"target_1y":230.0,"stop_loss":188.0,"upside_1y_pct":14.1,"pe_ratio":32.1,"week52_high":237.23,"week52_low":169.21,"rsi_14":52,"analyst_consensus":"Buy","analyst_avg_target":225.0,"victor_note":"Needs to clear 205 resistance first. Wait for confirmation.","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"MSFT","bias":"BULLISH","note":"Cloud growth re-accelerating","category":"BALANCED"}}],"disclaimer":"For educational purposes only. Not financial advice."}}
+Pick 4 stocks with strongest BUY setup. Score 0-100 (technical30+fundamental25+catalyst20+macro15+rr10). Only top_picks if score>=65.
 
-Replace ALL example values above with REAL current data from your web searches for {TODAY}. Include all {len(personal_tickers)} personal watchlist tickers in watchlist_analysis."""
+Reply with ONLY this JSON (no other text, no markdown):
+{{"report_date":"{TODAY}","macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL","vix":0,"sp500_pct":0,"nasdaq_pct":0,"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"","current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"BALANCED","current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],"disclaimer":"For educational purposes only. Not financial advice."}}"""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PHASE 2 PROMPT — Deep Analysis (Victor Kane persona)
@@ -89,7 +88,7 @@ def call_claude(prompt, label="Claude API"):
     print(f"  → {label}...")
     payload = json.dumps({
         "model": "claude-sonnet-4-5",
-        "max_tokens": 4000,
+        "max_tokens": 6000,
         "tools": [{"type": "web_search_20250305", "name": "web_search"}],
         "messages": [{"role": "user", "content": prompt}]
     }).encode("utf-8")
@@ -118,6 +117,10 @@ def call_claude(prompt, label="Claude API"):
     for block in data.get("content", []):
         if block.get("type") == "text":
             full_text += block.get("text", "")
+
+    # Print raw response to logs so we can debug
+    print(f"  → Raw response length: {len(full_text)} chars")
+    print(f"  → Raw response preview:\n{full_text[:3000]}")
 
     full_text = full_text.strip()
 
