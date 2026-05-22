@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Quant Signal Agent v4 -- Victor Kane Daily Stock Report"""
+"""Quant Signal Agent v5 -- Victor Kane | GitHub Pages + Email Link"""
 
 import os, json, re, urllib.request, urllib.error, smtplib, ssl, time, subprocess, sys
 from email.mime.multipart import MIMEMultipart
@@ -10,6 +10,8 @@ ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 EMAIL_FROM        = os.environ["EMAIL_FROM"]
 EMAIL_PASSWORD    = os.environ["EMAIL_PASSWORD"]
 EMAIL_TO          = os.environ["EMAIL_TO"]
+GITHUB_TOKEN      = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO       = os.environ.get("GITHUB_REPOSITORY", "")  # e.g. canhub2026/stock-agent
 
 _raw  = os.environ.get("PERSONAL_WATCHLIST", "")
 _extra= os.environ.get("EXTRA_TICKERS", "")
@@ -20,7 +22,6 @@ ALL_PERSONAL       = list(dict.fromkeys(PERSONAL_WATCHLIST + EXTRA_TICKERS))
 TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 NOW   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-# Broad discovery universe -- scans these every day regardless of personal watchlist
 DISCOVERY_UNIVERSE = [
     "NVDA","META","MSFT","GOOGL","AMZN",
     "PLTR","ARM","CRWD","SNOW","DDOG",
@@ -40,9 +41,7 @@ def fetch_stock_data(tickers):
     try:
         import yfinance as yf
     except ImportError:
-        install_yfinance()
-        import yfinance as yf
-
+        install_yfinance(); import yfinance as yf
     results = {}
     print(f"  -> Fetching {len(tickers)} tickers...")
     for ticker in tickers:
@@ -50,9 +49,9 @@ def fetch_stock_data(tickers):
             t    = yf.Ticker(ticker)
             info = t.info or {}
             hist = t.history(period="1y", interval="1d")
-            price     = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
-            prev      = float(info.get("previousClose") or price)
-            chg       = round((price-prev)/prev*100,2) if prev else 0
+            price = float(info.get("currentPrice") or info.get("regularMarketPrice") or 0)
+            prev  = float(info.get("previousClose") or price)
+            chg   = round((price-prev)/prev*100,2) if prev else 0
             rsi = 50
             if len(hist) >= 15:
                 d = hist["Close"].diff()
@@ -67,38 +66,28 @@ def fetch_stock_data(tickers):
             vol_a = int(hist["Volume"].tail(30).mean()) if len(hist)>=30  else 0
             wk52h = float(info.get("fiftyTwoWeekHigh",price) or price)
             results[ticker] = {
-                "ticker": ticker,
-                "name":   info.get("longName", ticker),
-                "sector": info.get("sector","Unknown"),
-                "price":  round(price,2),
-                "chg_pct":chg,
-                "mktcap_b":round((info.get("marketCap",0) or 0)/1e9,1),
-                "pe":     round(info.get("trailingPE",0) or 0,1),
-                "fwd_pe": round(info.get("forwardPE",0) or 0,1),
-                "peg":    round(info.get("pegRatio",0) or 0,2),
-                "eps":    round(info.get("trailingEps",0) or 0,2),
-                "eps_g":  round((info.get("earningsGrowth",0) or 0)*100,1),
-                "rev_g":  round((info.get("revenueGrowth",0) or 0)*100,1),
-                "gm":     round((info.get("grossMargins",0) or 0)*100,1),
-                "om":     round((info.get("operatingMargins",0) or 0)*100,1),
-                "nm":     round((info.get("profitMargins",0) or 0)*100,1),
-                "roe":    round((info.get("returnOnEquity",0) or 0)*100,1),
-                "de":     round(info.get("debtToEquity",0) or 0,2),
-                "cash_b": round((info.get("totalCash",0) or 0)/1e9,1),
-                "wk52h":  round(wk52h,2),
-                "wk52l":  round(float(info.get("fiftyTwoWeekLow",0) or 0),2),
-                "vs52h":  round((price-wk52h)/wk52h*100,1) if wk52h else 0,
-                "rsi":    rsi,
-                "vs50ma": round((price-ma50)/ma50*100,1)   if ma50  else 0,
+                "ticker":ticker,"name":info.get("longName",ticker),"sector":info.get("sector","Unknown"),
+                "price":round(price,2),"chg_pct":chg,"mktcap_b":round((info.get("marketCap",0) or 0)/1e9,1),
+                "pe":round(info.get("trailingPE",0) or 0,1),"fwd_pe":round(info.get("forwardPE",0) or 0,1),
+                "peg":round(info.get("pegRatio",0) or 0,2),"eps":round(info.get("trailingEps",0) or 0,2),
+                "eps_g":round((info.get("earningsGrowth",0) or 0)*100,1),
+                "rev_g":round((info.get("revenueGrowth",0) or 0)*100,1),
+                "gm":round((info.get("grossMargins",0) or 0)*100,1),
+                "om":round((info.get("operatingMargins",0) or 0)*100,1),
+                "nm":round((info.get("profitMargins",0) or 0)*100,1),
+                "roe":round((info.get("returnOnEquity",0) or 0)*100,1),
+                "de":round(info.get("debtToEquity",0) or 0,2),
+                "cash_b":round((info.get("totalCash",0) or 0)/1e9,1),
+                "wk52h":round(wk52h,2),"wk52l":round(float(info.get("fiftyTwoWeekLow",0) or 0),2),
+                "vs52h":round((price-wk52h)/wk52h*100,1) if wk52h else 0,
+                "rsi":rsi,"vs50ma":round((price-ma50)/ma50*100,1) if ma50 else 0,
                 "vs200ma":round((price-ma200)/ma200*100,1) if ma200 else 0,
-                "vol":    vol_t,
-                "avgvol": vol_a,
-                "volr":   round(vol_t/vol_a,2) if vol_a else 1,
-                "cons":   info.get("recommendationKey","N/A"),
-                "atgt":   round(info.get("targetMeanPrice",0) or 0,2),
-                "nans":   int(info.get("numberOfAnalystOpinions",0) or 0),
-                "inst":   round((info.get("heldPercentInstitutions",0) or 0)*100,1),
-                "earn":   str((info.get("earningsDate",["N/A"])[0])) if info.get("earningsDate") else "N/A",
+                "vol":vol_t,"avgvol":vol_a,"volr":round(vol_t/vol_a,2) if vol_a else 1,
+                "cons":info.get("recommendationKey","N/A"),
+                "atgt":round(info.get("targetMeanPrice",0) or 0,2),
+                "nans":int(info.get("numberOfAnalystOpinions",0) or 0),
+                "inst":round((info.get("heldPercentInstitutions",0) or 0)*100,1),
+                "earn":str((info.get("earningsDate",["N/A"])[0])) if info.get("earningsDate") else "N/A",
             }
             print(f"    ok {ticker}: ${price:.2f} RSI:{rsi} PE:{results[ticker]['pe']} RevG:{results[ticker]['rev_g']}%")
         except Exception as e:
@@ -117,8 +106,7 @@ def fetch_market():
         vx  = round(float(vix["Close"].iloc[-1]),2) if not vix.empty else 0
         return {"sp":sp,"nq":nq,"vix":vx}
     except Exception as e:
-        print(f"  market fetch error: {e}")
-        return {"sp":0,"nq":0,"vix":0}
+        print(f"  market error: {e}"); return {"sp":0,"nq":0,"vix":0}
 
 # =============================================================================
 # CLAUDE CALLS
@@ -126,9 +114,8 @@ def fetch_market():
 def call_claude(prompt, label):
     print(f"  -> Claude: {label}...")
     payload = json.dumps({
-        "model": "claude-sonnet-4-5",
-        "max_tokens": 2000,
-        "messages": [{"role":"user","content":prompt}]
+        "model":"claude-sonnet-4-5","max_tokens":2000,
+        "messages":[{"role":"user","content":prompt}]
     }).encode("utf-8")
     req = urllib.request.Request(
         "https://api.anthropic.com/v1/messages", data=payload,
@@ -142,424 +129,519 @@ def call_claude(prompt, label):
             break
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8")
-            print(f"  x {e.code}: {body[:150]}")
+            print(f"  x {e.code}: {body[:120]}")
             if e.code in (429,500,502,503,529) and attempt < 3:
-                w = 30*(attempt+1)
-                print(f"  -> retry in {w}s...")
-                time.sleep(w); continue
+                w = 30*(attempt+1); print(f"  -> retry {attempt+2}/4 in {w}s..."); time.sleep(w); continue
             return {}
         except Exception as e:
-            print(f"  x network: {e}")
-            if attempt < 3:
-                time.sleep(30); continue
+            print(f"  x {e}")
+            if attempt < 3: time.sleep(30); continue
             return {}
-
     text = "".join(b.get("text","") for b in data.get("content",[]) if b.get("type")=="text").strip()
     text = re.sub(r"^```(?:json)?\s*","",text,flags=re.MULTILINE)
     text = re.sub(r"\s*```$","",text,flags=re.MULTILINE)
     s = text.find("{"); e2 = text.rfind("}")+1
-    if s==-1:
-        print(f"  x no JSON. preview: {text[:200]}")
-        return {}
+    if s==-1: print(f"  x no JSON: {text[:150]}"); return {}
     js = re.sub(r",\s*([}\]])",r"\1",text[s:e2])
-    try:
-        return json.loads(js)
+    try: return json.loads(js)
     except json.JSONDecodeError as ex:
-        print(f"  x JSON error at {ex.pos}: ...{js[max(0,ex.pos-50):ex.pos+50]}...")
+        print(f"  x JSON err pos {ex.pos}: ...{js[max(0,ex.pos-40):ex.pos+40]}...")
         return {}
-
 
 def discovery_prompt(data_json, mkt):
     return (
-        f"Victor Kane, quant analyst. Date:{TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
-        f"STOCK DATA:\n{data_json}\n\n"
-        f"Select 2-3 best BUY setups. Score: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). Min 65.\n"
-        f"GROWTH=rev_g>20%, BALANCED=5-20%.\n"
-        f"STRICT LIMITS: why_buy MAX 25 words. technical_read MAX 15 words. risks MAX 15 words. catalyst MAX 10 words. macro_factor MAX 10 words.\n\n"
+        f"Victor Kane, quant analyst. {TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n"
+        f"DATA:\n{data_json}\n\n"
+        f"Pick 2-3 best BUY setups. Score: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). Min 65.\n"
+        f"GROWTH=rev_g>20%. BALANCED=5-20%.\n"
+        f"STRICT word limits: why_buy=25w, technical_read=15w, risks=15w, catalyst=10w, macro_factor=10w.\n\n"
         f"JSON only:\n"
-        f'{{"top_picks":['
-        f'{{"ticker":"","name":"","category":"GROWTH","sector":"",'
+        f'{{"top_picks":[{{"ticker":"","name":"","category":"GROWTH","sector":"",'
         f'"price":0,"chg_pct":0,"signal":"BUY","score":0,'
         f'"score_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro":0,"rr":0}},'
         f'"entry_low":0,"entry_high":0,"t1m":0,"t6m":0,"t1y":0,"stop":0,'
         f'"upr_1m":0,"upr_6m":0,"upr_1y":0,"prob_1m":0,"prob_6m":0,"prob_1y":0,"rr_ratio":0,'
         f'"pe":0,"fwd_pe":0,"peg":0,"eps_g":0,"rev_g":0,"gm":0,"om":0,"nm":0,"roe":0,'
-        f'"de":0,"cash_b":0,"mktcap_b":0,'
-        f'"rsi":0,"vs50ma":0,"vs200ma":0,"volr":0,"wk52h":0,"wk52l":0,"vs52h":0,'
-        f'"cons":"","atgt":0,"nans":0,"inst":0,"earn":"",'
-        f'"why_buy":"25 words max: company role, entry reason, key number",'
-        f'"technical_read":"15 words max: chart level and signal",'
-        f'"risks":"Risk1 10 words; Risk2 10 words",'
-        f'"catalyst":"10 words max",'
-        f'"macro_factor":"10 words max"}}],'
-        f'"macro_summary":"20 words max market overview",'
-        f'"risk_level":"MODERATE",'
-        f'"sector_rotation":"15 words max",'
+        f'"de":0,"cash_b":0,"mktcap_b":0,"rsi":0,"vs50ma":0,"vs200ma":0,"volr":0,'
+        f'"wk52h":0,"wk52l":0,"vs52h":0,"cons":"","atgt":0,"nans":0,"inst":0,"earn":"",'
+        f'"why_buy":"","technical_read":"","risks":"","catalyst":"","macro_factor":""}}],'
+        f'"macro_summary":"20w max","risk_level":"MODERATE","sector_rotation":"15w max",'
         f'"market_mood":"NEUTRAL",'
-        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","reason":"5 words max"}}]}}'
+        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","reason":"5w max"}}]}}'
     )
-
 
 def watchlist_prompt(data_json, mkt):
     return (
-        f"Victor Kane, quant analyst. Date:{TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
+        f"Victor Kane. {TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n"
         f"WATCHLIST:\n{data_json}\n\n"
-        f"Score each 0-100. Signal: STRONG BUY/BUY/WATCH/HOLD/AVOID. Set entry, 1y target, stop.\n"
-        f"STRICT: note MAX 20 words. Reference 1-2 specific numbers.\n\n"
+        f"Score each 0-100. Signal: STRONG BUY/BUY/WATCH/HOLD/AVOID. Entry range, 1y target, stop.\n"
+        f"note=20w max, specific numbers only.\n\n"
         f"JSON only:\n"
         f'{{"watchlist":[{{"ticker":"","name":"","category":"GROWTH",'
         f'"price":0,"chg_pct":0,"signal":"WATCH","score":0,'
         f'"entry_low":0,"entry_high":0,"t1y":0,"stop":0,"upr_1y":0,'
         f'"pe":0,"rsi":0,"wk52h":0,"wk52l":0,"atgt":0,"cons":"",'
-        f'"note":"20 words max with specific data"}}]}}'
+        f'"note":"20w max"}}]}}'
     )
 
 # =============================================================================
-# HTML BUILDER
+# GITHUB PAGES -- publish HTML report
 # =============================================================================
-def sig_col(s):
-    s=(s or "").upper()
-    if "STRONG BUY" in s: return "#059669"
-    if "BUY" in s:        return "#10b981"
-    if "WATCH" in s:      return "#f59e0b"
-    if "HOLD" in s:       return "#6366f1"
-    return "#ef4444"
+def publish_to_github(html_content):
+    """Push index.html to gh-pages branch via GitHub API."""
+    if not GITHUB_TOKEN or not GITHUB_REPO:
+        print("  -> No GitHub token/repo, skipping Pages publish")
+        return None
 
-def chg_col(v):
-    try: return "#10b981" if float(v)>=0 else "#ef4444"
-    except: return "#94a3b8"
+    import base64
+    api = f"https://api.github.com/repos/{GITHUB_REPO}/contents/docs/index.html"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "stock-agent"
+    }
 
-def cat_col(c):
-    c=(c or "").upper()
-    if c=="GROWTH":   return ("bg:#7c3aed","#ede9fe","#7c3aed")
-    if c=="BALANCED": return ("bg:#0369a1","#e0f2fe","#0369a1")
-    return ("bg:#374151","#f1f5f9","#374151")
+    # Get current file SHA if exists (needed for update)
+    sha = None
+    try:
+        req = urllib.request.Request(api, headers=headers)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            existing = json.loads(r.read().decode())
+            sha = existing.get("sha")
+    except:
+        pass
 
-def score_bar(score, breakdown):
-    s   = int(score or 0)
-    col = "#059669" if s>=80 else "#10b981" if s>=65 else "#f59e0b" if s>=50 else "#ef4444"
-    lbl = "STRONG BUY" if s>=80 else "BUY" if s>=65 else "WATCH" if s>=50 else "AVOID"
-    lbl_bg = "#d1fae5" if s>=65 else "#fef3c7" if s>=50 else "#fee2e2"
-    lbl_col= "#065f46" if s>=65 else "#92400e" if s>=50 else "#991b1b"
-    rows = ""
-    for n,v,mx in [("Technical",breakdown.get("technical",0),30),
-                   ("Fundamental",breakdown.get("fundamental",0),25),
-                   ("Catalyst",breakdown.get("catalyst",0),20),
-                   ("Macro",breakdown.get("macro",0),15),
-                   ("Risk/Reward",breakdown.get("rr",0),10)]:
-        pct = int(v/mx*100) if mx else 0
-        rows += (f'<div style="margin-bottom:5px">'
-                 f'<div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-bottom:2px">'
-                 f'<span>{n}</span><span style="font-weight:600;color:{col}">{v}/{mx}</span></div>'
-                 f'<div style="height:5px;background:#e2e8f0;border-radius:3px">'
-                 f'<div style="height:5px;width:{pct}%;background:{col};border-radius:3px"></div></div></div>')
-    return (f'<div style="display:flex;gap:16px;align-items:flex-start;padding:16px 20px;border-bottom:1px solid #f1f5f9">'
-            f'<div style="text-align:center;min-width:60px">'
-            f'<div style="font-size:32px;font-weight:800;color:{col};line-height:1">{s}</div>'
-            f'<div style="font-size:9px;color:#94a3b8;margin-top:2px">/100</div>'
-            f'<div style="margin-top:6px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;'
-            f'background:{lbl_bg};color:{lbl_col}">{lbl}</div></div>'
-            f'<div style="flex:1">{rows}</div></div>')
+    encoded = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
+    body = {"message": f"Report {TODAY}", "content": encoded, "branch": "main"}
+    if sha:
+        body["sha"] = sha
 
-def stat_box(label, value, color="#0f172a", sub=""):
-    return (f'<div style="padding:10px 8px;text-align:center;border-right:1px solid #f1f5f9">'
-            f'<div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">{label}</div>'
-            f'<div style="font-size:13px;font-weight:700;color:{color}">{value}</div>'
-            f'{"<div style=font-size:9px;color:#94a3b8;margin-top:1px>" + sub + "</div>" if sub else ""}'
-            f'</div>')
+    req = urllib.request.Request(api, data=json.dumps(body).encode(), headers=headers, method="PUT")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            print(f"  -> Published to GitHub Pages")
+            owner, repo = GITHUB_REPO.split("/")
+            return f"https://{owner}.github.io/{repo}/"
+    except Exception as e:
+        print(f"  -> GitHub Pages publish failed: {e}")
+        return None
 
-def pick_card(p, idx):
-    t     = p.get("ticker","?")
-    nm    = p.get("name","")
-    cat   = p.get("category","BALANCED")
-    sec   = p.get("sector","")
-    price = p.get("price",0)
-    chg   = p.get("chg_pct",0)
-    sig   = p.get("signal","BUY")
-    score = p.get("score",0)
-    bd    = p.get("score_breakdown",{})
-    _,cbg,cborder = cat_col(cat)
-
-    upr1y = p.get("upr_1y",0)
-    upr_col = "#10b981" if float(upr1y or 0) > 0 else "#ef4444"
-
-    def f(v,d=2):
-        try: return f"{float(v):.{d}f}" if v not in (None,"","N/A") else "N/A"
-        except: return str(v) if v else "N/A"
-    def fp(v):
-        try:
-            n=float(v); return f"{'+'if n>=0 else ''}{n:.1f}%"
-        except: return "N/A"
-
-    return f"""
-<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-  <!-- Header -->
-  <div style="padding:16px 20px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:flex-start">
-    <div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
-        <span style="font-size:11px;color:#6b7280;font-weight:500">#{idx}</span>
-        <span style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-.02em">{t}</span>
-        <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:{cbg};color:{cborder};border:1px solid {cborder}">{cat}</span>
-        <span style="font-size:10px;color:#94a3b8">{sec}</span>
-      </div>
-      <div style="font-size:12px;color:#64748b">{nm}</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:24px;font-weight:800;color:#0f172a">${f(price)}</div>
-      <div style="font-size:12px;font-weight:600;color:{chg_col(chg)}">{fp(chg)} today</div>
-      <div style="font-size:11px;font-weight:700;color:{sig_col(sig)};margin-top:3px">{sig}</div>
-    </div>
-  </div>
-
-  <!-- Confidence score -->
-  {score_bar(score, bd)}
-
-  <!-- Price targets -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid #f1f5f9">
-    {stat_box("Entry range",f"${f(p.get('entry_low'))}",  "#0369a1")}
-    {stat_box("entry to",   f"${f(p.get('entry_high'))}", "#0369a1")}
-    {stat_box("1-month",    f"${f(p.get('t1m'))}",        "#10b981", fp(p.get('upr_1m')))}
-    {stat_box("6-month",    f"${f(p.get('t6m'))}",        "#10b981", fp(p.get('upr_6m')))}
-    {stat_box("1-year",     f"${f(p.get('t1y'))}",        upr_col,   fp(p.get('upr_1y'))+" | RR:"+f(p.get('rr_ratio'),1)+"x")}
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #f1f5f9">
-    {stat_box("Stop loss",      f"${f(p.get('stop'))}",    "#ef4444")}
-    {stat_box("Analyst target", f"${f(p.get('atgt'))}",    "#6366f1", str(p.get('nans','?'))+" analysts")}
-    {stat_box("Next earnings",  str(p.get('earn','N/A')),  "#94a3b8")}
-  </div>
-
-  <!-- Key stats row -->
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid #f1f5f9;background:#fafafa">
-    {stat_box("P/E",      f"{f(p.get('pe'))}x",    "#0f172a")}
-    {stat_box("Fwd P/E",  f"{f(p.get('fwd_pe'))}x","#0f172a")}
-    {stat_box("Rev growth",fp(p.get('rev_g')),      "#10b981" if float(p.get('rev_g') or 0)>15 else "#0f172a")}
-    {stat_box("EPS growth",fp(p.get('eps_g')),      "#10b981" if float(p.get('eps_g') or 0)>0 else "#ef4444")}
-    {stat_box("Gross margin",fp(p.get('gm')),       "#0f172a")}
-    {stat_box("Net margin",fp(p.get('nm')),         "#0f172a")}
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid #f1f5f9;background:#fafafa">
-    {stat_box("RSI (14)",   str(p.get('rsi','N/A')), "#f59e0b" if float(p.get('rsi') or 50)>70 else "#10b981" if float(p.get('rsi') or 50)<35 else "#0f172a")}
-    {stat_box("Vs 50MA",   fp(p.get('vs50ma')),     chg_col(p.get('vs50ma')))}
-    {stat_box("Vs 200MA",  fp(p.get('vs200ma')),    chg_col(p.get('vs200ma')))}
-    {stat_box("Vol ratio", f"{f(p.get('volr'))}x",  "#10b981" if float(p.get('volr') or 1)>1.3 else "#0f172a")}
-    {stat_box("52W high",  f"${f(p.get('wk52h'))}", "#0f172a")}
-    {stat_box("Vs 52W hi", fp(p.get('vs52h')),      chg_col(p.get('vs52h')))}
-  </div>
-
-  <!-- Victor's thesis -->
-  <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
-    <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Victor Kane's Investment Thesis</div>
-    <p style="font-size:13px;color:#1e293b;line-height:1.7;margin:0 0 12px">{p.get("why_buy","N/A")}</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px">
-        <div style="font-size:9px;font-weight:700;color:#166534;text-transform:uppercase;margin-bottom:5px">Technical Setup</div>
-        <p style="font-size:12px;color:#166534;line-height:1.6;margin:0">{p.get("technical_read","N/A")}</p>
-      </div>
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px">
-        <div style="font-size:9px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:5px">Key Catalyst</div>
-        <p style="font-size:12px;color:#1e40af;line-height:1.6;margin:0">{p.get("catalyst","N/A")}</p>
-      </div>
-    </div>
-    <div style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px">
-      <div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;margin-bottom:4px">Macro / Sector Tailwind</div>
-      <p style="font-size:12px;color:#92400e;line-height:1.6;margin:0">{p.get("macro_factor","N/A")}</p>
-    </div>
-  </div>
-  <div style="padding:10px 20px;background:#fef2f2">
-    <span style="font-size:9px;font-weight:700;color:#991b1b;text-transform:uppercase">Risks: </span>
-    <span style="font-size:11px;color:#991b1b">{p.get("risks","N/A")}</span>
-  </div>
-</div>"""
-
-
-def watchlist_card(w):
-    t     = w.get("ticker","?")
-    nm    = w.get("name","")
-    cat   = w.get("category","BALANCED")
-    price = w.get("price",0)
-    chg   = w.get("chg_pct",0)
-    sig   = w.get("signal","WATCH")
-    score = w.get("score",0)
-    _,cbg,cborder = cat_col(cat)
-
-    def f(v,d=2):
-        try: return f"{float(v):.{d}f}" if v not in (None,"","N/A") else "N/A"
-        except: return str(v) if v else "N/A"
-    def fp(v):
-        try:
-            n=float(v); return f"{'+'if n>=0 else ''}{n:.1f}%"
-        except: return "N/A"
-
-    score_col = "#059669" if score>=80 else "#10b981" if score>=65 else "#f59e0b" if score>=50 else "#ef4444"
-
-    return f"""
-<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;overflow:hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f8fafc;border-bottom:1px solid #f1f5f9;flex-wrap:wrap;gap:8px">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <span style="font-size:17px;font-weight:800;color:#0f172a">{t}</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700;background:{cbg};color:{cborder}">{cat}</span>
-      <span style="font-size:10px;font-weight:600;color:{sig_col(sig)}">{sig}</span>
-      <span style="font-size:10px;color:#94a3b8">{nm[:30]}</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="text-align:right">
-        <div style="font-size:16px;font-weight:700;color:#0f172a">${f(price)}</div>
-        <div style="font-size:11px;color:{chg_col(chg)}">{fp(chg)}</div>
-      </div>
-      <div style="text-align:center;min-width:44px;padding:6px 10px;background:{score_col}15;border-radius:8px;border:1px solid {score_col}40">
-        <div style="font-size:16px;font-weight:800;color:{score_col}">{score}</div>
-        <div style="font-size:8px;color:#94a3b8">/100</div>
-      </div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #f1f5f9">
-    {stat_box("Entry", f"${f(w.get('entry_low'))}-${f(w.get('entry_high'))}", "#0369a1")}
-    {stat_box("1Y target", f"${f(w.get('t1y'))}", "#10b981", fp(w.get('upr_1y')))}
-    {stat_box("Stop", f"${f(w.get('stop'))}", "#ef4444")}
-    {stat_box("P/E", f"{f(w.get('pe'))}x", "#0f172a")}
-    {stat_box("RSI", str(w.get('rsi','N/A')), "#f59e0b" if float(w.get('rsi') or 50)>70 else "#10b981" if float(w.get('rsi') or 50)<35 else "#0f172a")}
-    {stat_box("Analyst tgt", f"${f(w.get('atgt'))}", "#6366f1")}
-    {stat_box("Consensus", str(w.get('cons','N/A')), "#0f172a")}
-  </div>
-  <div style="padding:12px 16px;background:#f8fafc">
-    <span style="font-size:9px;font-weight:700;color:#475569;text-transform:uppercase">Victor: </span>
-    <span style="font-size:12px;color:#1e293b;font-style:italic">{w.get("note","N/A")}</span>
-  </div>
-</div>"""
-
-
-def build_email(picks, watchlist, scan_brief, macro, mkt):
-    growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
-    balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
-    risk     = macro.get("risk_level","MODERATE").upper()
-    mood     = macro.get("market_mood","NEUTRAL").upper()
-    risk_col = {"LOW":"#059669","MODERATE":"#f59e0b","HIGH":"#ef4444"}.get(risk,"#94a3b8")
-    mood_col = {"BULLISH":"#059669","NEUTRAL":"#f59e0b","BEARISH":"#ef4444"}.get(mood,"#94a3b8")
-
-    pick_html = ""
-    if picks:
-        if growth:
-            pick_html += f'<div style="display:flex;align-items:center;gap:8px;margin:20px 0 12px"><div style="width:4px;height:28px;background:#7c3aed;border-radius:2px"></div><div><div style="font-size:15px;font-weight:700;color:#0f172a">Growth Picks</div><div style="font-size:11px;color:#64748b">{len(growth)} high-conviction</div></div></div>'
-            pick_html += "".join(pick_card(p,i+1) for i,p in enumerate(growth))
-        if balanced:
-            pick_html += f'<div style="display:flex;align-items:center;gap:8px;margin:20px 0 12px"><div style="width:4px;height:28px;background:#0369a1;border-radius:2px"></div><div><div style="font-size:15px;font-weight:700;color:#0f172a">Balanced Picks</div><div style="font-size:11px;color:#64748b">{len(balanced)} solid setups</div></div></div>'
-            pick_html += "".join(pick_card(p,i+1) for i,p in enumerate(balanced))
-    else:
-        pick_html = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;background:#f8fafc;border-radius:8px;margin:16px 0">No high-conviction picks today -- market conditions not ideal for new entries.</div>'
-
-    watch_html = ""
-    if watchlist:
-        watch_html = (f'<div style="display:flex;align-items:center;gap:8px;margin:20px 0 12px">'
-                      f'<div style="width:4px;height:28px;background:#f59e0b;border-radius:2px"></div>'
-                      f'<div><div style="font-size:15px;font-weight:700;color:#0f172a">Your Watchlist</div>'
-                      f'<div style="font-size:11px;color:#64748b">{len(watchlist)} stocks tracked</div></div></div>'
-                      + "".join(watchlist_card(w) for w in watchlist))
-
-    brief_html = ""
-    if scan_brief:
-        items = "".join([
-            f'<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;margin:3px;'
-            f'background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;font-size:11px">'
-            f'<span style="font-weight:700;color:{"#059669" if b.get("bias")=="BULLISH" else "#ef4444" if b.get("bias")=="BEARISH" else "#f59e0b"}">{b.get("ticker","")}</span>'
-            f'<span style="color:#64748b">{b.get("reason","")}</span></span>'
-            for b in scan_brief
-        ])
-        brief_html = (f'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin-top:16px">'
-                      f'<div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Full Scan Brief</div>'
-                      f'{items}</div>')
-
-    tracking = " &middot; ".join(ALL_PERSONAL) if ALL_PERSONAL else "none"
-    font = "-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,sans-serif"
+# =============================================================================
+# HTML REPORT BUILDER
+# =============================================================================
+def build_html(picks, watchlist, scan_brief, macro, mkt):
+    picks_json    = json.dumps(picks,    ensure_ascii=False)
+    watchlist_json= json.dumps(watchlist,ensure_ascii=False)
+    scan_json     = json.dumps(scan_brief,ensure_ascii=False)
+    macro_json    = json.dumps(macro,    ensure_ascii=False)
+    mkt_json      = json.dumps(mkt,      ensure_ascii=False)
+    watchlist_str = ", ".join(ALL_PERSONAL) if ALL_PERSONAL else "none"
 
     return f"""<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Victor Kane Report {TODAY}</title></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:{font}">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Victor Kane -- {TODAY}</title>
+<style>
+  :root{{--bg:#0f172a;--card:#1e293b;--card2:#263148;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--indigo:#6366f1}}
+  *{{box-sizing:border-box;margin:0;padding:0}}
+  body{{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}}
+  .header{{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 20px;border-bottom:1px solid var(--border)}}
+  .header-inner{{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}}
+  .logo{{font-size:10px;color:#475569;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}}
+  .title{{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.02em}}
+  .subtitle{{font-size:11px;color:#64748b;margin-top:4px}}
+  .badges{{display:flex;gap:8px;flex-wrap:wrap}}
+  .badge{{padding:8px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;text-align:center}}
+  .badge-label{{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}}
+  .badge-val{{font-size:15px;font-weight:800;color:#fff}}
+  .market-bar{{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px}}
+  .market-inner{{max-width:1100px;margin:0 auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap}}
+  .mstat{{text-align:center;padding:8px 16px;background:var(--card2);border-radius:8px;min-width:80px}}
+  .mstat-l{{font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}}
+  .mstat-v{{font-size:14px;font-weight:700}}
+  .macro-text{{font-size:12px;color:var(--muted);flex:1;min-width:200px;line-height:1.6}}
+  .nav{{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto}}
+  .nav-btn{{padding:12px 18px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}}
+  .nav-btn.active{{color:var(--blue);border-bottom-color:var(--blue)}}
+  .nav-btn:hover{{color:var(--text)}}
+  .main{{max-width:1100px;margin:0 auto;padding:20px}}
+  .section{{display:none}}.section.active{{display:block}}
+  .picks-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:16px}}
+  .pick-card{{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s}}
+  .pick-card:hover{{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}}
+  .card-header{{padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}}
+  .card-ticker{{font-size:22px;font-weight:800;letter-spacing:-.02em}}
+  .card-name{{font-size:11px;color:var(--muted);margin-top:2px}}
+  .card-price{{text-align:right}}
+  .price-val{{font-size:20px;font-weight:700}}
+  .price-chg{{font-size:11px;font-weight:600;margin-top:2px}}
+  .signal-badge{{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-top:4px}}
+  .cat-badge{{font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px}}
+  .score-section{{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center}}
+  .score-num{{font-size:36px;font-weight:800;min-width:54px;text-align:center;line-height:1}}
+  .score-sub{{font-size:9px;color:var(--muted);text-align:center;margin-top:2px}}
+  .score-bars{{flex:1}}
+  .bar-row{{margin-bottom:4px}}
+  .bar-labels{{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:2px}}
+  .bar-track{{height:4px;background:var(--border);border-radius:2px}}
+  .bar-fill{{height:4px;border-radius:2px;transition:.5s}}
+  .targets-grid{{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}}
+  .tgt-cell{{padding:10px 8px;text-align:center;border-right:1px solid var(--border)}}
+  .tgt-label{{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}}
+  .tgt-val{{font-size:12px;font-weight:700}}
+  .tgt-sub{{font-size:9px;color:var(--muted);margin-top:1px}}
+  .stats-grid{{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}}
+  .stat-cell{{padding:8px;text-align:center;border-right:1px solid var(--border)}}
+  .stat-label{{font-size:8px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}}
+  .stat-val{{font-size:12px;font-weight:600}}
+  .thesis{{padding:14px 16px;border-bottom:1px solid var(--border)}}
+  .thesis-title{{font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}}
+  .thesis-text{{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px}}
+  .pill-row{{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}}
+  .pill{{padding:6px 10px;border-radius:8px;font-size:11px;line-height:1.5;flex:1;min-width:120px}}
+  .pill-title{{font-size:8px;font-weight:700;text-transform:uppercase;margin-bottom:3px}}
+  .risks-bar{{padding:8px 16px;font-size:11px}}
+  .watch-table{{width:100%;border-collapse:collapse;margin-top:12px}}
+  .watch-table th{{padding:10px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}}
+  .watch-table td{{padding:12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top}}
+  .watch-table tr:hover td{{background:var(--card2)}}
+  .tag{{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700}}
+  .brief-grid{{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}}
+  .brief-chip{{padding:6px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}}
+  .brief-reason{{font-size:10px;color:var(--muted)}}
+  .empty{{text-align:center;padding:40px;color:var(--muted);font-size:13px;background:var(--card2);border-radius:12px}}
+  .section-title{{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}}
+  .section-sub{{font-size:11px;color:var(--muted);margin-bottom:16px}}
+  .green{{color:var(--green)}}.red{{color:var(--red)}}.amber{{color:var(--amber)}}.blue{{color:var(--blue)}}.muted{{color:var(--muted)}}
+  @media(max-width:600px){{.picks-grid{{grid-template-columns:1fr}}.targets-grid{{grid-template-columns:repeat(2,1fr)}}.stats-grid{{grid-template-columns:repeat(2,1fr)}}}}
+</style>
+</head>
+<body>
 
-<!-- HEADER -->
-<div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);padding:28px 32px">
-  <div style="max-width:860px;margin:0 auto">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-      <div>
-        <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px">Quant Signal Agent</div>
-        <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.02em">Victor Kane Daily Report</div>
-        <div style="font-size:11px;color:#64748b;margin-top:4px">{TODAY} &middot; {NOW}</div>
-        <div style="font-size:11px;color:#475569;margin-top:3px">Tracking: {tracking}</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <div style="text-align:center;padding:10px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px">
-          <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px">Market Risk</div>
-          <div style="font-size:16px;font-weight:800;color:{risk_col}">{risk}</div>
-        </div>
-        <div style="text-align:center;padding:10px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px">
-          <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px">Top Picks</div>
-          <div style="font-size:16px;font-weight:800;color:#fff">{len(picks)}</div>
-        </div>
-        <div style="text-align:center;padding:10px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px">
-          <div style="font-size:9px;color:#64748b;text-transform:uppercase;margin-bottom:3px">G / B</div>
-          <div style="font-size:16px;font-weight:800;color:#fff">{len(growth)}/{len(balanced)}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MARKET SUMMARY -->
-<div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 32px">
-  <div style="max-width:860px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
+<div class="header">
+  <div class="header-inner">
     <div>
-      <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Victor's Market Read</div>
-      <p style="font-size:13px;color:#1e293b;line-height:1.7;margin:0 0 8px">{macro.get("macro_summary","N/A")}</p>
-      <div style="font-size:12px;color:#64748b"><strong style="color:#374151">Sector rotation:</strong> {macro.get("sector_rotation","N/A")}</div>
+      <div class="logo">Quant Signal Agent</div>
+      <div class="title">Victor Kane Daily Report</div>
+      <div class="subtitle">{TODAY} &middot; {NOW} &middot; Tracking: {watchlist_str}</div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(2,auto);gap:8px;min-width:180px">
-      <div style="text-align:center;padding:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
-        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">Mood</div>
-        <div style="font-size:14px;font-weight:700;color:{mood_col}">{mood}</div>
-      </div>
-      <div style="text-align:center;padding:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
-        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">VIX</div>
-        <div style="font-size:14px;font-weight:700;color:#0f172a">{mkt.get("vix","N/A")}</div>
-      </div>
-      <div style="text-align:center;padding:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
-        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">S&P 500</div>
-        <div style="font-size:14px;font-weight:700;color:{"#10b981" if float(mkt.get("sp",0))>=0 else "#ef4444"}">{"+"+str(mkt.get("sp","0")) if float(mkt.get("sp",0))>=0 else str(mkt.get("sp","0"))}%</div>
-      </div>
-      <div style="text-align:center;padding:8px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
-        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">Nasdaq</div>
-        <div style="font-size:14px;font-weight:700;color:{"#10b981" if float(mkt.get("nq",0))>=0 else "#ef4444"}">{"+"+str(mkt.get("nq","0")) if float(mkt.get("nq",0))>=0 else str(mkt.get("nq","0"))}%</div>
-      </div>
-    </div>
+    <div class="badges" id="header-badges"></div>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div style="max-width:860px;margin:0 auto;padding:20px 16px">
-  {pick_html}
-  {watch_html}
-  {brief_html}
-  <div style="text-align:center;padding:20px;font-size:10px;color:#94a3b8;line-height:1.8;margin-top:8px">
-    For educational purposes only. Not financial advice. Always do your own research.<br>
-    Data: yfinance (live) &middot; Analysis: Claude AI &middot; {NOW}
-  </div>
+<div class="market-bar">
+  <div class="market-inner" id="market-bar"></div>
 </div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('picks')">Top Picks</button>
+  <button class="nav-btn" onclick="showSection('watchlist')">Watchlist</button>
+  <button class="nav-btn" onclick="showSection('scan')">Full Scan</button>
+</nav>
+
+<div class="main">
+  <div id="picks" class="section active"></div>
+  <div id="watchlist" class="section"></div>
+  <div id="scan" class="section"></div>
+</div>
+
+<script>
+const PICKS     = {picks_json};
+const WATCHLIST = {watchlist_json};
+const SCAN      = {scan_json};
+const MACRO     = {macro_json};
+const MKT       = {mkt_json};
+const TODAY     = "{TODAY}";
+
+const GREEN="#10b981",RED="#ef4444",AMBER="#f59e0b",BLUE="#3b82f6",PURPLE="#8b5cf6",MUTED="#94a3b8";
+
+function scoreColor(s){{return s>=80?GREEN:s>=65?"#22c55e":s>=50?AMBER:RED}}
+function sigColor(s){{s=(s||"").toUpperCase();if(s.includes("STRONG BUY"))return GREEN;if(s.includes("BUY"))return GREEN;if(s.includes("WATCH"))return AMBER;if(s.includes("HOLD"))return BLUE;return RED}}
+function chgColor(v){{return parseFloat(v||0)>=0?GREEN:RED}}
+function fp(v,d=1){{try{{let n=parseFloat(v||0);return (n>=0?"+":"")+n.toFixed(d)+"%"}}catch{{return"N/A"}}}}
+function fd(v,d=2){{try{{return parseFloat(v||0).toFixed(d)}}catch{{return"N/A"}}}}
+function catStyle(c){{c=(c||"").toUpperCase();if(c=="GROWTH")return"background:#4c1d95;color:#ddd6fe";if(c=="BALANCED")return"background:#0c4a6e;color:#bae6fd";return"background:#374151;color:#e5e7eb"}}
+function sigStyle(s){{let c=sigColor(s);return`background:${{c}}22;color:${{c}};border:1px solid ${{c}}44`}}
+
+function showSection(id){{
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  event.target.classList.add("active");
+}}
+
+function renderBadges(){{
+  const risk=MACRO.risk_level||"MODERATE";
+  const riskCol={{LOW:GREEN,MODERATE:AMBER,HIGH:RED}}[risk]||MUTED;
+  const growth=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH").length;
+  const balanced=PICKS.length-growth;
+  document.getElementById("header-badges").innerHTML=`
+    <div class="badge"><div class="badge-label">Risk</div><div class="badge-val" style="color:${{riskCol}}">${{risk}}</div></div>
+    <div class="badge"><div class="badge-label">Top Picks</div><div class="badge-val">${{PICKS.length}}</div></div>
+    <div class="badge"><div class="badge-label">G / B</div><div class="badge-val">${{growth}}/${{balanced}}</div></div>
+  `;
+}}
+
+function renderMarket(){{
+  const spCol=chgColor(MKT.sp), nqCol=chgColor(MKT.nq);
+  const moodCol={{BULLISH:GREEN,NEUTRAL:AMBER,BEARISH:RED}}[MACRO.market_mood]||MUTED;
+  document.getElementById("market-bar").innerHTML=`
+    <div class="mstat"><div class="mstat-l">Mood</div><div class="mstat-v" style="color:${{moodCol}}">${{MACRO.market_mood||"N/A"}}</div></div>
+    <div class="mstat"><div class="mstat-l">VIX</div><div class="mstat-v">${{MKT.vix||"N/A"}}</div></div>
+    <div class="mstat"><div class="mstat-l">S&P 500</div><div class="mstat-v" style="color:${{spCol}}">${{fp(MKT.sp)}}</div></div>
+    <div class="mstat"><div class="mstat-l">Nasdaq</div><div class="mstat-v" style="color:${{nqCol}}">${{fp(MKT.nq)}}</div></div>
+    <div class="macro-text">${{MACRO.macro_summary||""}} <span style="color:${{MUTED}}">${{MACRO.sector_rotation||""}}</span></div>
+  `;
+}}
+
+function scoreBar(bd, col){{
+  return [["Technical",bd.technical||0,30],["Fundamental",bd.fundamental||0,25],
+          ["Catalyst",bd.catalyst||0,20],["Macro",bd.macro||0,15],["R/R",bd.rr||0,10]]
+    .map(([n,v,mx])=>`
+      <div class="bar-row">
+        <div class="bar-labels"><span>${{n}}</span><span style="color:${{col}}">${{v}}/${{mx}}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${{Math.round(v/mx*100)}}%;background:${{col}}"></div></div>
+      </div>`).join("");
+}}
+
+function renderPick(p, idx){{
+  const sc=p.score||0, col=scoreColor(sc);
+  const bd=p.score_breakdown||{{}};
+  const chgC=chgColor(p.chg_pct);
+  const upr1yC=(p.upr_1y||0)>0?GREEN:RED;
+  return `
+  <div class="pick-card">
+    <div class="card-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="color:${{MUTED}};font-size:11px">#${{idx}}</span>
+          <span class="card-ticker">${{p.ticker}}</span>
+          <span class="cat-badge" style="${{catStyle(p.category)}}">${{p.category}}</span>
+        </div>
+        <div class="card-name">${{p.name}} &middot; ${{p.sector}}</div>
+        <span class="signal-badge" style="${{sigStyle(p.signal)}}">${{p.signal}}</span>
+      </div>
+      <div class="card-price">
+        <div class="price-val">$${{fd(p.price)}}</div>
+        <div class="price-chg" style="color:${{chgC}}">${{fp(p.chg_pct)}} today</div>
+        ${{p.earn?`<div style="font-size:10px;color:${{MUTED}};margin-top:2px">Earn: ${{p.earn}}</div>`:""}}</div>
+    </div>
+    <div class="score-section">
+      <div>
+        <div class="score-num" style="color:${{col}}">${{sc}}</div>
+        <div class="score-sub">/100</div>
+      </div>
+      <div class="score-bars">${{scoreBar(bd,col)}}</div>
+    </div>
+    <div class="targets-grid">
+      <div class="tgt-cell"><div class="tgt-label">Entry</div><div class="tgt-val" style="color:${{BLUE}}">$${{fd(p.entry_low)}}--$${{fd(p.entry_high)}}</div></div>
+      <div class="tgt-cell"><div class="tgt-label">1-Month</div><div class="tgt-val" style="color:${{GREEN}}">$${{fd(p.t1m)}}</div><div class="tgt-sub">${{fp(p.upr_1m)}} &middot; ${{p.prob_1m||"?"}}%</div></div>
+      <div class="tgt-cell"><div class="tgt-label">6-Month</div><div class="tgt-val" style="color:${{GREEN}}">$${{fd(p.t6m)}}</div><div class="tgt-sub">${{fp(p.upr_6m)}} &middot; ${{p.prob_6m||"?"}}%</div></div>
+      <div class="tgt-cell" style="border-right:none"><div class="tgt-label">1-Year</div><div class="tgt-val" style="color:${{upr1yC}}">$${{fd(p.t1y)}}</div><div class="tgt-sub">${{fp(p.upr_1y)}} &middot; RR ${{fd(p.rr_ratio,1)}}x</div></div>
+      <div class="tgt-cell"><div class="tgt-label">Stop Loss</div><div class="tgt-val" style="color:${{RED}}">$${{fd(p.stop)}}</div></div>
+      <div class="tgt-cell"><div class="tgt-label">Analyst Target</div><div class="tgt-val" style="color:${{PURPLE}}">$${{fd(p.atgt)}}</div><div class="tgt-sub">${{p.nans||"?"}} analysts</div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-cell"><div class="stat-label">P/E</div><div class="stat-val">${{fd(p.pe)}}x</div></div>
+      <div class="stat-cell"><div class="stat-label">Fwd P/E</div><div class="stat-val">${{fd(p.fwd_pe)}}x</div></div>
+      <div class="stat-cell"><div class="stat-label">Rev Growth</div><div class="stat-val" style="color:${{parseFloat(p.rev_g||0)>15?GREEN:"inherit"}}">${{fp(p.rev_g)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">EPS Growth</div><div class="stat-val" style="color:${{parseFloat(p.eps_g||0)>0?GREEN:RED}}">${{fp(p.eps_g)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Gross Margin</div><div class="stat-val">${{fp(p.gm)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Net Margin</div><div class="stat-val">${{fp(p.nm)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">RSI (14)</div><div class="stat-val" style="color:${{parseFloat(p.rsi||50)>70?AMBER:parseFloat(p.rsi||50)<35?GREEN:"inherit"}}">${{p.rsi}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Vs 50MA</div><div class="stat-val" style="color:${{chgColor(p.vs50ma)}}">${{fp(p.vs50ma)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Vs 200MA</div><div class="stat-val" style="color:${{chgColor(p.vs200ma)}}">${{fp(p.vs200ma)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Mkt Cap</div><div class="stat-val">$${{fd(p.mktcap_b,0)}}B</div></div>
+      <div class="stat-cell"><div class="stat-label">52W High</div><div class="stat-val">$${{fd(p.wk52h)}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Vs 52W Hi</div><div class="stat-val" style="color:${{chgColor(p.vs52h)}}">${{fp(p.vs52h)}}</div></div>
+    </div>
+    <div class="thesis">
+      <div class="thesis-title">Victor Kane's Investment Thesis</div>
+      <div class="thesis-text">${{p.why_buy||"N/A"}}</div>
+      <div class="pill-row">
+        <div class="pill" style="background:#052e16;border:1px solid #166534;color:#86efac">
+          <div class="pill-title" style="color:#4ade80">Technical Setup</div>
+          ${{p.technical_read||"N/A"}}
+        </div>
+        <div class="pill" style="background:#0c1a3e;border:1px solid #1e40af;color:#93c5fd">
+          <div class="pill-title" style="color:#60a5fa">Key Catalyst</div>
+          ${{p.catalyst||"N/A"}}
+        </div>
+        <div class="pill" style="background:#2d1b00;border:1px solid #92400e;color:#fcd34d">
+          <div class="pill-title" style="color:#fbbf24">Macro Tailwind</div>
+          ${{p.macro_factor||"N/A"}}
+        </div>
+      </div>
+    </div>
+    <div class="risks-bar" style="background:#1a0a0a;border-top:1px solid #7f1d1d">
+      <span style="font-size:9px;font-weight:700;color:#ef4444;text-transform:uppercase">Risks: </span>
+      <span style="color:#fca5a5;font-size:11px">${{p.risks||"N/A"}}</span>
+    </div>
+  </div>`;
+}}
+
+function renderPicks(){{
+  const el = document.getElementById("picks");
+  if(!PICKS.length){{
+    el.innerHTML=`<div class="empty" style="margin-top:16px">No high-conviction picks today -- market conditions not ideal.</div>`;return;
+  }}
+  const growth=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH");
+  const balanced=PICKS.filter(p=>(p.category||"").toUpperCase()!="GROWTH");
+  let html="";
+  if(growth.length){{
+    html+=`<div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${{PURPLE}};border-radius:2px"></span>Growth Picks</div>
+    <div class="section-sub">${{growth.length}} high-conviction growth setups</div>
+    <div class="picks-grid">${{growth.map((p,i)=>renderPick(p,i+1)).join("")}}</div>`;
+  }}
+  if(balanced.length){{
+    html+=`<div class="section-title" style="margin-top:24px"><span style="display:inline-block;width:4px;height:24px;background:${{BLUE}};border-radius:2px"></span>Balanced Picks</div>
+    <div class="section-sub">${{balanced.length}} solid setups with lower volatility</div>
+    <div class="picks-grid">${{balanced.map((p,i)=>renderPick(p,i+1)).join("")}}</div>`;
+  }}
+  el.innerHTML=html;
+}}
+
+function renderWatchlist(){{
+  const el=document.getElementById("watchlist");
+  if(!WATCHLIST.length){{el.innerHTML=`<div class="empty" style="margin-top:16px">No watchlist data.</div>`;return;}}
+  const rows=WATCHLIST.map(w=>{{
+    const sc=w.score||0,col=scoreColor(sc),chgC=chgColor(w.chg_pct);
+    const upr=parseFloat(w.upr_1y||0);
+    return `<tr>
+      <td>
+        <div style="font-size:16px;font-weight:800">${{w.ticker}}</div>
+        <div style="font-size:10px;color:${{MUTED}}">${{(w.name||"").substring(0,25)}}</div>
+        <span class="cat-badge" style="${{catStyle(w.category)}}">${{w.category}}</span>
+      </td>
+      <td>
+        <div style="font-size:15px;font-weight:700">$${{fd(w.price)}}</div>
+        <div style="font-size:11px;color:${{chgC}}">${{fp(w.chg_pct)}}</div>
+      </td>
+      <td><span class="signal-badge" style="${{sigStyle(w.signal)}}">${{w.signal}}</span></td>
+      <td>
+        <div style="font-size:18px;font-weight:800;color:${{col}}">${{sc}}</div>
+        <div style="font-size:9px;color:${{MUTED}}">/ 100</div>
+      </td>
+      <td style="color:${{BLUE}}">$${{fd(w.entry_low)}} -- $${{fd(w.entry_high)}}</td>
+      <td>
+        <div style="color:${{upr>0?GREEN:RED}};font-weight:700">$${{fd(w.t1y)}}</div>
+        <div style="font-size:10px;color:${{upr>0?GREEN:RED}}">${{fp(w.upr_1y)}}</div>
+      </td>
+      <td style="color:${{RED}}">$${{fd(w.stop)}}</td>
+      <td>${{fd(w.pe)}}x</td>
+      <td style="color:${{parseFloat(w.rsi||50)>70?AMBER:parseFloat(w.rsi||50)<35?GREEN:"inherit"}}">${{w.rsi}}</td>
+      <td style="color:${{PURPLE}}">$${{fd(w.atgt)}}</td>
+      <td style="color:${{MUTED}};font-size:11px;font-style:italic">${{w.note||""}}</td>
+    </tr>`;
+  }}).join("");
+  el.innerHTML=`
+    <div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${{AMBER}};border-radius:2px"></span>Your Watchlist</div>
+    <div class="section-sub">${{WATCHLIST.length}} stocks tracked daily</div>
+    <div style="overflow-x:auto">
+    <table class="watch-table">
+      <thead><tr>
+        <th>Stock</th><th>Price</th><th>Signal</th><th>Score</th>
+        <th>Entry Range</th><th>1Y Target</th><th>Stop</th>
+        <th>P/E</th><th>RSI</th><th>Analyst Tgt</th><th>Victor's Note</th>
+      </tr></thead>
+      <tbody>${{rows}}</tbody>
+    </table></div>`;
+}}
+
+function renderScan(){{
+  const el=document.getElementById("scan");
+  if(!SCAN.length){{el.innerHTML=`<div class="empty" style="margin-top:16px">No scan data.</div>`;return;}}
+  const items=SCAN.map(b=>{{
+    const col={{BULLISH:GREEN,BEARISH:RED,NEUTRAL:AMBER}}[b.bias]||MUTED;
+    return `<div class="brief-chip">
+      <span style="font-weight:800;color:${{col}}">${{b.ticker}}</span>
+      <span class="brief-reason">${{b.reason||""}}</span>
+    </div>`;
+  }}).join("");
+  el.innerHTML=`
+    <div class="section-title" style="margin-top:8px"><span style="display:inline-block;width:4px;height:24px;background:${{MUTED}};border-radius:2px"></span>Full Scan Brief</div>
+    <div class="section-sub">All stocks scanned today</div>
+    <div class="brief-grid">${{items}}</div>`;
+}}
+
+renderBadges();
+renderMarket();
+renderPicks();
+renderWatchlist();
+renderScan();
+</script>
 </body></html>"""
 
 # =============================================================================
-# SEND EMAIL
+# SEND EMAIL WITH LINK
 # =============================================================================
-def send_email(html, subject):
-    print(f"  -> Sending to {EMAIL_TO}...")
+def send_email(subject, url, picks, mkt, macro):
+    growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
+    balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
+    risk     = macro.get("risk_level","MODERATE")
+    risk_col = {"LOW":"#059669","MODERATE":"#d97706","HIGH":"#dc2626"}.get(risk.upper(),"#6b7280")
+
+    top_picks_html = ""
+    for p in picks[:5]:
+        sc  = p.get("score",0)
+        col = "#059669" if sc>=80 else "#10b981" if sc>=65 else "#d97706"
+        top_picks_html += f"""
+        <tr>
+          <td style="padding:10px 12px;font-weight:700;font-size:14px">{p.get('ticker','')}</td>
+          <td style="padding:10px 12px;color:#64748b;font-size:12px">{p.get('name','')[:25]}</td>
+          <td style="padding:10px 12px;font-size:12px">${p.get('price',0):.2f}</td>
+          <td style="padding:10px 12px"><span style="font-weight:700;color:{col}">{sc}/100</span></td>
+          <td style="padding:10px 12px;color:#10b981;font-size:12px">${p.get('t1y',0):.2f} ({'+' if p.get('upr_1y',0)>=0 else ''}{p.get('upr_1y',0):.1f}%)</td>
+          <td style="padding:10px 12px;font-size:11px;color:#64748b;font-style:italic">{str(p.get('why_buy',''))[:60]}...</td>
+        </tr>"""
+
+    link_section = ""
+    if url:
+        link_section = f"""
+        <div style="text-align:center;margin:24px 0">
+          <a href="{url}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#6366f1);
+            color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:14px;font-weight:700;
+            letter-spacing:.02em">Open Full Interactive Report</a>
+          <div style="font-size:11px;color:#94a3b8;margin-top:8px">{url}</div>
+        </div>"""
+
+    html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+  <div style="max-width:700px;margin:0 auto">
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 28px;border-radius:0 0 0 0">
+      <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.15em;margin-bottom:3px">Quant Signal Agent</div>
+      <div style="font-size:22px;font-weight:800;color:#fff">Victor Kane Daily Report</div>
+      <div style="font-size:11px;color:#64748b;margin-top:3px">{TODAY} &middot; {NOW}</div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;font-weight:600;color:{risk_col}">Risk: {risk}</span>
+        <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;color:#fff">{len(picks)} picks</span>
+        <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;color:#94a3b8">S&P {'+' if mkt.get('sp',0)>=0 else ''}{mkt.get('sp',0):.2f}% &middot; VIX {mkt.get('vix','?')}</span>
+      </div>
+    </div>
+    <div style="background:#fff;padding:20px 28px">
+      <p style="font-size:13px;color:#374151;line-height:1.7;margin:0 0 16px">{macro.get('macro_summary','')}</p>
+      {link_section}
+      {"<div style='margin:20px 0'><div style='font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px'>Today Top Picks</div><table style='width:100%;border-collapse:collapse'><thead><tr style='background:#f8fafc;border-bottom:2px solid #e2e8f0'><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Ticker</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Company</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Price</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Score</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>1Y Target</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Thesis</th></tr></thead><tbody>" + top_picks_html + "</tbody></table></div>" if picks else "<div style='padding:16px;text-align:center;color:#94a3b8;font-size:13px;background:#f8fafc;border-radius:8px'>No high-conviction picks today.</div>"}
+    </div>
+    <div style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
+      <div style="font-size:10px;color:#94a3b8;line-height:1.7">For educational purposes only. Not financial advice.<br>Data: yfinance &middot; Analysis: Claude AI &middot; {NOW}</div>
+    </div>
+  </div>
+</body></html>"""
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"]    = EMAIL_FROM
     msg["To"]      = EMAIL_TO
-    msg.attach(MIMEText(html,"html"))
+    msg.attach(MIMEText(html, "html"))
     ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com",465,context=ctx) as srv:
-        srv.login(EMAIL_FROM,EMAIL_PASSWORD)
-        srv.sendmail(EMAIL_FROM,EMAIL_TO,msg.as_string())
-    print("  -> Sent.")
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as srv:
+        srv.login(EMAIL_FROM, EMAIL_PASSWORD)
+        srv.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+    print(f"  -> Email sent to {EMAIL_TO}")
 
 # =============================================================================
 # MAIN
@@ -569,30 +651,25 @@ def main():
     if ALL_PERSONAL: print(f"  Watchlist: {', '.join(ALL_PERSONAL)}")
     print(f"{'='*55}\n")
 
-    # Step 1 -- market data
     print("[Step 1] Fetching market data...")
     mkt = fetch_market()
     print(f"  -> S&P {mkt['sp']:+.2f}% | Nasdaq {mkt['nq']:+.2f}% | VIX {mkt['vix']:.1f}")
 
-    # Discovery: deduplicated list excluding personal tickers
-    disc_tickers  = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:6]
-    watch_tickers = ALL_PERSONAL[:8]
-    watch_tickers2= ALL_PERSONAL[8:14]  # second batch
-    all_tickers   = list(dict.fromkeys(disc_tickers + watch_tickers + watch_tickers2))
+    disc_tickers   = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:6]
+    watch_tickers  = ALL_PERSONAL[:8]
+    watch_tickers2 = ALL_PERSONAL[8:14]
+    all_tickers    = list(dict.fromkeys(disc_tickers + watch_tickers + watch_tickers2))
 
     print(f"\n  Discovery: {disc_tickers}")
-    print(f"  Watchlist: {watch_tickers}")
-
+    print(f"  Watchlist: {watch_tickers + watch_tickers2}")
     stock_data = fetch_stock_data(all_tickers)
 
-    # Compact JSON for Claude (only valid tickers, no errors)
     def to_json(tickers):
         d = {t: stock_data[t] for t in tickers if t in stock_data and "error" not in stock_data[t]}
         return json.dumps(d, separators=(',',':'))
 
-    # Step 2a -- discovery picks
-    print("\n[Step 2a] Discovery scan -- Victor Kane finding top picks...")
-    d_report = call_claude(discovery_prompt(to_json(disc_tickers), mkt), "discovery")
+    print("\n[Step 2a] Discovery -- Victor Kane finding top picks...")
+    d_report   = call_claude(discovery_prompt(to_json(disc_tickers), mkt), "discovery")
     picks      = d_report.get("top_picks", [])
     scan_brief = d_report.get("full_scan_brief", [])
     macro      = {
@@ -601,40 +678,40 @@ def main():
         "sector_rotation":d_report.get("sector_rotation",""),
         "market_mood":    d_report.get("market_mood","NEUTRAL"),
     }
-    print(f"  -> Found {len(picks)} picks, {len(scan_brief)} brief items")
-    if not picks:
-        print("  -> WARNING: no picks returned. Check API response above.")
+    print(f"  -> {len(picks)} picks, {len(scan_brief)} scan items")
 
-    # Step 2b -- watchlist batch 1
     watchlist = []
     if watch_tickers:
         print("\n[Step 2b] Watchlist batch 1...")
         time.sleep(8)
-        w_report  = call_claude(watchlist_prompt(to_json(watch_tickers), mkt), "watchlist-1")
-        watchlist = w_report.get("watchlist", [])
+        w1 = call_claude(watchlist_prompt(to_json(watch_tickers), mkt), "watchlist-1")
+        watchlist += w1.get("watchlist", [])
         print(f"  -> {len(watchlist)} stocks")
 
-    # Step 2c -- watchlist batch 2
     if watch_tickers2:
         print("\n[Step 2c] Watchlist batch 2...")
         time.sleep(8)
-        w2_report  = call_claude(watchlist_prompt(to_json(watch_tickers2), mkt), "watchlist-2")
-        watchlist += w2_report.get("watchlist", [])
-        print(f"  -> {len(watchlist)} total watchlist stocks")
+        w2 = call_claude(watchlist_prompt(to_json(watch_tickers2), mkt), "watchlist-2")
+        watchlist += w2.get("watchlist", [])
+        print(f"  -> {len(watchlist)} total")
+
+    print("\n[Step 3] Building interactive HTML report...")
+    html = build_html(picks, watchlist, scan_brief, macro, mkt)
+
+    url = publish_to_github(html)
+    if url:
+        print(f"  -> Live at: {url}")
 
     growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
     balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
+    mood     = macro.get("market_mood","?")
+    risk     = macro.get("risk_level","?")
+    subject  = f"Victor Kane {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk:{risk}"
 
-    # Step 3 -- email
-    print("\n[Step 3] Building and sending report...")
-    html    = build_email(picks, watchlist, scan_brief, macro, mkt)
-    mood    = macro.get("market_mood","?")
-    risk    = macro.get("risk_level","?")
-    subject = f"Victor Kane {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk:{risk}"
-    send_email(html, subject)
+    print("\n[Step 4] Sending email...")
+    send_email(subject, url, picks, mkt, macro)
 
     print(f"\n{'='*55}\n  Done -- sent to {EMAIL_TO}\n{'='*55}\n")
-
 
 if __name__ == "__main__":
     main()
