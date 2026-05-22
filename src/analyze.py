@@ -190,18 +190,24 @@ def call_claude_analysis(prompt):
         method="POST"
     )
 
-    for attempt in range(3):
+    for attempt in range(4):
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
+            with urllib.request.urlopen(req, timeout=180) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             break
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8")
             print(f"  ✗ API error {e.code}: {body[:200]}")
-            if e.code == 429 and attempt < 2:
-                wait = 65 * (attempt + 1)
-                print(f"  → Rate limited. Waiting {wait}s...")
+            if e.code in (429, 500, 502, 503, 529) and attempt < 3:
+                wait = 30 * (attempt + 1)
+                print(f"  → Retrying in {wait}s (attempt {attempt+2}/4)...")
                 time.sleep(wait)
+                continue
+            raise
+        except Exception as e:
+            if attempt < 3:
+                print(f"  ✗ Network error: {e}. Retrying in 30s...")
+                time.sleep(30)
                 continue
             raise
 
