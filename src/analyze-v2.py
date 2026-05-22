@@ -286,7 +286,7 @@ Separate GROWTH and BALANCED clearly via the category field.
 def call_claude(prompt, label="Claude API"):
     print(f"  → {label}...")
     payload = json.dumps({
-        "model": "claude-sonnet-4-20250514",
+        "model": "claude-sonnet-4-5",
         "max_tokens": 8000,
         "tools": [{"type": "web_search_20250305", "name": "web_search"}],
         "messages": [{"role": "user", "content": prompt}]
@@ -299,13 +299,18 @@ def call_claude(prompt, label="Claude API"):
             "Content-Type": "application/json",
             "x-api-key": ANTHROPIC_API_KEY,
             "anthropic-version": "2023-06-01",
-            "anthropic-beta": "web-search-2025-03-05"
+            "anthropic-beta": "web-search-2025-03-05,interleaved-thinking-2025-05-14"
         },
         method="POST"
     )
 
-    with urllib.request.urlopen(req, timeout=240) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=240) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8")
+        print(f"  ✗ API error {e.code}: {body}")
+        raise
 
     full_text = ""
     for block in data.get("content", []):
