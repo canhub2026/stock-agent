@@ -1,295 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Victor Kane -- 2026-05-22</title>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--card2:#263148;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;
-      --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--indigo:#6366f1}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263148;--border:#334155;--text:#e2e8f0;--muted:#64748b;
+      --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-.header{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:20px;border-bottom:1px solid var(--border)}
-.header-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-.logo{font-size:10px;color:#475569;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
-.title{font-size:22px;font-weight:800;color:#fff}
-.subtitle{font-size:11px;color:#64748b;margin-top:3px}
-.badges{display:flex;gap:8px;flex-wrap:wrap}
-.badge{padding:8px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;text-align:center}
-.badge-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
-.badge-val{font-size:14px;font-weight:800;color:#fff}
-.market-bar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px}
-.market-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.mstat{text-align:center;padding:6px 14px;background:var(--card2);border-radius:8px;min-width:72px}
-.mstat-l{font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
-.mstat-v{font-size:13px;font-weight:700}
-.macro-text{font-size:12px;color:var(--muted);flex:1;min-width:180px;line-height:1.6}
-.nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto}
-.nav-btn{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}
-.nav-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
-.main{max-width:1200px;margin:0 auto;padding:16px}
-.section{display:none}.section.active{display:block}
-
-/* PICK CARDS */
-.picks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;margin-top:12px}
-.pick-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s;cursor:pointer}
-.pick-card:hover{border-color:var(--blue);transform:translateY(-1px)}
-.card-header{padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
-.card-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg);font-size:12px;line-height:1.7;color:var(--muted)}
-.card-detail.open{display:block}
-
-/* WATCHLIST TABLE */
-.tbl-wrap{overflow-x:auto;margin-top:12px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{padding:10px 10px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
-    border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;cursor:pointer;user-select:none;
-    background:var(--card2);position:sticky;top:0}
-th:hover{color:var(--blue)}
-th.sort-asc::after{content:" ^"}
-th.sort-desc::after{content:" v"}
-td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+/* Header */
+.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:18px 20px;border-bottom:1px solid var(--border)}
+.hdr-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.logo{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.15em;margin-bottom:2px}
+.title{font-size:20px;font-weight:800;color:#fff}
+.sub{font-size:10px;color:#475569;margin-top:2px}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{padding:6px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:7px;text-align:center}
+.badge-l{font-size:8px;color:#475569;text-transform:uppercase;margin-bottom:1px}
+.badge-v{font-size:13px;font-weight:800;color:#fff}
+/* Market bar */
+.mbar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 20px}
+.mbar-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ms{text-align:center;padding:5px 12px;background:var(--card2);border-radius:6px}
+.ms-l{font-size:8px;color:var(--muted);text-transform:uppercase;margin-bottom:1px}
+.ms-v{font-size:12px;font-weight:700}
+.mtext{font-size:11px;color:var(--muted);flex:1;min-width:160px;line-height:1.5}
+/* Nav */
+.nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
+.nb{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.nb.active{color:var(--blue);border-bottom-color:var(--blue)}
+/* Main */
+.main{max-width:1200px;margin:0 auto;padding:14px}
+.sec{display:none}.sec.active{display:block}
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-top:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}
+.card:hover{border-color:var(--blue);transform:translateY(-1px)}
+.card-hdr{padding:12px 14px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+.card-body{display:none;padding:12px 14px;border-top:1px solid var(--border)}
+.card-body.open{display:block}
+/* Table */
+.twrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:8px 10px;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
+    border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;cursor:pointer;background:var(--card2)}
+th:hover{color:var(--blue)}th.sa::after{content:" ^"}th.sd::after{content:" v"}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
 tr:hover td{background:var(--card2)}
-.sector-header{padding:10px 16px;background:var(--card2);border-radius:8px;margin:16px 0 8px;
-               font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;
-               display:flex;align-items:center;gap:8px}
-.company-cell{white-space:normal;min-width:160px}
-.company-name{font-size:13px;font-weight:700;color:var(--text)}
-.company-sub{font-size:10px;color:var(--muted);margin-top:1px}
-.company-desc{font-size:10px;color:#64748b;margin-top:3px;line-height:1.4;max-width:220px;white-space:normal}
-.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;margin-top:2px}
-.signal-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.score-cell{text-align:center}
-.score-num{font-size:16px;font-weight:800}
-.score-sub{font-size:9px;color:var(--muted)}
-
-/* MISC */
-.brief-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.brief-chip{padding:5px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:11px;display:flex;align-items:center;gap:6px}
-.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px;background:var(--card2);border-radius:12px}
-.section-hdr{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;margin-top:8px}
-.section-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.filter-btn{padding:5px 12px;font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--muted);transition:.2s}
-.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.search-box{padding:6px 12px;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);flex:1;min-width:150px;max-width:220px}
-.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}.muted{color:var(--muted)}
-@media(max-width:600px){.picks-grid{grid-template-columns:1fr}}
+.srow td{background:var(--card2);font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.co{white-space:normal;min-width:160px}
+.cn{font-size:12px;font-weight:700}
+.cs{font-size:9px;color:var(--muted);margin-top:1px}
+.cd{font-size:9px;color:#475569;margin-top:2px;max-width:200px;white-space:normal;line-height:1.4}
+/* Badges */
+.sig{display:inline-block;padding:2px 8px;border-radius:16px;font-size:9px;font-weight:700}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:700;margin-top:2px}
+/* Filters */
+.frow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.fb{padding:4px 10px;font-size:10px;background:var(--card2);border:1px solid var(--border);border-radius:16px;cursor:pointer;color:var(--muted)}
+.fb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sb{padding:5px 10px;font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);flex:1;min-width:140px;max-width:200px}
+/* Section title */
+.sh{font-size:14px;font-weight:700;margin:8px 0 2px;display:flex;align-items:center;gap:6px}
+.ss{font-size:10px;color:var(--muted);margin-bottom:10px}
+/* Theme chips */
+.theme-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tc{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600}
+.g{color:var(--green)}.r{color:var(--red)}.a{color:var(--amber)}.b{color:var(--blue)}.p{color:var(--purple)}.m{color:var(--muted)}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-inner">
-    <div>
-      <div class="logo">Quant Signal Agent</div>
-      <div class="title">Victor Kane Daily Report</div>
-      <div class="subtitle">2026-05-22 &middot; 2026-05-22 23:00 UTC</div>
-      <div class="subtitle">Tracking: AAPL, TSLA, NVDA, VSEC, OKTA, ONDS, MU, QCOM, SNDK, ANET, ZS, AMD, CAT, MSFT</div>
-    </div>
-    <div class="badges" id="hdr-badges"></div>
-  </div>
-</div>
-<div class="market-bar"><div class="market-inner" id="mkt-bar"></div></div>
+<div class="hdr"><div class="hdr-inner">
+  <div><div class="logo">Quant Signal Agent</div><div class="title">Victor Kane Daily Report</div>
+  <div class="sub">2026-05-22 &middot; 2026-05-22 23:16 UTC &middot; Tracking: AAPL, TSLA, NVDA, VSEC, OKTA, ONDS, MU, QCOM, SNDK, ANET, ZS, AMD, CAT, MSFT</div></div>
+  <div class="badges" id="hdrbadges"></div>
+</div></div>
+<div class="mbar"><div class="mbar-inner" id="mbar"></div></div>
 <nav class="nav">
-  <button class="nav-btn active" onclick="showTab('picks',this)">Top Picks</button>
-  <button class="nav-btn" onclick="showTab('watchlist',this)">Watchlist</button>
-  <button class="nav-btn" onclick="showTab('scan',this)">Full Scan</button>
+  <button class="nb active" onclick="showTab('picks',this)">Top 10 Picks</button>
+  <button class="nb" onclick="showTab('watch',this)">Watchlist</button>
+  <button class="nb" onclick="showTab('info',this)">Market Themes</button>
 </nav>
 <div class="main">
-  <div id="picks" class="section active"></div>
-  <div id="watchlist" class="section"></div>
-  <div id="scan" class="section"></div>
+  <div id="picks" class="sec active"></div>
+  <div id="watch" class="sec"></div>
+  <div id="info" class="sec"></div>
 </div>
 
 <script>
-const PICKS=[],WATCHLIST=[],SCAN=[];
-const MACRO={"macro_summary": "", "risk_level": "MODERATE", "sector_rotation": "", "market_mood": "NEUTRAL"},MKT={"sp": 0.39, "nq": 0.42, "vix": 16.7},STOCKS={"META": {"ticker": "META", "name": "Meta Platforms, Inc.", "fullname": "Meta Platforms, Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "country": "United States", "desc": "Meta Platforms, Inc. engages in the development of products that enable people to connect and share with friends and family through mobile devices, personal computers, virtual reality (VR) headsets, a...", "website": "https://www.meta.com", "employees": 77986, "founded": "", "price": 610.26, "chg_pct": 0.47, "mktcap_b": 1549.1, "ev_b": 1547.4, "pe": 22.2, "fwd_pe": 16.9, "peg": 0.87, "ps": 7.2, "pb": 6.4, "ev_ebitda": 14.2, "eps": 27.51, "eps_g": 62.4, "rev_g": 33.1, "rev_b": 215.0, "gm": 81.9, "om": 40.6, "nm": 32.8, "roe": 32.9, "roa": 16.4, "de": 35.61, "cr": 2.35, "cash_b": 81.2, "fcf_b": 25.6, "div_yield": 35.0, "beta": 1.24, "short_pct": 1.3, "wk52h": 796.25, "wk52l": 520.26, "vs52h": -23.4, "vs52l": 17.3, "rsi": 49.9, "vs50ma": -1.2, "vs200ma": -8.7, "vol": 11103030, "avgvol": 14884264, "volr": 0.75, "cons": "strong_buy", "atgt": 826.69, "atgt_hi": 1015.0, "atgt_lo": 614.0, "nans": 58, "inst": 79.5, "insider": 0.1, "earn": "N/A"}, "GOOGL": {"ticker": "GOOGL", "name": "Alphabet Inc.", "fullname": "Alphabet Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "country": "United States", "desc": "Alphabet Inc. offers various products and platforms in the United States, Europe, the Middle East, Africa, the Asia-Pacific, Canada, and Latin America.", "website": "https://abc.xyz", "employees": 194668, "founded": "", "price": 382.97, "chg_pct": -1.21, "mktcap_b": 4639.9, "ev_b": 4665.9, "pe": 29.2, "fwd_pe": 26.5, "peg": 1.53, "ps": 11.0, "pb": 9.7, "ev_ebitda": 28.9, "eps": 13.1, "eps_g": 82.0, "rev_g": 21.8, "rev_b": 422.5, "gm": 60.4, "om": 36.1, "nm": 37.9, "roe": 38.9, "roa": 14.6, "de": 20.03, "cr": 1.92, "cash_b": 126.8, "fcf_b": 27.9, "div_yield": 23.0, "beta": 1.27, "short_pct": 1.3, "wk52h": 408.61, "wk52l": 162.0, "vs52h": -6.3, "vs52l": 136.4, "rsi": 49.8, "vs50ma": 12.3, "vs200ma": 29.4, "vol": 19134802, "avgvol": 27156266, "volr": 0.7, "cons": "strong_buy", "atgt": 428.96, "atgt_hi": 515.0, "atgt_lo": 334.22, "nans": 53, "inst": 81.3, "insider": 1.2, "earn": "N/A"}, "AMZN": {"ticker": "AMZN", "name": "Amazon.com, Inc.", "fullname": "Amazon.com, Inc.", "sector": "Consumer Cyclical", "industry": "Internet Retail", "country": "United States", "desc": "Amazon.com, Inc. engages in the retail sale of consumer products, advertising, and subscriptions service through online and physical stores in North America and internationally.", "website": "https://www.amazon.com", "employees": 1575000, "founded": "", "price": 266.32, "chg_pct": -0.8, "mktcap_b": 2864.8, "ev_b": 2980.3, "pe": 31.4, "fwd_pe": 27.0, "peg": 1.83, "ps": 3.9, "pb": 6.5, "ev_ebitda": 19.1, "eps": 8.48, "eps_g": 74.8, "rev_g": 16.6, "rev_b": 742.8, "gm": 50.6, "om": 13.1, "nm": 12.2, "roe": 24.3, "roa": 6.8, "de": 53.3, "cr": 1.18, "cash_b": 143.1, "fcf_b": 9.8, "div_yield": 0, "beta": 1.47, "short_pct": 0.9, "wk52h": 278.56, "wk52l": 196.0, "vs52h": -4.4, "vs52l": 35.9, "rsi": 43.3, "vs50ma": 10.1, "vs200ma": 15.5, "vol": 26386815, "avgvol": 44642183, "volr": 0.59, "cons": "strong_buy", "atgt": 312.63, "atgt_hi": 370.0, "atgt_lo": 207.0, "nans": 62, "inst": 68.1, "insider": 8.9, "earn": "N/A"}, "PLTR": {"ticker": "PLTR", "name": "Palantir Technologies Inc.", "fullname": "Palantir Technologies Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Palantir Technologies Inc. builds and deploys software platforms for the intelligence community to assist in counterterrorism investigations and operations in the United States, the United Kingdom, an...", "website": "https://www.palantir.com", "employees": 4395, "founded": "", "price": 136.88, "chg_pct": -0.39, "mktcap_b": 328.1, "ev_b": 321.7, "pe": 153.8, "fwd_pe": 66.0, "peg": 1.95, "ps": 62.8, "pb": 44.3, "ev_ebitda": 159.4, "eps": 0.89, "eps_g": 325.0, "rev_g": 84.7, "rev_b": 5.2, "gm": 84.1, "om": 46.2, "nm": 43.7, "roe": 32.6, "roa": 14.7, "de": 2.48, "cr": 6.91, "cash_b": 8.0, "fcf_b": 1.8, "div_yield": 0, "beta": 1.52, "short_pct": 2.8, "wk52h": 207.52, "wk52l": 118.93, "vs52h": -34.0, "vs52l": 15.1, "rsi": 35.7, "vs50ma": -4.0, "vs200ma": -15.8, "vol": 27261935, "avgvol": 43110381, "volr": 0.63, "cons": "buy", "atgt": 183.73, "atgt_hi": 255.0, "atgt_lo": 70.0, "nans": 27, "inst": 62.5, "insider": 3.5, "earn": "N/A"}, "ARM": {"ticker": "ARM", "name": "Arm Holdings plc", "fullname": "Arm Holdings plc", "sector": "Technology", "industry": "Semiconductors", "country": "United Kingdom", "desc": "Arm Holdings plc architects, develops, and licenses central processing unit products and related technologies for semiconductor companies and original equipment manufacturers. The company is involved ...", "website": "https://www.arm.com", "employees": 9584, "founded": "", "price": 306.51, "chg_pct": 2.78, "mktcap_b": 326.1, "ev_b": 314.1, "pe": 356.4, "fwd_pe": 100.3, "peg": 1.95, "ps": 66.3, "pb": 41.7, "ev_ebitda": 272.7, "eps": 0.86, "eps_g": 45.7, "rev_g": 20.1, "rev_b": 4.9, "gm": 97.5, "om": 29.6, "nm": 18.4, "roe": 12.0, "roa": 5.7, "de": 5.21, "cr": 6.0, "cash_b": 3.6, "fcf_b": 0.8, "div_yield": 0, "beta": 3.41, "short_pct": 11.4, "wk52h": 315.0, "wk52l": 100.02, "vs52h": -2.7, "vs52l": 206.4, "rsi": 75.7, "vs50ma": 68.4, "vs200ma": 108.4, "vol": 13736758, "avgvol": 11085788, "volr": 1.24, "cons": "buy", "atgt": 232.14, "atgt_hi": 326.0, "atgt_lo": 125.0, "nans": 37, "inst": 95.7, "insider": 0.1, "earn": "N/A"}, "CRWD": {"ticker": "CRWD", "name": "CrowdStrike Holdings, Inc.", "fullname": "CrowdStrike Holdings, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "CrowdStrike Holdings, Inc. provides cybersecurity solutions in the United States and internationally.", "website": "https://www.crowdstrike.com", "employees": 10698, "founded": "", "price": 663.46, "chg_pct": 2.35, "mktcap_b": 168.9, "ev_b": 160.0, "pe": 0, "fwd_pe": 107.7, "peg": 5.09, "ps": 35.1, "pb": 38.0, "ev_ebitda": -3429.5, "eps": -0.65, "eps_g": 0, "rev_g": 23.3, "rev_b": 4.8, "gm": 74.8, "om": 1.0, "nm": -3.4, "roe": -4.1, "roa": -1.6, "de": 18.34, "cr": 1.77, "cash_b": 5.2, "fcf_b": 1.6, "div_yield": 0, "beta": 1.06, "short_pct": 3.0, "wk52h": 674.84, "wk52l": 342.72, "vs52h": -1.7, "vs52l": 93.6, "rsi": 94.4, "vs50ma": 43.3, "vs200ma": 42.6, "vol": 2724252, "avgvol": 3061695, "volr": 0.89, "cons": "buy", "atgt": 527.63, "atgt_hi": 706.0, "atgt_lo": 368.0, "nans": 51, "inst": 75.0, "insider": 1.5, "earn": "N/A"}, "AAPL": {"ticker": "AAPL", "name": "Apple Inc.", "fullname": "Apple Inc.", "sector": "Technology", "industry": "Consumer Electronics", "country": "United States", "desc": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.", "website": "https://www.apple.com", "employees": 166000, "founded": "", "price": 308.82, "chg_pct": 1.26, "mktcap_b": 4535.7, "ev_b": 4495.7, "pe": 37.3, "fwd_pe": 32.2, "peg": 2.63, "ps": 10.0, "pb": 42.5, "ev_ebitda": 28.1, "eps": 8.27, "eps_g": 21.8, "rev_g": 16.6, "rev_b": 451.4, "gm": 47.9, "om": 32.3, "nm": 27.2, "roe": 141.5, "roa": 26.2, "de": 79.55, "cr": 1.07, "cash_b": 68.5, "fcf_b": 101.1, "div_yield": 35.0, "beta": 1.06, "short_pct": 0.9, "wk52h": 311.4, "wk52l": 193.46, "vs52h": -0.8, "vs52l": 59.6, "rsi": 91.1, "vs50ma": 14.2, "vs200ma": 18.3, "vol": 43605063, "avgvol": 46960285, "volr": 0.93, "cons": "buy", "atgt": 308.65, "atgt_hi": 400.0, "atgt_lo": 215.0, "nans": 43, "inst": 66.0, "insider": 1.6, "earn": "N/A"}, "TSLA": {"ticker": "TSLA", "name": "Tesla, Inc.", "fullname": "Tesla, Inc.", "sector": "Consumer Cyclical", "industry": "Auto Manufacturers", "country": "United States", "desc": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally.", "website": "https://www.tesla.com", "employees": 134785, "founded": "", "price": 426.01, "chg_pct": 1.95, "mktcap_b": 1600.0, "ev_b": 1541.2, "pe": 390.8, "fwd_pe": 169.7, "peg": 5.75, "ps": 16.3, "pb": 19.5, "ev_ebitda": 138.9, "eps": 1.09, "eps_g": 8.3, "rev_g": 15.8, "rev_b": 97.9, "gm": 19.1, "om": 4.2, "nm": 3.9, "roe": 4.9, "roa": 2.2, "de": 18.74, "cr": 2.04, "cash_b": 44.7, "fcf_b": 5.3, "div_yield": 0, "beta": 1.79, "short_pct": 2.3, "wk52h": 498.83, "wk52l": 273.21, "vs52h": -14.6, "vs52l": 55.9, "rsi": 61.5, "vs50ma": 9.7, "vs200ma": 3.9, "vol": 45068466, "avgvol": 60421328, "volr": 0.75, "cons": "buy", "atgt": 411.89, "atgt_hi": 600.0, "atgt_lo": 123.0, "nans": 41, "inst": 45.0, "insider": 11.1, "earn": "N/A"}, "NVDA": {"ticker": "NVDA", "name": "NVIDIA Corporation", "fullname": "NVIDIA Corporation", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "NVIDIA Corporation operates as a data center scale AI infrastructure company. The company operates through two segments, Compute & Networking, and Graphics segments.", "website": "https://www.nvidia.com", "employees": 42000, "founded": "", "price": 215.33, "chg_pct": -1.9, "mktcap_b": 5215.5, "ev_b": 5244.4, "pe": 33.0, "fwd_pe": 17.0, "peg": 0.71, "ps": 20.6, "pb": 33.3, "ev_ebitda": 31.7, "eps": 6.52, "eps_g": 214.5, "rev_g": 85.2, "rev_b": 253.5, "gm": 74.1, "om": 65.6, "nm": 63.0, "roe": 114.3, "roa": 52.7, "de": 6.55, "cr": 3.44, "cash_b": 80.6, "fcf_b": 73.7, "div_yield": 2.0, "beta": 2.24, "short_pct": 1.2, "wk52h": 236.54, "wk52l": 129.16, "vs52h": -9.0, "vs52l": 66.7, "rsi": 62.5, "vs50ma": 9.4, "vs200ma": 15.1, "vol": 166941160, "avgvol": 156261645, "volr": 1.07, "cons": "strong_buy", "atgt": 278.03, "atgt_hi": 400.0, "atgt_lo": 180.0, "nans": 57, "inst": 70.9, "insider": 4.0, "earn": "N/A"}, "VSEC": {"ticker": "VSEC", "name": "VSE Corporation", "fullname": "VSE Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "country": "United States", "desc": "VSE Corporation engages in providing aviation aftermarket parts distribution and maintenance, repair, and overhaul services for air transportation assets for commercial and government markets. It offe...", "website": "https://www.vsecorp.com", "employees": 1600, "founded": "", "price": 171.88, "chg_pct": -1.08, "mktcap_b": 4.8, "ev_b": 4.0, "pe": 59.7, "fwd_pe": 29.6, "peg": 3.0, "ps": 4.1, "pb": 2.8, "ev_ebitda": 22.4, "eps": 2.88, "eps_g": 0, "rev_g": 26.8, "rev_b": 1.2, "gm": 14.7, "om": 11.5, "nm": 4.2, "roe": 3.8, "roa": 3.4, "de": 15.11, "cr": 8.78, "cash_b": 1.2, "fcf_b": 0.1, "div_yield": 23.0, "beta": 1.25, "short_pct": 8.8, "wk52h": 232.61, "wk52l": 123.69, "vs52h": -26.1, "vs52l": 39.0, "rsi": 51.8, "vs50ma": -8.3, "vs200ma": -6.0, "vol": 322405, "avgvol": 513763, "volr": 0.63, "cons": "strong_buy", "atgt": 252.88, "atgt_hi": 270.0, "atgt_lo": 230.0, "nans": 8, "inst": 130.1, "insider": 1.8, "earn": "N/A"}, "OKTA": {"ticker": "OKTA", "name": "Okta, Inc.", "fullname": "Okta, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Okta, Inc. operates as an identity partner in the United States and internationally.", "website": "https://www.okta.com", "employees": 6366, "founded": "", "price": 92.24, "chg_pct": 3.13, "mktcap_b": 16.2, "ev_b": 14.2, "pe": 70.4, "fwd_pe": 21.8, "peg": 0.96, "ps": 5.5, "pb": 2.3, "ev_ebitda": 57.1, "eps": 1.31, "eps_g": 170.8, "rev_g": 11.6, "rev_b": 2.9, "gm": 77.4, "om": 6.6, "nm": 8.1, "roe": 3.5, "roa": 1.0, "de": 6.44, "cr": 1.43, "cash_b": 2.6, "fcf_b": 0.8, "div_yield": 0, "beta": 0.59, "short_pct": 5.6, "wk52h": 127.52, "wk52l": 62.66, "vs52h": -27.7, "vs52l": 47.2, "rsi": 75.3, "vs50ma": 18.6, "vs200ma": 8.6, "vol": 2991953, "avgvol": 3264761, "volr": 0.92, "cons": "buy", "atgt": 100.44, "atgt_hi": 140.0, "atgt_lo": 75.0, "nans": 43, "inst": 98.1, "insider": 0.6, "earn": "N/A"}, "ONDS": {"ticker": "ONDS", "name": "Ondas Inc", "fullname": "Ondas Inc.", "sector": "Technology", "industry": "Communication Equipment", "country": "United States", "desc": "Ondas Inc. provides private wireless, drone, and automated data solutions in the United States and internationally.", "website": "https://www.ondas.com", "employees": 459, "founded": "", "price": 9.06, "chg_pct": -1.31, "mktcap_b": 4.5, "ev_b": 2.9, "pe": 100.7, "fwd_pe": -129.4, "peg": 0, "ps": 46.5, "pb": 4.0, "ev_ebitda": -36.0, "eps": 0.09, "eps_g": 0, "rev_g": 1079.8, "rev_b": 0.1, "gm": 44.8, "om": -85.1, "nm": 251.9, "roe": 42.9, "roa": -4.2, "de": 1.22, "cr": 10.91, "cash_b": 1.5, "fcf_b": 0.0, "div_yield": 0, "beta": 2.56, "short_pct": 34.0, "wk52h": 15.28, "wk52l": 0.86, "vs52h": -40.7, "vs52l": 953.5, "rsi": 45.2, "vs50ma": -7.9, "vs200ma": 3.7, "vol": 58615820, "avgvol": 62899824, "volr": 0.93, "cons": "strong_buy", "atgt": 20.12, "atgt_hi": 25.0, "atgt_lo": 16.0, "nans": 8, "inst": 43.4, "insider": 1.6, "earn": "N/A"}, "MU": {"ticker": "MU", "name": "Micron Technology, Inc.", "fullname": "Micron Technology, Inc.", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "Micron Technology, Inc. designs, develops, manufactures, and sells memory and storage products in the United States, Taiwan, Japan, Mainland China, Hong Kong, Europe, and internationally.", "website": "https://www.micron.com", "employees": 53000, "founded": "", "price": 751.0, "chg_pct": -1.46, "mktcap_b": 846.9, "ev_b": 855.7, "pe": 35.4, "fwd_pe": 7.3, "peg": 0.25, "ps": 14.6, "pb": 11.7, "ev_ebitda": 23.2, "eps": 21.19, "eps_g": 756.0, "rev_g": 196.3, "rev_b": 58.1, "gm": 58.4, "om": 67.6, "nm": 41.5, "roe": 39.8, "roa": 20.1, "de": 14.9, "cr": 2.9, "cash_b": 14.6, "fcf_b": 2.9, "div_yield": 8.0, "beta": 1.92, "short_pct": 3.3, "wk52h": 818.67, "wk52l": 90.93, "vs52h": -8.3, "vs52l": 725.9, "rsi": 66.2, "vs50ma": 44.7, "vs200ma": 132.9, "vol": 35452282, "avgvol": 46430466, "volr": 0.76, "cons": "strong_buy", "atgt": 613.23, "atgt_hi": 1100.0, "atgt_lo": 249.0, "nans": 40, "inst": 81.4, "insider": 0.3, "earn": "N/A"}, "QCOM": {"ticker": "QCOM", "name": "QUALCOMM Incorporated", "fullname": "QUALCOMM Incorporated", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "QUALCOMM Incorporated engages in the development and commercialization of foundational technologies for the wireless industry worldwide. It operates through three segments: Qualcomm CDMA Technologies ...", "website": "https://www.qualcomm.com", "employees": 52000, "founded": "", "price": 238.16, "chg_pct": 11.6, "mktcap_b": 251.0, "ev_b": 230.4, "pe": 25.6, "fwd_pe": 22.4, "peg": 0.86, "ps": 5.6, "pb": 9.2, "ev_ebitda": 17.7, "eps": 9.3, "eps_g": 173.0, "rev_g": -3.5, "rev_b": 44.5, "gm": 54.8, "om": 22.1, "nm": 22.3, "roe": 36.1, "roa": 12.7, "de": 55.98, "cr": 2.37, "cash_b": 9.8, "fcf_b": 9.6, "div_yield": 172.0, "beta": 1.49, "short_pct": 5.3, "wk52h": 247.9, "wk52l": 121.99, "vs52h": -3.9, "vs52l": 95.2, "rsi": 71.0, "vs50ma": 52.1, "vs200ma": 49.4, "vol": 29938766, "avgvol": 25082022, "volr": 1.19, "cons": "hold", "atgt": 177.58, "atgt_hi": 300.0, "atgt_lo": 100.0, "nans": 31, "inst": 84.7, "insider": 0.1, "earn": "N/A"}, "SNDK": {"ticker": "SNDK", "name": "Sandisk Corporation", "fullname": "Sandisk Corporation", "sector": "Technology", "industry": "Computer Hardware", "country": "United States", "desc": "Sandisk Corporation develops, manufactures, and sells data storage devices and solutions using NAND flash technology in the United States, Europe, the Middle East, Africa, Asia, and internationally. T...", "website": "https://www.sandisk.com", "employees": 11000, "founded": "", "price": 1478.69, "chg_pct": -4.12, "mktcap_b": 219.0, "ev_b": 224.9, "pe": 50.5, "fwd_pe": 8.4, "peg": 0, "ps": 16.6, "pb": 21.4, "ev_ebitda": 39.9, "eps": 29.3, "eps_g": 0, "rev_g": 251.0, "rev_b": 13.2, "gm": 56.0, "om": 70.0, "nm": 34.2, "roe": 39.3, "roa": 22.8, "de": 1.5, "cr": 4.78, "cash_b": 3.7, "fcf_b": 2.3, "div_yield": 0, "beta": 0, "short_pct": 11.4, "wk52h": 1600.0, "wk52l": 35.79, "vs52h": -7.6, "vs52l": 4031.6, "rsi": 61.2, "vs50ma": 47.1, "vs200ma": 223.9, "vol": 9524317, "avgvol": 15335167, "volr": 0.62, "cons": "buy", "atgt": 1493.36, "atgt_hi": 2350.0, "atgt_lo": 1000.0, "nans": 22, "inst": 80.8, "insider": 5.5, "earn": "N/A"}, "ANET": {"ticker": "ANET", "name": "Arista Networks, Inc.", "fullname": "Arista Networks, Inc.", "sector": "Technology", "industry": "Computer Hardware", "country": "United States", "desc": "Arista Networks, Inc. engages in the development, marketing, and sale of data-driven, client to cloud networking solutions for AI, data center, campus, and routing environments in the Americas, Europe...", "website": "https://www.arista.com", "employees": 5115, "founded": "", "price": 154.03, "chg_pct": 3.66, "mktcap_b": 193.9, "ev_b": 174.8, "pe": 52.9, "fwd_pe": 34.6, "peg": 1.82, "ps": 20.0, "pb": 14.4, "ev_ebitda": 41.2, "eps": 2.91, "eps_g": 25.0, "rev_g": 35.1, "rev_b": 9.7, "gm": 63.5, "om": 42.7, "nm": 38.3, "roe": 31.5, "roa": 14.4, "de": 0, "cr": 2.83, "cash_b": 12.4, "fcf_b": 4.4, "div_yield": 0, "beta": 1.67, "short_pct": 1.8, "wk52h": 179.8, "wk52l": 83.86, "vs52h": -14.3, "vs52l": 83.7, "rsi": 37.1, "vs50ma": 4.7, "vs200ma": 10.2, "vol": 9302725, "avgvol": 10854787, "volr": 0.86, "cons": "strong_buy", "atgt": 188.2, "atgt_hi": 220.0, "atgt_lo": 164.0, "nans": 27, "inst": 72.9, "insider": 17.3, "earn": "N/A"}, "ZS": {"ticker": "ZS", "name": "Zscaler, Inc.", "fullname": "Zscaler, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Zscaler, Inc. operates as a cloud security company worldwide.", "website": "https://www.zscaler.com", "employees": 7923, "founded": "", "price": 182.37, "chg_pct": 6.64, "mktcap_b": 29.3, "ev_b": 27.7, "pe": 0, "fwd_pe": 39.8, "peg": 1.88, "ps": 9.8, "pb": 13.3, "ev_ebitda": -406.9, "eps": -0.43, "eps_g": 0, "rev_g": 25.9, "rev_b": 3.0, "gm": 76.6, "om": -6.2, "nm": -2.3, "roe": -3.6, "roa": -1.4, "de": 85.0, "cr": 1.9, "cash_b": 3.5, "fcf_b": 1.0, "div_yield": 0, "beta": 0.96, "short_pct": 9.8, "wk52h": 336.99, "wk52l": 114.62, "vs52h": -45.9, "vs52l": 59.1, "rsi": 79.3, "vs50ma": 26.3, "vs200ma": -18.6, "vol": 3987876, "avgvol": 3012965, "volr": 1.32, "cons": "strong_buy", "atgt": 223.39, "atgt_hi": 330.0, "atgt_lo": 155.0, "nans": 45, "inst": 58.3, "insider": 35.2, "earn": "N/A"}, "AMD": {"ticker": "AMD", "name": "Advanced Micro Devices, Inc.", "fullname": "Advanced Micro Devices, Inc.", "sector": "Technology", "industry": "Semiconductors", "country": "United States", "desc": "Advanced Micro Devices, Inc. operates as a semiconductor company internationally.", "website": "https://www.amd.com", "employees": 31000, "founded": "", "price": 467.51, "chg_pct": 3.99, "mktcap_b": 762.3, "ev_b": 724.6, "pe": 155.3, "fwd_pe": 36.1, "peg": 1.08, "ps": 20.4, "pb": 11.8, "ev_ebitda": 97.5, "eps": 3.01, "eps_g": 91.2, "rev_g": 37.8, "rev_b": 37.5, "gm": 53.1, "om": 14.4, "nm": 13.4, "roe": 8.1, "roa": 3.6, "de": 6.0, "cr": 2.73, "cash_b": 12.3, "fcf_b": 7.2, "div_yield": 0, "beta": 2.4, "short_pct": 2.2, "wk52h": 481.37, "wk52l": 107.67, "vs52h": -2.9, "vs52l": 334.2, "rsi": 75.2, "vs50ma": 54.2, "vs200ma": 102.5, "vol": 34611133, "avgvol": 42380487, "volr": 0.82, "cons": "strong_buy", "atgt": 472.17, "atgt_hi": 625.0, "atgt_lo": 225.0, "nans": 48, "inst": 72.2, "insider": 0.4, "earn": "N/A"}, "CAT": {"ticker": "CAT", "name": "Caterpillar, Inc.", "fullname": "Caterpillar Inc.", "sector": "Industrials", "industry": "Farm & Heavy Construction Machinery", "country": "United States", "desc": "Caterpillar Inc. provides construction and mining equipment, off-highway diesel and natural gas engines, industrial gas turbines, and diesel-electric locomotives in the United States and international...", "website": "https://www.caterpillar.com", "employees": 118000, "founded": "", "price": 879.89, "chg_pct": 1.61, "mktcap_b": 405.3, "ev_b": 438.6, "pe": 43.8, "fwd_pe": 29.5, "peg": 2.07, "ps": 5.7, "pb": 21.7, "ev_ebitda": 30.1, "eps": 20.09, "eps_g": 30.2, "rev_g": 22.2, "rev_b": 70.8, "gm": 28.6, "om": 18.2, "nm": 13.3, "roe": 51.3, "roa": 8.5, "de": 230.79, "cr": 1.35, "cash_b": 3.3, "fcf_b": 3.8, "div_yield": 70.0, "beta": 1.62, "short_pct": 2.0, "wk52h": 931.35, "wk52l": 336.24, "vs52h": -5.5, "vs52l": 161.7, "rsi": 51.0, "vs50ma": 10.3, "vs200ma": 41.0, "vol": 1987194, "avgvol": 2436973, "volr": 0.82, "cons": "buy", "atgt": 920.14, "atgt_hi": 1165.0, "atgt_lo": 575.0, "nans": 26, "inst": 73.0, "insider": 0.2, "earn": "N/A"}, "MSFT": {"ticker": "MSFT", "name": "Microsoft Corporation", "fullname": "Microsoft Corporation", "sector": "Technology", "industry": "Software - Infrastructure", "country": "United States", "desc": "Microsoft Corporation develops and supports software, services, devices, and solutions worldwide. The Productivity and Business Processes segment offers Microsoft 365 commercial, enterprise mobility +...", "website": "https://www.microsoft.com", "employees": 228000, "founded": "", "price": 418.57, "chg_pct": -0.12, "mktcap_b": 3109.3, "ev_b": 3160.4, "pe": 24.9, "fwd_pe": 21.6, "peg": 1.3, "ps": 9.8, "pb": 7.5, "ev_ebitda": 17.1, "eps": 16.81, "eps_g": 23.4, "rev_g": 18.3, "rev_b": 318.3, "gm": 68.3, "om": 46.3, "nm": 39.3, "roe": 34.0, "roa": 14.8, "de": 30.27, "cr": 1.28, "cash_b": 78.2, "fcf_b": 37.0, "div_yield": 87.0, "beta": 1.09, "short_pct": 1.1, "wk52h": 555.45, "wk52l": 356.28, "vs52h": -24.6, "vs52l": 17.5, "rsi": 55.1, "vs50ma": 4.7, "vs200ma": -8.7, "vol": 21911688, "avgvol": 34869116, "volr": 0.63, "cons": "strong_buy", "atgt": 560.63, "atgt_hi": 870.0, "atgt_lo": 400.0, "nans": 54, "inst": 75.9, "insider": 0.1, "earn": "N/A"}};
+const TOP10=[],WATCH=[],MACRO={"macro_summary": "", "risk_level": "MODERATE", "sector_rotation": "", "market_mood": "NEUTRAL"},MKT={"sp": 0.39, "nq": 0.42, "vix": 16.7},SD={"AVGO": {"ticker": "AVGO", "name": "Broadcom Inc.", "fullname": "Broadcom Inc.", "sector": "Technology", "industry": "Semiconductors", "desc": "Broadcom Inc. designs, develops, and supplies various semiconductor devices and infrastructure software solutions internationally.", "website": "https://www.broadcom.com", "employees": 33000, "price": 414.14, "chg_pct": -0.1, "mktcap_b": 1960.8, "pe": 80.6, "fwd_pe": 22.7, "peg": 0.91, "ps": 28.7, "pb": 24.6, "eps": 5.14, "eps_g": 31.6, "rev_g": 29.5, "rev_b": 68.3, "gm": 76.7, "om": 44.9, "nm": 36.6, "roe": 33.4, "de": 82.7, "cash_b": 14.2, "fcf_b": 25.5, "beta": 1.44, "div_yield": 63.0, "short_pct": 1.1, "wk52h": 442.36, "wk52l": 226.18, "vs52h": -6.4, "vs52l": 83.1, "rsi": 49.0, "vs50ma": 9.9, "vs200ma": 18.7, "vol": 14017536, "avgvol": 19622377, "volr": 0.71, "cons": "strong_buy", "atgt": 480.49, "atgt_hi": 630.0, "atgt_lo": 215.88, "nans": 44, "inst": 80.3, "insider_pct": 1.9, "earn": "N/A"}, "TSM": {"ticker": "TSM", "name": "Taiwan Semiconductor Manufactur", "fullname": "Taiwan Semiconductor Manufacturing Company Limited", "sector": "Technology", "industry": "Semiconductors", "desc": "Taiwan Semiconductor Manufacturing Company Limited, together with its subsidiaries, manufactures, packages, tests, and sells integrated circuits and other semiconductor devices in Taiwan, China, Europe, the Middle East, ...", "website": "https://www.tsmc.com", "employees": 76907, "price": 404.52, "chg_pct": -0.65, "mktcap_b": 2098.0, "pe": 34.9, "fwd_pe": 20.7, "peg": 1.25, "ps": 0.5, "pb": 89.5, "eps": 11.6, "eps_g": 58.4, "rev_g": 35.1, "rev_b": 4103.9, "gm": 61.9, "om": 58.1, "nm": 46.5, "roe": 36.2, "de": 18.45, "cash_b": 3383.6, "fcf_b": 719.2, "beta": 1.26, "div_yield": 93.0, "short_pct": 0.5, "wk52h": 421.97, "wk52l": 190.03, "vs52h": -4.1, "vs52l": 112.9, "rsi": 51.2, "vs50ma": 8.4, "vs200ma": 27.7, "vol": 7085377, "avgvol": 14040485, "volr": 0.5, "cons": "strong_buy", "atgt": 467.84, "atgt_hi": 600.0, "atgt_lo": 354.0, "nans": 18, "inst": 15.5, "insider_pct": 0.0, "earn": "N/A"}, "ARM": {"ticker": "ARM", "name": "Arm Holdings plc", "fullname": "Arm Holdings plc", "sector": "Technology", "industry": "Semiconductors", "desc": "Arm Holdings plc architects, develops, and licenses central processing unit products and related technologies for semiconductor companies and original equipment manufacturers. The company is involved in the licensing, ma...", "website": "https://www.arm.com", "employees": 9584, "price": 306.51, "chg_pct": 2.78, "mktcap_b": 326.1, "pe": 356.4, "fwd_pe": 100.3, "peg": 1.95, "ps": 66.3, "pb": 41.7, "eps": 0.86, "eps_g": 45.7, "rev_g": 20.1, "rev_b": 4.9, "gm": 97.5, "om": 29.6, "nm": 18.4, "roe": 12.0, "de": 5.21, "cash_b": 3.6, "fcf_b": 0.8, "beta": 3.41, "div_yield": 0, "short_pct": 11.4, "wk52h": 315.0, "wk52l": 100.02, "vs52h": -2.7, "vs52l": 206.4, "rsi": 75.7, "vs50ma": 68.4, "vs200ma": 108.4, "vol": 13736758, "avgvol": 11085788, "volr": 1.24, "cons": "buy", "atgt": 232.14, "atgt_hi": 326.0, "atgt_lo": 125.0, "nans": 37, "inst": 95.7, "insider_pct": 0.1, "earn": "N/A"}, "SMCI": {"ticker": "SMCI", "name": "Super Micro Computer, Inc.", "fullname": "Super Micro Computer, Inc.", "sector": "Technology", "industry": "Computer Hardware", "desc": "Super Micro Computer, Inc., together with its subsidiaries, develops and sells server and storage solutions based on modular and open-standard architecture in the United States, Asia, Europe, and internationally. The com...", "website": "https://www.supermicro.com", "employees": 6238, "price": 35.58, "chg_pct": 6.34, "mktcap_b": 21.4, "pe": 18.7, "fwd_pe": 11.0, "peg": 0.91, "ps": 0.6, "pb": 2.8, "eps": 1.9, "eps_g": 326.0, "rev_g": 122.7, "rev_b": 33.7, "gm": 8.4, "om": 6.1, "nm": 3.7, "roe": 17.9, "de": 120.8, "cash_b": 1.3, "fcf_b": -7.4, "beta": 1.68, "div_yield": 0, "short_pct": 17.9, "wk52h": 62.36, "wk52l": 19.48, "vs52h": -42.9, "vs52l": 82.6, "rsi": 67.7, "vs50ma": 27.5, "vs200ma": -1.4, "vol": 38454885, "avgvol": 35835752, "volr": 1.07, "cons": "hold", "atgt": 37.12, "atgt_hi": 58.0, "atgt_lo": 15.0, "nans": 16, "inst": 58.6, "insider_pct": 13.8, "earn": "N/A"}, "INTC": {"ticker": "INTC", "name": "Intel Corporation", "fullname": "Intel Corporation", "sector": "Technology", "industry": "Semiconductors", "desc": "Intel Corporation designs, develops, manufactures, markets, sells, and services computing and related end products and services in the United States, Ireland, Israel, and internationally. It operates through three segmen...", "website": "https://www.intel.com", "employees": 85100, "price": 119.84, "chg_pct": 1.13, "mktcap_b": 602.3, "pe": 0, "fwd_pe": 77.8, "peg": 1.36, "ps": 11.2, "pb": 5.4, "eps": -0.6, "eps_g": 0, "rev_g": 7.2, "rev_b": 53.8, "gm": 37.2, "om": 6.9, "nm": -5.9, "roe": -2.9, "de": 36.03, "cash_b": 32.8, "fcf_b": -8.3, "beta": 2.19, "div_yield": 0, "short_pct": 2.8, "wk52h": 132.75, "wk52l": 18.97, "vs52h": -9.7, "vs52l": 531.7, "rsi": 66.2, "vs50ma": 56.8, "vs200ma": 154.1, "vol": 81852556, "avgvol": 144389071, "volr": 0.57, "cons": "hold", "atgt": 87.86, "atgt_hi": 150.0, "atgt_lo": 20.4, "nans": 42, "inst": 64.1, "insider_pct": 14.7, "earn": "N/A"}, "MRVL": {"ticker": "MRVL", "name": "Marvell Technology, Inc.", "fullname": "Marvell Technology, Inc.", "sector": "Technology", "industry": "Semiconductors", "desc": "Marvell Technology, Inc., together with its subsidiaries, provides data infrastructure semiconductor solutions and spanning the data center core to network edge in the United States, Argentina, China, India, Israel, Japa...", "website": "https://www.marvell.com", "employees": 7480, "price": 196.33, "chg_pct": 2.96, "mktcap_b": 171.9, "pe": 64.0, "fwd_pe": 36.0, "peg": 2.07, "ps": 21.0, "pb": 11.6, "eps": 3.07, "eps_g": 106.3, "rev_g": 22.1, "rev_b": 8.2, "gm": 51.0, "om": 18.7, "nm": 32.6, "roe": 19.3, "de": 33.48, "cash_b": 2.6, "fcf_b": 1.4, "beta": 2.25, "div_yield": 13.0, "short_pct": 3.8, "wk52h": 198.4, "wk52l": 58.61, "vs52h": -1.0, "vs52l": 235.0, "rsi": 66.9, "vs50ma": 42.8, "vs200ma": 104.9, "vol": 19702156, "avgvol": 26068758, "volr": 0.76, "cons": "strong_buy", "atgt": 148.18, "atgt_hi": 225.0, "atgt_lo": 85.0, "nans": 40, "inst": 85.5, "insider_pct": 0.7, "earn": "N/A"}, "CRWD": {"ticker": "CRWD", "name": "CrowdStrike Holdings, Inc.", "fullname": "CrowdStrike Holdings, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "CrowdStrike Holdings, Inc. provides cybersecurity solutions in the United States and internationally.", "website": "https://www.crowdstrike.com", "employees": 10698, "price": 663.46, "chg_pct": 2.35, "mktcap_b": 168.9, "pe": 0, "fwd_pe": 107.7, "peg": 5.09, "ps": 35.1, "pb": 38.0, "eps": -0.65, "eps_g": 0, "rev_g": 23.3, "rev_b": 4.8, "gm": 74.8, "om": 1.0, "nm": -3.4, "roe": -4.1, "de": 18.34, "cash_b": 5.2, "fcf_b": 1.6, "beta": 1.06, "div_yield": 0, "short_pct": 3.0, "wk52h": 674.84, "wk52l": 342.72, "vs52h": -1.7, "vs52l": 93.6, "rsi": 94.4, "vs50ma": 43.3, "vs200ma": 42.6, "vol": 2724252, "avgvol": 3061695, "volr": 0.89, "cons": "buy", "atgt": 527.63, "atgt_hi": 706.0, "atgt_lo": 368.0, "nans": 51, "inst": 75.0, "insider_pct": 1.5, "earn": "N/A"}, "PANW": {"ticker": "PANW", "name": "Palo Alto Networks, Inc.", "fullname": "Palo Alto Networks, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Palo Alto Networks, Inc. provides cybersecurity solutions in the Americas, Europe, the Middle East, Africa, the Asia Pacific, and Japan.", "website": "https://www.paloaltonetworks.com", "employees": 17027, "price": 260.58, "chg_pct": 3.03, "mktcap_b": 211.3, "pe": 144.8, "fwd_pe": 65.5, "peg": 4.14, "ps": 21.4, "pb": 19.5, "eps": 1.8, "eps_g": 60.5, "rev_g": 14.9, "rev_b": 9.9, "gm": 73.5, "om": 15.5, "nm": 13.0, "roe": 16.3, "de": 4.89, "cash_b": 4.5, "fcf_b": 2.9, "beta": 0.77, "div_yield": 0, "short_pct": 3.1, "wk52h": 261.41, "wk52l": 139.57, "vs52h": -0.3, "vs52l": 86.7, "rsi": 91.0, "vs50ma": 41.6, "vs200ma": 38.9, "vol": 6624381, "avgvol": 7484616, "volr": 0.89, "cons": "buy", "atgt": 223.63, "atgt_hi": 285.0, "atgt_lo": 114.0, "nans": 49, "inst": 83.7, "insider_pct": 0.8, "earn": "N/A"}, "FTNT": {"ticker": "FTNT", "name": "Fortinet, Inc.", "fullname": "Fortinet, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Fortinet, Inc. provides cybersecurity and convergence of networking and security solutions worldwide.", "website": "https://www.fortinet.com", "employees": 15311, "price": 133.93, "chg_pct": 3.45, "mktcap_b": 98.1, "pe": 51.9, "fwd_pe": 39.1, "peg": 2.88, "ps": 13.8, "pb": 99.4, "eps": 2.58, "eps_g": 28.6, "rev_g": 20.1, "rev_b": 7.1, "gm": 80.3, "om": 31.3, "nm": 27.5, "roe": 132.4, "de": 57.31, "cash_b": 3.3, "fcf_b": 1.8, "beta": 0.92, "div_yield": 0, "short_pct": 3.2, "wk52h": 134.19, "wk52l": 70.12, "vs52h": -0.2, "vs52l": 91.0, "rsi": 95.7, "vs50ma": 45.2, "vs200ma": 59.3, "vol": 5628418, "avgvol": 5956470, "volr": 0.94, "cons": "hold", "atgt": 107.17, "atgt_hi": 130.0, "atgt_lo": 70.0, "nans": 36, "inst": 72.6, "insider_pct": 17.4, "earn": "N/A"}, "S": {"ticker": "S", "name": "SentinelOne, Inc.", "fullname": "SentinelOne, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "SentinelOne, Inc. operates as a cybersecurity provider in the United States and internationally.", "website": "https://www.sentinelone.com", "employees": 2900, "price": 18.71, "chg_pct": 3.31, "mktcap_b": 6.4, "pe": 0, "fwd_pe": 39.2, "peg": 0, "ps": 6.4, "pb": 4.4, "eps": -1.37, "eps_g": 0, "rev_g": 20.2, "rev_b": 1.0, "gm": 74.1, "om": -28.1, "nm": -45.0, "roe": -29.0, "de": 1.04, "cash_b": 0.6, "fcf_b": 0.3, "beta": 0.79, "div_yield": 0, "short_pct": 7.8, "wk52h": 21.4, "wk52l": 11.81, "vs52h": -12.6, "vs52l": 58.4, "rsi": 76.5, "vs50ma": 27.7, "vs200ma": 19.9, "vol": 6873131, "avgvol": 7135721, "volr": 0.96, "cons": "buy", "atgt": 18.59, "atgt_hi": 26.0, "atgt_lo": 14.0, "nans": 34, "inst": 85.0, "insider_pct": 0.6, "earn": "N/A"}, "CYBR": {"ticker": "CYBR", "name": "CYBR", "fullname": "CYBR", "sector": "Unknown", "industry": "Unknown", "desc": "", "website": "", "employees": 0, "price": 0.0, "chg_pct": 0, "mktcap_b": 0.0, "pe": 0, "fwd_pe": 0, "peg": 0, "ps": 0, "pb": 0, "eps": 0, "eps_g": 0, "rev_g": 0, "rev_b": 0.0, "gm": 0, "om": 0, "nm": 0, "roe": 0, "de": 0, "cash_b": 0.0, "fcf_b": 0.0, "beta": 0, "div_yield": 0, "short_pct": 0, "wk52h": 0.0, "wk52l": 0.0, "vs52h": 0, "vs52l": 0, "rsi": 50, "vs50ma": 0, "vs200ma": 0, "vol": 0, "avgvol": 0, "volr": 1, "cons": "N/A", "atgt": 0, "atgt_hi": 0, "atgt_lo": 0, "nans": 0, "inst": 0, "insider_pct": 0, "earn": "N/A"}, "GOOGL": {"ticker": "GOOGL", "name": "Alphabet Inc.", "fullname": "Alphabet Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "desc": "Alphabet Inc. offers various products and platforms in the United States, Europe, the Middle East, Africa, the Asia-Pacific, Canada, and Latin America.", "website": "https://abc.xyz", "employees": 194668, "price": 382.97, "chg_pct": -1.21, "mktcap_b": 4639.9, "pe": 29.2, "fwd_pe": 26.5, "peg": 1.53, "ps": 11.0, "pb": 9.7, "eps": 13.1, "eps_g": 82.0, "rev_g": 21.8, "rev_b": 422.5, "gm": 60.4, "om": 36.1, "nm": 37.9, "roe": 38.9, "de": 20.03, "cash_b": 126.8, "fcf_b": 27.9, "beta": 1.27, "div_yield": 23.0, "short_pct": 1.3, "wk52h": 408.61, "wk52l": 162.0, "vs52h": -6.3, "vs52l": 136.4, "rsi": 49.8, "vs50ma": 12.3, "vs200ma": 29.4, "vol": 19134802, "avgvol": 27156266, "volr": 0.7, "cons": "strong_buy", "atgt": 428.96, "atgt_hi": 515.0, "atgt_lo": 334.22, "nans": 53, "inst": 81.3, "insider_pct": 1.2, "earn": "N/A"}, "AMZN": {"ticker": "AMZN", "name": "Amazon.com, Inc.", "fullname": "Amazon.com, Inc.", "sector": "Consumer Cyclical", "industry": "Internet Retail", "desc": "Amazon.com, Inc. engages in the retail sale of consumer products, advertising, and subscriptions service through online and physical stores in North America and internationally.", "website": "https://www.amazon.com", "employees": 1575000, "price": 266.32, "chg_pct": -0.8, "mktcap_b": 2864.8, "pe": 31.4, "fwd_pe": 27.0, "peg": 1.83, "ps": 3.9, "pb": 6.5, "eps": 8.48, "eps_g": 74.8, "rev_g": 16.6, "rev_b": 742.8, "gm": 50.6, "om": 13.1, "nm": 12.2, "roe": 24.3, "de": 53.3, "cash_b": 143.1, "fcf_b": 9.8, "beta": 1.47, "div_yield": 0, "short_pct": 0.9, "wk52h": 278.56, "wk52l": 196.0, "vs52h": -4.4, "vs52l": 35.9, "rsi": 43.3, "vs50ma": 10.1, "vs200ma": 15.5, "vol": 26386815, "avgvol": 44642183, "volr": 0.59, "cons": "strong_buy", "atgt": 312.63, "atgt_hi": 370.0, "atgt_lo": 207.0, "nans": 62, "inst": 68.1, "insider_pct": 8.9, "earn": "N/A"}, "META": {"ticker": "META", "name": "Meta Platforms, Inc.", "fullname": "Meta Platforms, Inc.", "sector": "Communication Services", "industry": "Internet Content & Information", "desc": "Meta Platforms, Inc. engages in the development of products that enable people to connect and share with friends and family through mobile devices, personal computers, virtual reality (VR) headsets, and AI glasses in the...", "website": "https://www.meta.com", "employees": 77986, "price": 610.26, "chg_pct": 0.47, "mktcap_b": 1549.1, "pe": 22.2, "fwd_pe": 16.9, "peg": 0.87, "ps": 7.2, "pb": 6.4, "eps": 27.51, "eps_g": 62.4, "rev_g": 33.1, "rev_b": 215.0, "gm": 81.9, "om": 40.6, "nm": 32.8, "roe": 32.9, "de": 35.61, "cash_b": 81.2, "fcf_b": 25.6, "beta": 1.24, "div_yield": 35.0, "short_pct": 1.3, "wk52h": 796.25, "wk52l": 520.26, "vs52h": -23.4, "vs52l": 17.3, "rsi": 49.9, "vs50ma": -1.2, "vs200ma": -8.7, "vol": 11103030, "avgvol": 14884264, "volr": 0.75, "cons": "strong_buy", "atgt": 826.69, "atgt_hi": 1015.0, "atgt_lo": 614.0, "nans": 58, "inst": 79.5, "insider_pct": 0.1, "earn": "N/A"}, "ORCL": {"ticker": "ORCL", "name": "Oracle Corporation", "fullname": "Oracle Corporation", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Oracle Corporation offers products and services that address enterprise information technology environments worldwide. Its Oracle cloud software as a service offering include various cloud software applications, includin...", "website": "https://www.oracle.com", "employees": 162000, "price": 192.08, "chg_pct": 1.22, "mktcap_b": 552.4, "pe": 34.4, "fwd_pe": 23.9, "peg": 1.19, "ps": 8.6, "pb": 16.5, "eps": 5.58, "eps_g": 24.5, "rev_g": 21.7, "rev_b": 64.1, "gm": 67.1, "om": 32.7, "nm": 25.3, "roe": 57.6, "de": 415.26, "cash_b": 39.1, "fcf_b": -22.3, "beta": 1.54, "div_yield": 105.0, "short_pct": 1.8, "wk52h": 345.72, "wk52l": 134.57, "vs52h": -44.4, "vs52l": 42.7, "rsi": 60.1, "vs50ma": 15.0, "vs200ma": -7.2, "vol": 9467888, "avgvol": 27924032, "volr": 0.34, "cons": "buy", "atgt": 244.03, "atgt_hi": 400.0, "atgt_lo": 155.0, "nans": 39, "inst": 44.0, "insider_pct": 40.5, "earn": "N/A"}, "SNOW": {"ticker": "SNOW", "name": "Snowflake Inc.", "fullname": "Snowflake Inc.", "sector": "Technology", "industry": "Software - Application", "desc": "Snowflake Inc. provides a cloud-based data platform for various organizations in the United States and internationally.", "website": "https://www.snowflake.com", "employees": 9060, "price": 172.2, "chg_pct": 4.02, "mktcap_b": 59.7, "pe": 0, "fwd_pe": 71.0, "peg": 4.68, "ps": 12.7, "pb": 30.8, "eps": -3.96, "eps_g": 0, "rev_g": 30.1, "rev_b": 4.7, "gm": 67.2, "om": -33.2, "nm": -28.4, "roe": -53.9, "de": 142.46, "cash_b": 4.0, "fcf_b": 1.6, "beta": 1.08, "div_yield": 0, "short_pct": 5.1, "wk52h": 280.67, "wk52l": 118.3, "vs52h": -38.6, "vs52l": 45.6, "rsi": 76.6, "vs50ma": 12.5, "vs200ma": -15.1, "vol": 5763902, "avgvol": 7427383, "volr": 0.78, "cons": "buy", "atgt": 229.66, "atgt_hi": 500.0, "atgt_lo": 110.0, "nans": 48, "inst": 76.2, "insider_pct": 2.9, "earn": "N/A"}, "DDOG": {"ticker": "DDOG", "name": "Datadog, Inc.", "fullname": "Datadog, Inc.", "sector": "Technology", "industry": "Software - Application", "desc": "Datadog, Inc. operates an observability and security platform for cloud applications in the United States and internationally.", "website": "https://www.datadoghq.com", "employees": 8100, "price": 222.32, "chg_pct": 1.96, "mktcap_b": 79.1, "pe": 570.1, "fwd_pe": 78.2, "peg": 1.35, "ps": 21.6, "pb": 19.8, "eps": 0.39, "eps_g": 104.0, "rev_g": 32.2, "rev_b": 3.7, "gm": 79.9, "om": 0.8, "nm": 3.7, "roe": 3.9, "de": 32.22, "cash_b": 4.8, "fcf_b": 0.9, "beta": 1.29, "div_yield": 0, "short_pct": 5.4, "wk52h": 224.77, "wk52l": 98.01, "vs52h": -1.1, "vs52l": 126.8, "rsi": 88.9, "vs50ma": 53.4, "vs200ma": 56.7, "vol": 3515287, "avgvol": 6088986, "volr": 0.58, "cons": "strong_buy", "atgt": 223.02, "atgt_hi": 320.0, "atgt_lo": 128.85, "nans": 47, "inst": 92.2, "insider_pct": 0.7, "earn": "N/A"}, "MDB": {"ticker": "MDB", "name": "MongoDB, Inc.", "fullname": "MongoDB, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "MongoDB, Inc., together with its subsidiaries, provides general purpose database platform worldwide. The company offers MongoDB Atlas, a hosted multi-cloud database-as-a-service solution; MongoDB Enterprise Advanced, a c...", "website": "https://www.mongodb.com", "employees": 5636, "price": 326.13, "chg_pct": 2.72, "mktcap_b": 26.3, "pe": 0, "fwd_pe": 46.0, "peg": 1.67, "ps": 10.7, "pb": 8.9, "eps": -0.89, "eps_g": 2.2, "rev_g": 26.7, "rev_b": 2.5, "gm": 71.7, "om": 0.0, "nm": -2.9, "roe": -2.5, "de": 2.13, "cash_b": 2.4, "fcf_b": 0.5, "beta": 1.49, "div_yield": 0, "short_pct": 4.4, "wk52h": 444.72, "wk52l": 182.43, "vs52h": -26.7, "vs52l": 78.8, "rsi": 75.7, "vs50ma": 21.5, "vs200ma": 1.2, "vol": 1227871, "avgvol": 1615285, "volr": 0.76, "cons": "buy", "atgt": 358.82, "atgt_hi": 495.0, "atgt_lo": 272.64, "nans": 36, "inst": 93.2, "insider_pct": 2.7, "earn": "N/A"}, "NOW": {"ticker": "NOW", "name": "ServiceNow, Inc.", "fullname": "ServiceNow, Inc.", "sector": "Technology", "industry": "Software - Application", "desc": "ServiceNow, Inc. provides cloud-based solution for digital workflows in the North America, Europe, the Middle East and Africa, Asia Pacific, and internationally.", "website": "https://www.servicenow.com", "employees": 29187, "price": 102.13, "chg_pct": 2.45, "mktcap_b": 105.3, "pe": 60.8, "fwd_pe": 20.3, "peg": 1.0, "ps": 7.5, "pb": 9.0, "eps": 1.68, "eps_g": 2.3, "rev_g": 22.1, "rev_b": 14.0, "gm": 76.6, "om": 13.3, "nm": 12.6, "roe": 16.1, "de": 20.73, "cash_b": 5.2, "fcf_b": 5.1, "beta": 0.82, "div_yield": 0, "short_pct": 4.8, "wk52h": 211.48, "wk52l": 81.24, "vs52h": -51.7, "vs52l": 25.7, "rsi": 62.6, "vs50ma": 4.1, "vs200ma": -28.5, "vol": 21832090, "avgvol": 29157906, "volr": 0.75, "cons": "strong_buy", "atgt": 142.77, "atgt_hi": 236.0, "atgt_lo": 85.0, "nans": 44, "inst": 88.6, "insider_pct": 0.2, "earn": "N/A"}, "PLTR": {"ticker": "PLTR", "name": "Palantir Technologies Inc.", "fullname": "Palantir Technologies Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Palantir Technologies Inc. builds and deploys software platforms for the intelligence community to assist in counterterrorism investigations and operations in the United States, the United Kingdom, and internationally.", "website": "https://www.palantir.com", "employees": 4395, "price": 136.88, "chg_pct": -0.39, "mktcap_b": 328.1, "pe": 153.8, "fwd_pe": 66.0, "peg": 1.95, "ps": 62.8, "pb": 44.3, "eps": 0.89, "eps_g": 325.0, "rev_g": 84.7, "rev_b": 5.2, "gm": 84.1, "om": 46.2, "nm": 43.7, "roe": 32.6, "de": 2.48, "cash_b": 8.0, "fcf_b": 1.8, "beta": 1.52, "div_yield": 0, "short_pct": 2.8, "wk52h": 207.52, "wk52l": 118.93, "vs52h": -34.0, "vs52l": 15.1, "rsi": 35.7, "vs50ma": -4.0, "vs200ma": -15.8, "vol": 27261935, "avgvol": 43110381, "volr": 0.63, "cons": "buy", "atgt": 183.73, "atgt_hi": 255.0, "atgt_lo": 70.0, "nans": 27, "inst": 62.5, "insider_pct": 3.5, "earn": "N/A"}, "UBER": {"ticker": "UBER", "name": "Uber Technologies, Inc.", "fullname": "Uber Technologies, Inc.", "sector": "Technology", "industry": "Software - Application", "desc": "Uber Technologies, Inc. develops and operates proprietary technology applications in the United States, Canada, Latin America, Europe, the Middle East, Africa, and the Asia Pacific.", "website": "https://www.uber.com", "employees": 35000, "price": 71.82, "chg_pct": -2.43, "mktcap_b": 146.2, "pe": 17.8, "fwd_pe": 16.5, "peg": 6.01, "ps": 2.7, "pb": 5.5, "eps": 4.03, "eps_g": -84.6, "rev_g": 14.5, "rev_b": 53.7, "gm": 39.6, "om": 14.6, "nm": 15.9, "roe": 35.3, "de": 48.11, "cash_b": 6.1, "fcf_b": 6.5, "beta": 1.16, "div_yield": 0, "short_pct": 2.7, "wk52h": 101.99, "wk52l": 68.46, "vs52h": -29.6, "vs52l": 4.9, "rsi": 44.2, "vs50ma": -3.2, "vs200ma": -14.6, "vol": 19455535, "avgvol": 16674557, "volr": 1.17, "cons": "strong_buy", "atgt": 104.45, "atgt_hi": 150.0, "atgt_lo": 70.0, "nans": 50, "inst": 86.1, "insider_pct": 0.4, "earn": "N/A"}, "SHOP": {"ticker": "SHOP", "name": "Shopify Inc.", "fullname": "Shopify Inc.", "sector": "Technology", "industry": "Software - Application", "desc": "Shopify Inc., a commerce technology company, provides tools to start, scale, market, and run a business of various sizes in Canada, the United States, Europe, the Middle East, Africa, the Asia Pacific, and Latin America....", "website": "https://www.shopify.com", "employees": 7600, "price": 103.0, "chg_pct": -1.77, "mktcap_b": 133.7, "pe": 101.0, "fwd_pe": 44.2, "peg": 2.1, "ps": 10.8, "pb": 10.7, "eps": 1.02, "eps_g": 0, "rev_g": 34.3, "rev_b": 12.4, "gm": 48.0, "om": 15.7, "nm": 10.8, "roe": 11.3, "de": 1.43, "cash_b": 5.7, "fcf_b": 1.3, "beta": 2.64, "div_yield": 0, "short_pct": 1.6, "wk52h": 182.19, "wk52l": 94.0, "vs52h": -43.5, "vs52l": 9.6, "rsi": 29.2, "vs50ma": -11.6, "vs200ma": -26.6, "vol": 10336396, "avgvol": 11814086, "volr": 0.87, "cons": "buy", "atgt": 151.56, "atgt_hi": 200.0, "atgt_lo": 105.0, "nans": 45, "inst": 74.0, "insider_pct": 0.2, "earn": "N/A"}, "COIN": {"ticker": "COIN", "name": "Coinbase Global, Inc.", "fullname": "Coinbase Global, Inc.", "sector": "Financial Services", "industry": "Financial Data & Stock Exchanges", "desc": "Coinbase Global, Inc. operates platform for crypto assets in the United States and internationally.", "website": "https://www.coinbase.com", "employees": 4951, "price": 184.99, "chg_pct": -4.43, "mktcap_b": 48.7, "pe": 67.8, "fwd_pe": 37.0, "peg": 1.02, "ps": 7.8, "pb": 3.6, "eps": 2.73, "eps_g": 0, "rev_g": -30.8, "rev_b": 6.3, "gm": 85.5, "om": -7.1, "nm": 12.7, "roe": 6.7, "de": 59.08, "cash_b": 10.4, "fcf_b": 2.4, "beta": 3.38, "div_yield": 0, "short_pct": 11.8, "wk52h": 444.65, "wk52l": 139.36, "vs52h": -58.4, "vs52l": 32.7, "rsi": 40.9, "vs50ma": -3.2, "vs200ma": -26.3, "vol": 7779986, "avgvol": 10062476, "volr": 0.77, "cons": "buy", "atgt": 231.72, "atgt_hi": 400.0, "atgt_lo": 107.0, "nans": 28, "inst": 68.6, "insider_pct": 1.3, "earn": "N/A"}, "SQ": {"ticker": "SQ", "name": "SQ", "fullname": "SQ", "sector": "Unknown", "industry": "Unknown", "desc": "", "website": "", "employees": 0, "price": 0.0, "chg_pct": 0, "mktcap_b": 0.0, "pe": 0, "fwd_pe": 0, "peg": 0, "ps": 0, "pb": 0, "eps": 0, "eps_g": 0, "rev_g": 0, "rev_b": 0.0, "gm": 0, "om": 0, "nm": 0, "roe": 0, "de": 0, "cash_b": 0.0, "fcf_b": 0.0, "beta": 0, "div_yield": 0, "short_pct": 0, "wk52h": 0.0, "wk52l": 0.0, "vs52h": 0, "vs52l": 0, "rsi": 50, "vs50ma": 0, "vs200ma": 0, "vol": 0, "avgvol": 0, "volr": 1, "cons": "N/A", "atgt": 0, "atgt_hi": 0, "atgt_lo": 0, "nans": 0, "inst": 0, "insider_pct": 0, "earn": "N/A"}, "RBLX": {"ticker": "RBLX", "name": "Roblox Corporation", "fullname": "Roblox Corporation", "sector": "Communication Services", "industry": "Electronic Gaming & Multimedia", "desc": "Roblox Corporation operates an immersive platform for connection and communication in the United States and internationally. It offers Roblox Client, an application that allows users to explore immersive experience; Robl...", "website": "https://corp.roblox.com", "employees": 3065, "price": 48.16, "chg_pct": 4.38, "mktcap_b": 34.5, "pe": 0, "fwd_pe": -39.8, "peg": 8.18, "ps": 6.5, "pb": 86.5, "eps": -1.57, "eps_g": 0, "rev_g": 39.3, "rev_b": 5.3, "gm": 24.1, "om": -16.4, "nm": -20.7, "roe": -311.9, "de": 435.04, "cash_b": 3.2, "fcf_b": 1.2, "beta": 1.5, "div_yield": 0, "short_pct": 3.2, "wk52h": 150.59, "wk52l": 40.15, "vs52h": -68.0, "vs52l": 20.0, "rsi": 51.3, "vs50ma": -9.3, "vs200ma": -45.7, "vol": 9049855, "avgvol": 12753155, "volr": 0.71, "cons": "buy", "atgt": 64.89, "atgt_hi": 105.0, "atgt_lo": 46.0, "nans": 32, "inst": 83.1, "insider_pct": 5.5, "earn": "N/A"}, "LLY": {"ticker": "LLY", "name": "Eli Lilly and Company", "fullname": "Eli Lilly and Company", "sector": "Healthcare", "industry": "Drug Manufacturers - General", "desc": "Eli Lilly and Company discovers, develops, manufactures, and markets human pharmaceutical products in the United States, Europe, China, Japan, and internationally. The company offers cardiometabolic health products, incl...", "website": "https://www.lilly.com", "employees": 50000, "price": 1065.0, "chg_pct": 2.24, "mktcap_b": 949.7, "pe": 37.9, "fwd_pe": 24.0, "peg": 1.37, "ps": 13.1, "pb": 30.5, "eps": 28.12, "eps_g": 169.9, "rev_g": 55.5, "rev_b": 72.2, "gm": 82.8, "om": 49.4, "nm": 35.0, "roe": 107.5, "de": 139.01, "cash_b": 5.3, "fcf_b": 9.2, "beta": 0.48, "div_yield": 66.0, "short_pct": 0.9, "wk52h": 1133.95, "wk52l": 623.78, "vs52h": -6.1, "vs52l": 70.7, "rsi": 70.9, "vs50ma": 13.1, "vs200ma": 15.1, "vol": 2749877, "avgvol": 3275812, "volr": 0.84, "cons": "buy", "atgt": 1210.0, "atgt_hi": 1500.0, "atgt_lo": 850.0, "nans": 29, "inst": 85.5, "insider_pct": 0.2, "earn": "N/A"}, "UNH": {"ticker": "UNH", "name": "UnitedHealth Group Incorporated", "fullname": "UnitedHealth Group Incorporated", "sector": "Healthcare", "industry": "Healthcare Plans", "desc": "UnitedHealth Group Incorporated operates as a health care company in the United States and internationally. It operates through four segments: Optum Health, Optum Insight, Optum Rx; and UnitedHealthcare.", "website": "https://www.unitedhealthgroup.com", "employees": 390000, "price": 388.47, "chg_pct": 1.57, "mktcap_b": 352.8, "pe": 29.3, "fwd_pe": 18.7, "peg": 1.33, "ps": 0.8, "pb": 3.6, "eps": 13.27, "eps_g": 0.7, "rev_g": 2.0, "rev_b": 449.7, "gm": 18.8, "om": 8.0, "nm": 2.7, "roe": 12.2, "de": 73.98, "cash_b": 31.2, "fcf_b": 17.7, "beta": 0.65, "div_yield": 231.0, "short_pct": 2.4, "wk52h": 404.15, "wk52l": 234.6, "vs52h": -3.9, "vs52l": 65.6, "rsi": 62.9, "vs50ma": 17.5, "vs200ma": 21.0, "vol": 5413328, "avgvol": 7864290, "volr": 0.69, "cons": "buy", "atgt": 390.35, "atgt_hi": 444.0, "atgt_lo": 287.0, "nans": 26, "inst": 86.7, "insider_pct": 0.2, "earn": "N/A"}, "ABBV": {"ticker": "ABBV", "name": "AbbVie Inc.", "fullname": "AbbVie Inc.", "sector": "Healthcare", "industry": "Drug Manufacturers - General", "desc": "AbbVie Inc., a research-based biopharmaceutical company, engages in the research and development, manufacturing, commercializing, and sale of medicines and therapies worldwide. The company offers Skyrizi to treat autoimm...", "website": "https://www.abbvie.com", "employees": 57000, "price": 215.7, "chg_pct": 0.56, "mktcap_b": 381.1, "pe": 105.7, "fwd_pe": 13.3, "peg": 0.59, "ps": 6.1, "pb": -57.3, "eps": 2.04, "eps_g": -46.2, "rev_g": 12.4, "rev_b": 62.8, "gm": 72.0, "om": 32.2, "nm": 5.8, "roe": 0, "de": 0, "cash_b": 9.4, "fcf_b": 20.8, "beta": 0.3, "div_yield": 323.0, "short_pct": 1.3, "wk52h": 244.81, "wk52l": 181.72, "vs52h": -11.9, "vs52l": 18.7, "rsi": 64.3, "vs50ma": 3.9, "vs200ma": -0.3, "vol": 3974116, "avgvol": 6403010, "volr": 0.62, "cons": "buy", "atgt": 252.9, "atgt_hi": 328.0, "atgt_lo": 184.0, "nans": 29, "inst": 77.0, "insider_pct": 0.1, "earn": "N/A"}, "ISRG": {"ticker": "ISRG", "name": "Intuitive Surgical, Inc.", "fullname": "Intuitive Surgical, Inc.", "sector": "Healthcare", "industry": "Medical Instruments & Supplies", "desc": "Intuitive Surgical, Inc. develops, manufactures, and markets products that enable physicians and healthcare providers to enhance the quality of and access to minimally invasive care in the United States and international...", "website": "https://www.intuitive.com", "employees": 17021, "price": 438.1, "chg_pct": -0.39, "mktcap_b": 155.2, "pe": 53.3, "fwd_pe": 37.2, "peg": 2.36, "ps": 14.7, "pb": 8.9, "eps": 8.22, "eps_g": 18.8, "rev_g": 23.0, "rev_b": 10.6, "gm": 66.3, "om": 30.9, "nm": 28.2, "roe": 17.2, "de": 0, "cash_b": 4.5, "fcf_b": 2.3, "beta": 1.51, "div_yield": 0, "short_pct": 1.9, "wk52h": 603.88, "wk52l": 417.74, "vs52h": -27.5, "vs52l": 4.9, "rsi": 42.8, "vs50ma": -4.4, "vs200ma": -11.7, "vol": 2000166, "avgvol": 2336405, "volr": 0.86, "cons": "buy", "atgt": 572.68, "atgt_hi": 750.0, "atgt_lo": 378.0, "nans": 30, "inst": 89.4, "insider_pct": 0.6, "earn": "N/A"}, "MRNA": {"ticker": "MRNA", "name": "Moderna, Inc.", "fullname": "Moderna, Inc.", "sector": "Healthcare", "industry": "Biotechnology", "desc": "Moderna, Inc., a biotechnology company, provides messenger RNA medicines in the United States, Europe, and internationally. The company's respiratory vaccines include spikevax, mNEXSPIKE, mRESVIA, COVID, RSV, seasonal in...", "website": "https://www.modernatx.com", "employees": 4700, "price": 46.88, "chg_pct": -0.8, "mktcap_b": 18.6, "pe": 0, "fwd_pe": -11.2, "peg": 0, "ps": 8.4, "pb": 2.1, "eps": -8.14, "eps_g": 0, "rev_g": 260.2, "rev_b": 2.2, "gm": -69.9, "om": -131.1, "nm": -143.6, "roe": -36.6, "de": 17.52, "cash_b": 5.2, "fcf_b": -0.0, "beta": 1.06, "div_yield": 0, "short_pct": 18.0, "wk52h": 59.55, "wk52l": 22.28, "vs52h": -21.3, "vs52l": 110.4, "rsi": 49.0, "vs50ma": -7.4, "vs200ma": 26.5, "vol": 4191287, "avgvol": 7350932, "volr": 0.57, "cons": "hold", "atgt": 43.2, "atgt_hi": 69.0, "atgt_lo": 21.0, "nans": 20, "inst": 78.9, "insider_pct": 7.3, "earn": "N/A"}, "JPM": {"ticker": "JPM", "name": "JP Morgan Chase & Co.", "fullname": "JPMorgan Chase & Co.", "sector": "Financial Services", "industry": "Banks - Diversified", "desc": "JPMorgan Chase & Co. operates as a bank and financial holding company in the United States, rest of North America, Europe, the Middle East, Africa, the Asia Pacific, Latin America, and the Caribbean.", "website": "https://www.jpmorganchase.com", "employees": 320079, "price": 306.38, "chg_pct": 1.12, "mktcap_b": 820.9, "pe": 14.7, "fwd_pe": 13.0, "peg": 1.6, "ps": 4.7, "pb": 2.4, "eps": 20.88, "eps_g": 17.2, "rev_g": 12.7, "rev_b": 173.6, "gm": 0, "om": 43.7, "nm": 33.9, "roe": 16.5, "de": 0, "cash_b": 1582.2, "fcf_b": 0.0, "beta": 1.02, "div_yield": 198.0, "short_pct": 0.9, "wk52h": 337.25, "wk52l": 256.0, "vs52h": -9.2, "vs52l": 19.7, "rsi": 48.8, "vs50ma": 1.7, "vs200ma": 1.0, "vol": 4389236, "avgvol": 8099657, "volr": 0.54, "cons": "buy", "atgt": 342.32, "atgt_hi": 391.0, "atgt_lo": 295.0, "nans": 22, "inst": 75.7, "insider_pct": 0.4, "earn": "N/A"}, "GS": {"ticker": "GS", "name": "Goldman Sachs Group, Inc. (The)", "fullname": "The Goldman Sachs Group, Inc.", "sector": "Financial Services", "industry": "Capital Markets", "desc": "The Goldman Sachs Group, Inc., a financial institution, provides a range of financial services for corporations, financial institutions, governments, and individuals in the Americas, Europe, the Middle East, Africa, and ...", "website": "https://www.goldmansachs.com", "employees": 47000, "price": 996.73, "chg_pct": 0.87, "mktcap_b": 294.0, "pe": 18.2, "fwd_pe": 15.2, "peg": 1.52, "ps": 4.8, "pb": 2.8, "eps": 54.74, "eps_g": 24.2, "rev_g": 14.5, "rev_b": 61.5, "gm": 82.3, "om": 38.6, "nm": 29.4, "roe": 14.5, "de": 678.6, "cash_b": 1142.2, "fcf_b": 0.0, "beta": 1.27, "div_yield": 182.0, "short_pct": 2.4, "wk52h": 1005.18, "wk52l": 582.5, "vs52h": -0.8, "vs52l": 71.1, "rsi": 73.7, "vs50ma": 11.2, "vs200ma": 18.2, "vol": 1922710, "avgvol": 2017513, "volr": 0.95, "cons": "hold", "atgt": 947.6, "atgt_hi": 1050.0, "atgt_lo": 730.0, "nans": 20, "inst": 74.8, "insider_pct": 0.5, "earn": "N/A"}, "V": {"ticker": "V", "name": "Visa Inc.", "fullname": "Visa Inc.", "sector": "Financial Services", "industry": "Credit Services", "desc": "Visa Inc. operates as a payment technology company in the United States and internationally.", "website": "https://www.visa.com", "employees": 34100, "price": 328.88, "chg_pct": -0.68, "mktcap_b": 625.4, "pe": 28.7, "fwd_pe": 22.1, "peg": 1.73, "ps": 14.5, "pb": 16.4, "eps": 11.46, "eps_g": 35.5, "rev_g": 17.1, "rev_b": 43.0, "gm": 97.8, "om": 67.3, "nm": 51.7, "roe": 60.3, "de": 67.23, "cash_b": 13.9, "fcf_b": 20.8, "beta": 0.78, "div_yield": 81.0, "short_pct": 1.4, "wk52h": 375.51, "wk52l": 293.89, "vs52h": -12.4, "vs52l": 11.9, "rsi": 52.9, "vs50ma": 5.0, "vs200ma": -0.2, "vol": 7461064, "avgvol": 7410102, "volr": 1.01, "cons": "strong_buy", "atgt": 398.74, "atgt_hi": 450.0, "atgt_lo": 323.0, "nans": 35, "inst": 91.9, "insider_pct": 0.1, "earn": "N/A"}, "MA": {"ticker": "MA", "name": "Mastercard Incorporated", "fullname": "Mastercard Incorporated", "sector": "Financial Services", "industry": "Credit Services", "desc": "Mastercard Incorporated, a technology company, provides transaction processing and other payment-related products and services in the United States and internationally. The company offers products and services for accoun...", "website": "https://www.mastercard.com", "employees": 39800, "price": 498.54, "chg_pct": -0.22, "mktcap_b": 440.5, "pe": 28.8, "fwd_pe": 21.9, "peg": 1.59, "ps": 13.0, "pb": 65.8, "eps": 17.29, "eps_g": 21.2, "rev_g": 15.8, "rev_b": 33.9, "gm": 100.0, "om": 60.8, "nm": 45.9, "roe": 232.1, "de": 282.06, "cash_b": 8.2, "fcf_b": 16.1, "beta": 0.76, "div_yield": 70.0, "short_pct": 0.8, "wk52h": 601.77, "wk52l": 480.5, "vs52h": -17.2, "vs52l": 3.8, "rsi": 45.4, "vs50ma": -0.6, "vs200ma": -8.0, "vol": 1958814, "avgvol": 3530810, "volr": 0.55, "cons": "strong_buy", "atgt": 646.97, "atgt_hi": 735.0, "atgt_lo": 550.0, "nans": 36, "inst": 91.6, "insider_pct": 0.1, "earn": "N/A"}, "GE": {"ticker": "GE", "name": "GE Aerospace", "fullname": "GE Aerospace", "sector": "Industrials", "industry": "Aerospace & Defense", "desc": "General Electric Company, doing business as GE Aerospace, designs and produces commercial and defense aircraft engines, integrated engine components, electric power, and aircraft systems. The company operates through two...", "website": "https://www.geaerospace.com", "employees": 57000, "price": 302.84, "chg_pct": 0.36, "mktcap_b": 316.4, "pe": 37.6, "fwd_pe": 34.9, "peg": 7.22, "ps": 6.5, "pb": 17.0, "eps": 8.06, "eps_g": -1.8, "rev_g": 24.7, "rev_b": 48.3, "gm": 31.1, "om": 20.2, "nm": 17.9, "roe": 45.4, "de": 116.53, "cash_b": 10.6, "fcf_b": 5.7, "beta": 1.35, "div_yield": 62.0, "short_pct": 1.6, "wk52h": 348.48, "wk52l": 228.01, "vs52h": -13.1, "vs52l": 32.8, "rsi": 64.0, "vs50ma": 3.0, "vs200ma": 1.1, "vol": 2735109, "avgvol": 6274650, "volr": 0.44, "cons": "strong_buy", "atgt": 349.1, "atgt_hi": 405.0, "atgt_lo": 270.0, "nans": 20, "inst": 81.1, "insider_pct": 0.3, "earn": "N/A"}, "RTX": {"ticker": "RTX", "name": "RTX Corporation", "fullname": "RTX Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "desc": "RTX Corporation, an aerospace and defense company, provides systems and services for commercial, military, and government customers worldwide. It operates through three segments: Collins Aerospace (Collins), Pratt & Whit...", "website": "https://www.rtx.com", "employees": 180000, "price": 177.01, "chg_pct": 1.0, "mktcap_b": 238.4, "pe": 33.2, "fwd_pe": 23.4, "peg": 2.41, "ps": 2.6, "pb": 3.6, "eps": 5.33, "eps_g": 32.5, "rev_g": 8.7, "rev_b": 90.4, "gm": 20.2, "om": 13.2, "nm": 8.0, "roe": 11.6, "de": 57.23, "cash_b": 6.8, "fcf_b": 7.2, "beta": 0.3, "div_yield": 157.0, "short_pct": 1.1, "wk52h": 214.5, "wk52l": 130.9, "vs52h": -17.5, "vs52l": 35.2, "rsi": 58.6, "vs50ma": -5.6, "vs200ma": -1.5, "vol": 4075754, "avgvol": 5728135, "volr": 0.71, "cons": "buy", "atgt": 215.27, "atgt_hi": 242.0, "atgt_lo": 180.0, "nans": 22, "inst": 81.7, "insider_pct": 0.1, "earn": "N/A"}, "LMT": {"ticker": "LMT", "name": "Lockheed Martin Corporation", "fullname": "Lockheed Martin Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "desc": "Lockheed Martin Corporation, an aerospace and defense company, engages in the research, design, development, manufacture, integration, and sustainment of technology systems, products, and services in the United States, E...", "website": "https://www.lockheedmartin.com", "employees": 123000, "price": 533.24, "chg_pct": 2.0, "mktcap_b": 122.9, "pe": 25.8, "fwd_pe": 16.6, "peg": 1.11, "ps": 1.6, "pb": 16.4, "eps": 20.65, "eps_g": -11.5, "rev_g": 0.3, "rev_b": 75.1, "gm": 9.9, "om": 11.0, "nm": 6.4, "roe": 67.6, "de": 276.37, "cash_b": 1.9, "fcf_b": 4.0, "beta": 0.1, "div_yield": 264.0, "short_pct": 1.2, "wk52h": 692.0, "wk52l": 410.11, "vs52h": -22.9, "vs52l": 30.0, "rsi": 60.6, "vs50ma": -6.9, "vs200ma": 1.1, "vol": 1046959, "avgvol": 1483098, "volr": 0.71, "cons": "hold", "atgt": 630.05, "atgt_hi": 756.0, "atgt_lo": 511.0, "nans": 20, "inst": 76.2, "insider_pct": 0.1, "earn": "N/A"}, "AAPL": {"ticker": "AAPL", "name": "Apple Inc.", "fullname": "Apple Inc.", "sector": "Technology", "industry": "Consumer Electronics", "desc": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.", "website": "https://www.apple.com", "employees": 166000, "price": 308.82, "chg_pct": 1.26, "mktcap_b": 4535.7, "pe": 37.3, "fwd_pe": 32.2, "peg": 2.63, "ps": 10.0, "pb": 42.5, "eps": 8.27, "eps_g": 21.8, "rev_g": 16.6, "rev_b": 451.4, "gm": 47.9, "om": 32.3, "nm": 27.2, "roe": 141.5, "de": 79.55, "cash_b": 68.5, "fcf_b": 101.1, "beta": 1.06, "div_yield": 35.0, "short_pct": 0.9, "wk52h": 311.4, "wk52l": 193.46, "vs52h": -0.8, "vs52l": 59.6, "rsi": 91.1, "vs50ma": 14.2, "vs200ma": 18.3, "vol": 43605063, "avgvol": 46960285, "volr": 0.93, "cons": "buy", "atgt": 308.65, "atgt_hi": 400.0, "atgt_lo": 215.0, "nans": 43, "inst": 66.0, "insider_pct": 1.6, "earn": "N/A"}, "TSLA": {"ticker": "TSLA", "name": "Tesla, Inc.", "fullname": "Tesla, Inc.", "sector": "Consumer Cyclical", "industry": "Auto Manufacturers", "desc": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally.", "website": "https://www.tesla.com", "employees": 134785, "price": 426.01, "chg_pct": 1.95, "mktcap_b": 1600.0, "pe": 390.8, "fwd_pe": 169.7, "peg": 5.75, "ps": 16.3, "pb": 19.5, "eps": 1.09, "eps_g": 8.3, "rev_g": 15.8, "rev_b": 97.9, "gm": 19.1, "om": 4.2, "nm": 3.9, "roe": 4.9, "de": 18.74, "cash_b": 44.7, "fcf_b": 5.3, "beta": 1.79, "div_yield": 0, "short_pct": 2.3, "wk52h": 498.83, "wk52l": 273.21, "vs52h": -14.6, "vs52l": 55.9, "rsi": 61.5, "vs50ma": 9.7, "vs200ma": 3.9, "vol": 45068466, "avgvol": 60421328, "volr": 0.75, "cons": "buy", "atgt": 411.89, "atgt_hi": 600.0, "atgt_lo": 123.0, "nans": 41, "inst": 45.0, "insider_pct": 11.1, "earn": "N/A"}, "NVDA": {"ticker": "NVDA", "name": "NVIDIA Corporation", "fullname": "NVIDIA Corporation", "sector": "Technology", "industry": "Semiconductors", "desc": "NVIDIA Corporation operates as a data center scale AI infrastructure company. The company operates through two segments, Compute & Networking, and Graphics segments.", "website": "https://www.nvidia.com", "employees": 42000, "price": 215.33, "chg_pct": -1.9, "mktcap_b": 5215.5, "pe": 33.0, "fwd_pe": 17.0, "peg": 0.71, "ps": 20.6, "pb": 33.3, "eps": 6.52, "eps_g": 214.5, "rev_g": 85.2, "rev_b": 253.5, "gm": 74.1, "om": 65.6, "nm": 63.0, "roe": 114.3, "de": 6.55, "cash_b": 80.6, "fcf_b": 73.7, "beta": 2.24, "div_yield": 2.0, "short_pct": 1.2, "wk52h": 236.54, "wk52l": 129.16, "vs52h": -9.0, "vs52l": 66.7, "rsi": 62.5, "vs50ma": 9.4, "vs200ma": 15.1, "vol": 166941160, "avgvol": 156261645, "volr": 1.07, "cons": "strong_buy", "atgt": 278.03, "atgt_hi": 400.0, "atgt_lo": 180.0, "nans": 57, "inst": 70.9, "insider_pct": 4.0, "earn": "N/A"}, "VSEC": {"ticker": "VSEC", "name": "VSE Corporation", "fullname": "VSE Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "desc": "VSE Corporation engages in providing aviation aftermarket parts distribution and maintenance, repair, and overhaul services for air transportation assets for commercial and government markets. It offers its services to g...", "website": "https://www.vsecorp.com", "employees": 1600, "price": 171.88, "chg_pct": -1.08, "mktcap_b": 4.8, "pe": 59.7, "fwd_pe": 29.6, "peg": 3.0, "ps": 4.1, "pb": 2.8, "eps": 2.88, "eps_g": 0, "rev_g": 26.8, "rev_b": 1.2, "gm": 14.7, "om": 11.5, "nm": 4.2, "roe": 3.8, "de": 15.11, "cash_b": 1.2, "fcf_b": 0.1, "beta": 1.25, "div_yield": 23.0, "short_pct": 8.8, "wk52h": 232.61, "wk52l": 123.69, "vs52h": -26.1, "vs52l": 39.0, "rsi": 51.8, "vs50ma": -8.3, "vs200ma": -6.0, "vol": 322405, "avgvol": 513763, "volr": 0.63, "cons": "strong_buy", "atgt": 252.88, "atgt_hi": 270.0, "atgt_lo": 230.0, "nans": 8, "inst": 130.1, "insider_pct": 1.8, "earn": "N/A"}, "OKTA": {"ticker": "OKTA", "name": "Okta, Inc.", "fullname": "Okta, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Okta, Inc. operates as an identity partner in the United States and internationally.", "website": "https://www.okta.com", "employees": 6366, "price": 92.24, "chg_pct": 3.13, "mktcap_b": 16.2, "pe": 70.4, "fwd_pe": 21.8, "peg": 0.96, "ps": 5.5, "pb": 2.3, "eps": 1.31, "eps_g": 170.8, "rev_g": 11.6, "rev_b": 2.9, "gm": 77.4, "om": 6.6, "nm": 8.1, "roe": 3.5, "de": 6.44, "cash_b": 2.6, "fcf_b": 0.8, "beta": 0.59, "div_yield": 0, "short_pct": 5.6, "wk52h": 127.52, "wk52l": 62.66, "vs52h": -27.7, "vs52l": 47.2, "rsi": 75.3, "vs50ma": 18.6, "vs200ma": 8.6, "vol": 2991953, "avgvol": 3264761, "volr": 0.92, "cons": "buy", "atgt": 100.44, "atgt_hi": 140.0, "atgt_lo": 75.0, "nans": 43, "inst": 98.1, "insider_pct": 0.6, "earn": "N/A"}, "ONDS": {"ticker": "ONDS", "name": "Ondas Inc", "fullname": "Ondas Inc.", "sector": "Technology", "industry": "Communication Equipment", "desc": "Ondas Inc. provides private wireless, drone, and automated data solutions in the United States and internationally.", "website": "https://www.ondas.com", "employees": 459, "price": 9.06, "chg_pct": -1.31, "mktcap_b": 4.5, "pe": 100.7, "fwd_pe": -129.4, "peg": 0, "ps": 46.5, "pb": 4.0, "eps": 0.09, "eps_g": 0, "rev_g": 1079.8, "rev_b": 0.1, "gm": 44.8, "om": -85.1, "nm": 251.9, "roe": 42.9, "de": 1.22, "cash_b": 1.5, "fcf_b": 0.0, "beta": 2.56, "div_yield": 0, "short_pct": 34.0, "wk52h": 15.28, "wk52l": 0.86, "vs52h": -40.7, "vs52l": 953.5, "rsi": 45.2, "vs50ma": -7.9, "vs200ma": 3.7, "vol": 58615820, "avgvol": 62899824, "volr": 0.93, "cons": "strong_buy", "atgt": 20.12, "atgt_hi": 25.0, "atgt_lo": 16.0, "nans": 8, "inst": 43.4, "insider_pct": 1.6, "earn": "N/A"}, "MU": {"ticker": "MU", "name": "Micron Technology, Inc.", "fullname": "Micron Technology, Inc.", "sector": "Technology", "industry": "Semiconductors", "desc": "Micron Technology, Inc. designs, develops, manufactures, and sells memory and storage products in the United States, Taiwan, Japan, Mainland China, Hong Kong, Europe, and internationally.", "website": "https://www.micron.com", "employees": 53000, "price": 751.0, "chg_pct": -1.46, "mktcap_b": 846.9, "pe": 35.4, "fwd_pe": 7.3, "peg": 0.25, "ps": 14.6, "pb": 11.7, "eps": 21.19, "eps_g": 756.0, "rev_g": 196.3, "rev_b": 58.1, "gm": 58.4, "om": 67.6, "nm": 41.5, "roe": 39.8, "de": 14.9, "cash_b": 14.6, "fcf_b": 2.9, "beta": 1.92, "div_yield": 8.0, "short_pct": 3.3, "wk52h": 818.67, "wk52l": 90.93, "vs52h": -8.3, "vs52l": 725.9, "rsi": 66.2, "vs50ma": 44.7, "vs200ma": 132.9, "vol": 35452282, "avgvol": 46430466, "volr": 0.76, "cons": "strong_buy", "atgt": 613.23, "atgt_hi": 1100.0, "atgt_lo": 249.0, "nans": 40, "inst": 81.4, "insider_pct": 0.3, "earn": "N/A"}, "QCOM": {"ticker": "QCOM", "name": "QUALCOMM Incorporated", "fullname": "QUALCOMM Incorporated", "sector": "Technology", "industry": "Semiconductors", "desc": "QUALCOMM Incorporated engages in the development and commercialization of foundational technologies for the wireless industry worldwide. It operates through three segments: Qualcomm CDMA Technologies (QCT); Qualcomm Tech...", "website": "https://www.qualcomm.com", "employees": 52000, "price": 238.16, "chg_pct": 11.6, "mktcap_b": 251.0, "pe": 25.6, "fwd_pe": 22.4, "peg": 0.86, "ps": 5.6, "pb": 9.2, "eps": 9.3, "eps_g": 173.0, "rev_g": -3.5, "rev_b": 44.5, "gm": 54.8, "om": 22.1, "nm": 22.3, "roe": 36.1, "de": 55.98, "cash_b": 9.8, "fcf_b": 9.6, "beta": 1.49, "div_yield": 172.0, "short_pct": 5.3, "wk52h": 247.9, "wk52l": 121.99, "vs52h": -3.9, "vs52l": 95.2, "rsi": 71.0, "vs50ma": 52.1, "vs200ma": 49.4, "vol": 29938766, "avgvol": 25082022, "volr": 1.19, "cons": "hold", "atgt": 177.58, "atgt_hi": 300.0, "atgt_lo": 100.0, "nans": 31, "inst": 84.7, "insider_pct": 0.1, "earn": "N/A"}, "SNDK": {"ticker": "SNDK", "name": "Sandisk Corporation", "fullname": "Sandisk Corporation", "sector": "Technology", "industry": "Computer Hardware", "desc": "Sandisk Corporation develops, manufactures, and sells data storage devices and solutions using NAND flash technology in the United States, Europe, the Middle East, Africa, Asia, and internationally. The company offers so...", "website": "https://www.sandisk.com", "employees": 11000, "price": 1478.69, "chg_pct": -4.12, "mktcap_b": 219.0, "pe": 50.5, "fwd_pe": 8.4, "peg": 0, "ps": 16.6, "pb": 21.4, "eps": 29.3, "eps_g": 0, "rev_g": 251.0, "rev_b": 13.2, "gm": 56.0, "om": 70.0, "nm": 34.2, "roe": 39.3, "de": 1.5, "cash_b": 3.7, "fcf_b": 2.3, "beta": 0, "div_yield": 0, "short_pct": 11.4, "wk52h": 1600.0, "wk52l": 35.79, "vs52h": -7.6, "vs52l": 4031.6, "rsi": 61.2, "vs50ma": 47.1, "vs200ma": 223.9, "vol": 9524317, "avgvol": 15335167, "volr": 0.62, "cons": "buy", "atgt": 1493.36, "atgt_hi": 2350.0, "atgt_lo": 1000.0, "nans": 22, "inst": 80.8, "insider_pct": 5.5, "earn": "N/A"}, "ANET": {"ticker": "ANET", "name": "Arista Networks, Inc.", "fullname": "Arista Networks, Inc.", "sector": "Technology", "industry": "Computer Hardware", "desc": "Arista Networks, Inc. engages in the development, marketing, and sale of data-driven, client to cloud networking solutions for AI, data center, campus, and routing environments in the Americas, Europe, the Middle East, A...", "website": "https://www.arista.com", "employees": 5115, "price": 154.03, "chg_pct": 3.66, "mktcap_b": 193.9, "pe": 52.9, "fwd_pe": 34.6, "peg": 1.82, "ps": 20.0, "pb": 14.4, "eps": 2.91, "eps_g": 25.0, "rev_g": 35.1, "rev_b": 9.7, "gm": 63.5, "om": 42.7, "nm": 38.3, "roe": 31.5, "de": 0, "cash_b": 12.4, "fcf_b": 4.4, "beta": 1.67, "div_yield": 0, "short_pct": 1.8, "wk52h": 179.8, "wk52l": 83.86, "vs52h": -14.3, "vs52l": 83.7, "rsi": 37.1, "vs50ma": 4.7, "vs200ma": 10.2, "vol": 9302725, "avgvol": 10854787, "volr": 0.86, "cons": "strong_buy", "atgt": 188.2, "atgt_hi": 220.0, "atgt_lo": 164.0, "nans": 27, "inst": 72.9, "insider_pct": 17.3, "earn": "N/A"}, "ZS": {"ticker": "ZS", "name": "Zscaler, Inc.", "fullname": "Zscaler, Inc.", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Zscaler, Inc. operates as a cloud security company worldwide.", "website": "https://www.zscaler.com", "employees": 7923, "price": 182.37, "chg_pct": 6.64, "mktcap_b": 29.3, "pe": 0, "fwd_pe": 39.8, "peg": 1.88, "ps": 9.8, "pb": 13.3, "eps": -0.43, "eps_g": 0, "rev_g": 25.9, "rev_b": 3.0, "gm": 76.6, "om": -6.2, "nm": -2.3, "roe": -3.6, "de": 85.0, "cash_b": 3.5, "fcf_b": 1.0, "beta": 0.96, "div_yield": 0, "short_pct": 9.8, "wk52h": 336.99, "wk52l": 114.62, "vs52h": -45.9, "vs52l": 59.1, "rsi": 79.3, "vs50ma": 26.3, "vs200ma": -18.6, "vol": 3987876, "avgvol": 3012965, "volr": 1.32, "cons": "strong_buy", "atgt": 223.39, "atgt_hi": 330.0, "atgt_lo": 155.0, "nans": 45, "inst": 58.3, "insider_pct": 35.2, "earn": "N/A"}, "AMD": {"ticker": "AMD", "name": "Advanced Micro Devices, Inc.", "fullname": "Advanced Micro Devices, Inc.", "sector": "Technology", "industry": "Semiconductors", "desc": "Advanced Micro Devices, Inc. operates as a semiconductor company internationally.", "website": "https://www.amd.com", "employees": 31000, "price": 467.51, "chg_pct": 3.99, "mktcap_b": 762.3, "pe": 155.3, "fwd_pe": 36.1, "peg": 1.08, "ps": 20.4, "pb": 11.8, "eps": 3.01, "eps_g": 91.2, "rev_g": 37.8, "rev_b": 37.5, "gm": 53.1, "om": 14.4, "nm": 13.4, "roe": 8.1, "de": 6.0, "cash_b": 12.3, "fcf_b": 7.2, "beta": 2.4, "div_yield": 0, "short_pct": 2.2, "wk52h": 481.37, "wk52l": 107.67, "vs52h": -2.9, "vs52l": 334.2, "rsi": 75.2, "vs50ma": 54.2, "vs200ma": 102.5, "vol": 34611133, "avgvol": 42380487, "volr": 0.82, "cons": "strong_buy", "atgt": 472.17, "atgt_hi": 625.0, "atgt_lo": 225.0, "nans": 48, "inst": 72.2, "insider_pct": 0.4, "earn": "N/A"}, "CAT": {"ticker": "CAT", "name": "Caterpillar, Inc.", "fullname": "Caterpillar Inc.", "sector": "Industrials", "industry": "Farm & Heavy Construction Machinery", "desc": "Caterpillar Inc. provides construction and mining equipment, off-highway diesel and natural gas engines, industrial gas turbines, and diesel-electric locomotives in the United States and internationally.", "website": "https://www.caterpillar.com", "employees": 118000, "price": 879.89, "chg_pct": 1.61, "mktcap_b": 405.3, "pe": 43.8, "fwd_pe": 29.5, "peg": 2.07, "ps": 5.7, "pb": 21.7, "eps": 20.09, "eps_g": 30.2, "rev_g": 22.2, "rev_b": 70.8, "gm": 28.6, "om": 18.2, "nm": 13.3, "roe": 51.3, "de": 230.79, "cash_b": 3.3, "fcf_b": 3.8, "beta": 1.62, "div_yield": 70.0, "short_pct": 2.0, "wk52h": 931.35, "wk52l": 336.24, "vs52h": -5.5, "vs52l": 161.7, "rsi": 51.0, "vs50ma": 10.3, "vs200ma": 41.0, "vol": 1987194, "avgvol": 2436973, "volr": 0.82, "cons": "buy", "atgt": 920.14, "atgt_hi": 1165.0, "atgt_lo": 575.0, "nans": 26, "inst": 73.0, "insider_pct": 0.2, "earn": "N/A"}, "MSFT": {"ticker": "MSFT", "name": "Microsoft Corporation", "fullname": "Microsoft Corporation", "sector": "Technology", "industry": "Software - Infrastructure", "desc": "Microsoft Corporation develops and supports software, services, devices, and solutions worldwide. The Productivity and Business Processes segment offers Microsoft 365 commercial, enterprise mobility + security, windows c...", "website": "https://www.microsoft.com", "employees": 228000, "price": 418.57, "chg_pct": -0.12, "mktcap_b": 3109.3, "pe": 24.9, "fwd_pe": 21.6, "peg": 1.3, "ps": 9.8, "pb": 7.5, "eps": 16.81, "eps_g": 23.4, "rev_g": 18.3, "rev_b": 318.3, "gm": 68.3, "om": 46.3, "nm": 39.3, "roe": 34.0, "de": 30.27, "cash_b": 78.2, "fcf_b": 37.0, "beta": 1.09, "div_yield": 87.0, "short_pct": 1.1, "wk52h": 555.45, "wk52l": 356.28, "vs52h": -24.6, "vs52l": 17.5, "rsi": 55.1, "vs50ma": 4.7, "vs200ma": -8.7, "vol": 21911688, "avgvol": 34869116, "volr": 0.63, "cons": "strong_buy", "atgt": 560.63, "atgt_hi": 870.0, "atgt_lo": 400.0, "nans": 54, "inst": 75.9, "insider_pct": 0.1, "earn": "N/A"}};
 const TODAY="2026-05-22";
-const G="#10b981",R="#ef4444",A="#f59e0b",B="#3b82f6",P="#8b5cf6",M="#94a3b8";
+let sortK=null,sortD=1,fSig="ALL",fCat="ALL",fTheme="ALL",srch="";
 
-let sortCol=null,sortDir=1,filterSig="ALL",filterCat="ALL",searchQ="";
+const G="#10b981",R="#ef4444",A="#f59e0b",B="#3b82f6",P="#8b5cf6",M="#64748b";
+const THEME_COLS={AI:"#a78bfa",Cybersecurity:"#34d399",Cloud:"#60a5fa",Healthcare:"#f472b6",Fintech:"#fbbf24",Industrial:"#94a3b8",Other:"#64748b"};
+const SECTOR_ICONS={Technology:"[T]",Healthcare:"[H]","Financial Services":"[$]","Consumer Cyclical":"[C]",Industrials:"[I]",Energy:"[E]",Other:"[?]"};
 
 function sc(s){s=(s||"").toUpperCase();if(s.includes("STRONG BUY"))return G;if(s.includes("BUY"))return G;if(s.includes("WATCH"))return A;if(s.includes("HOLD"))return B;return R;}
-function scoreCol(s){return s>=80?G:s>=65?"#22c55e":s>=50?A:R}
-function chgCol(v){return parseFloat(v||0)>=0?G:R}
+function scr(n){return n>=80?G:n>=65?"#22c55e":n>=50?A:R}
+function cc(v){return parseFloat(v||0)>=0?G:R}
 function fp(v,d=1){try{let n=parseFloat(v||0);return(n>=0?"+":"")+n.toFixed(d)+"%"}catch{return"N/A"}}
 function fd(v,d=2){try{return parseFloat(v||0).toFixed(d)}catch{return"N/A"}}
-function fB(v){try{let n=parseFloat(v||0);return n>0?"$"+n.toFixed(1)+"B":"N/A"}catch{return"N/A"}}
-function catStyle(c){c=(c||"").toUpperCase();if(c=="GROWTH")return"background:#4c1d95;color:#ddd6fe";if(c=="BALANCED")return"background:#0c4a6e;color:#bae6fd";if(c=="VALUE")return"background:#14532d;color:#bbf7d0";return"background:#374151;color:#e5e7eb"}
-function sigStyle(s){let c=sc(s);return`background:${c}22;color:${c};border:1px solid ${c}44`}
-
-function showTab(id,btn){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  btn.classList.add("active");
-}
+function cs(c){c=(c||"").toUpperCase();if(c=="GROWTH")return"background:#4c1d95;color:#ddd6fe";if(c=="BALANCED")return"background:#0c4a6e;color:#bae6fd";if(c=="VALUE")return"background:#14532d;color:#bbf7d0";return"background:#374151;color:#e5e7eb"}
+function ss(s){let c=sc(s);return`background:${c}22;color:${c};border:1px solid ${c}44`}
+function showTab(id,btn){document.querySelectorAll(".sec").forEach(s=>s.classList.remove("active"));document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));document.getElementById(id).classList.add("active");btn.classList.add("active");}
 
 function renderBadges(){
   const risk=MACRO.risk_level||"MODERATE";
-  const rCol={LOW:G,MODERATE:A,HIGH:R}[risk]||M;
-  const gr=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH").length;
-  document.getElementById("hdr-badges").innerHTML=`
-    <div class="badge"><div class="badge-label">Risk</div><div class="badge-val" style="color:${rCol}">${risk}</div></div>
-    <div class="badge"><div class="badge-label">Picks</div><div class="badge-val">${PICKS.length}</div></div>
-    <div class="badge"><div class="badge-label">G/B</div><div class="badge-val">${gr}/${PICKS.length-gr}</div></div>
-    <div class="badge"><div class="badge-label">VIX</div><div class="badge-val">${MKT.vix}</div></div>
-  `;
+  const rc={LOW:G,MODERATE:A,HIGH:R}[risk]||M;
+  const gr=TOP10.filter(p=>(p.category||"").toUpperCase()=="GROWTH").length;
+  document.getElementById("hdrbadges").innerHTML=[
+    ["Risk",`<span style="color:${rc}">${risk}</span>`],["Picks",TOP10.length],
+    ["G/B",`${gr}/${TOP10.length-gr}`],["VIX",MKT.vix]
+  ].map(([l,v])=>`<div class="badge"><div class="badge-l">${l}</div><div class="badge-v">${v}</div></div>`).join("");
 }
 
 function renderMarket(){
-  const spC=chgCol(MKT.sp),nqC=chgCol(MKT.nq);
   const mC={BULLISH:G,NEUTRAL:A,BEARISH:R}[MACRO.market_mood]||M;
-  document.getElementById("mkt-bar").innerHTML=`
-    <div class="mstat"><div class="mstat-l">Mood</div><div class="mstat-v" style="color:${mC}">${MACRO.market_mood||"N/A"}</div></div>
-    <div class="mstat"><div class="mstat-l">S&P 500</div><div class="mstat-v" style="color:${spC}">${fp(MKT.sp)}</div></div>
-    <div class="mstat"><div class="mstat-l">Nasdaq</div><div class="mstat-v" style="color:${nqC}">${fp(MKT.nq)}</div></div>
-    <div class="macro-text">${MACRO.macro_summary||""} <span style="color:#64748b">&nbsp;|&nbsp; ${MACRO.sector_rotation||""}</span></div>
-  `;
+  document.getElementById("mbar").innerHTML=`
+    <div class="ms"><div class="ms-l">Mood</div><div class="ms-v" style="color:${mC}">${MACRO.market_mood||"N/A"}</div></div>
+    <div class="ms"><div class="ms-l">S&P 500</div><div class="ms-v" style="color:${cc(MKT.sp)}">${fp(MKT.sp)}</div></div>
+    <div class="ms"><div class="ms-l">Nasdaq</div><div class="ms-v" style="color:${cc(MKT.nq)}">${fp(MKT.nq)}</div></div>
+    <div class="mtext">${MACRO.macro_summary||""} <span style="color:#334155">&mdash; ${MACRO.sector_rotation||""}</span></div>`;
 }
 
-function scoreBar(bd,col){
+function scoreBars(bd,col){
   return [["Tech",bd.technical||0,30],["Fund",bd.fundamental||0,25],["Cat",bd.catalyst||0,20],["Macro",bd.macro||0,15],["RR",bd.rr||0,10]]
-    .map(([n,v,mx])=>`<div style="margin-bottom:3px"><div style="display:flex;justify-content:space-between;font-size:9px;color:${M};margin-bottom:1px"><span>${n}</span><span>${v}/${mx}</span></div><div style="height:3px;background:#334155;border-radius:2px"><div style="height:3px;width:${Math.round(v/mx*100)}%;background:${col};border-radius:2px"></div></div></div>`).join("");
+    .map(([n,v,mx])=>`<div style="margin-bottom:3px"><div style="display:flex;justify-content:space-between;font-size:8px;color:${M};margin-bottom:1px"><span>${n}</span><span style="color:${col}">${v}/${mx}</span></div><div style="height:3px;background:#334155;border-radius:2px"><div style="height:3px;width:${Math.round(v/mx*100)}%;background:${col};border-radius:2px"></div></div></div>`).join("");
 }
 
-function renderPickCard(p,idx){
-  const sc2=p.score||0,col=scoreCol(sc2),bd=p.score_breakdown||{};
-  const chgC=chgCol(p.chg_pct);
-  const sd=STOCKS[p.ticker]||{};
-  return `
-  <div class="pick-card" onclick="toggleDetail(this)">
-    <div class="card-header">
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="color:${M};font-size:10px">#${idx}</span>
-          <span style="font-size:20px;font-weight:800">${p.ticker}</span>
-          <span class="tag" style="${catStyle(p.category)}">${p.category}</span>
-        </div>
-        <div style="font-size:11px;color:${M};margin-top:2px">${p.name} &middot; ${p.sector}</div>
-        <div style="font-size:10px;color:#64748b;margin-top:2px;max-width:200px;white-space:normal">${sd.desc||""}</div>
-        <span class="signal-badge" style="${sigStyle(p.signal)};margin-top:5px;display:inline-block">${p.signal}</span>
+function renderCard(p,idx){
+  const s=p.score||0,col=scr(s),chgC=cc(p.chg_pct),bd=p.score_breakdown||{};
+  const sd=SD[p.ticker]||{};
+  const thCol=THEME_COLS[p.theme]||M;
+  const upr1yC=parseFloat(p.upr_1y||0)>0?G:R;
+  return `<div class="card" onclick="this.querySelector('.card-body').classList.toggle('open')">
+  <div class="card-hdr">
+    <div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+        <span style="color:${M};font-size:9px">#${idx}</span>
+        <span style="font-size:19px;font-weight:800">${p.ticker}</span>
+        <span class="tag" style="${cs(p.category)}">${p.category}</span>
+        ${p.theme?`<span class="tag" style="background:${thCol}22;color:${thCol};border:1px solid ${thCol}44">${p.theme}</span>`:""}
       </div>
-      <div style="text-align:right">
-        <div style="font-size:20px;font-weight:700">$${fd(p.price)}</div>
-        <div style="font-size:11px;font-weight:600;color:${chgC}">${fp(p.chg_pct)} today</div>
-        <div style="font-size:10px;color:${col};font-weight:800;margin-top:4px">Score: ${sc2}/100</div>
-        ${p.earn?`<div style="font-size:9px;color:${M};margin-top:2px">Earn: ${p.earn}</div>`:""}
+      <div style="font-size:10px;color:${M};margin-top:1px">${p.name} &middot; ${p.sector}</div>
+      <div style="font-size:9px;color:#334155;margin-top:2px;max-width:190px;white-space:normal;line-height:1.4">${sd.desc||""}</div>
+      <span class="sig" style="${ss(p.signal)};margin-top:4px;display:inline-block">${p.signal}</span>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:18px;font-weight:700">$${fd(p.price)}</div>
+      <div style="font-size:10px;color:${chgC};font-weight:600">${fp(p.chg_pct)} today</div>
+      <div style="font-size:18px;font-weight:800;color:${col};margin-top:3px">${s}</div>
+      <div style="font-size:8px;color:${M}">confidence</div>
+    </div>
+  </div>
+  <div style="padding:8px 14px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:8px;align-items:flex-start">
+      <div style="flex:1">${scoreBars(bd,col)}</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)">
+    ${[["Entry",`$${fd(p.entry_low)}--$${fd(p.entry_high)}`,B,""],
+       ["1M",`$${fd(p.t1m)}`,G,fp(p.upr_1m)+" "+p.prob_1m+"%"],
+       ["6M",`$${fd(p.t6m)}`,G,fp(p.upr_6m)+" "+p.prob_6m+"%"],
+       ["1Y",`$${fd(p.t1y)}`,upr1yC,fp(p.upr_1y)+" "+p.prob_1y+"%"],
+       ["Stop",`$${fd(p.stop)}`,R,"RR "+fd(p.rr_ratio,1)+"x"],
+       ["Analyst",`$${fd(p.atgt)}`,P,p.nans+" ana"]]
+      .map(([l,v,c,s])=>`<div style="padding:6px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:7px;color:${M};text-transform:uppercase">${l}</div><div style="font-size:10px;font-weight:700;color:${c}">${v}</div>${s?`<div style="font-size:8px;color:${M}">${s}</div>`:""}`)
+      .join("")}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);background:#1a2540">
+    ${[["P/E",fd(p.pe)+"x",""],["RevG",fp(p.rev_g),parseFloat(p.rev_g||0)>15?G:""],
+       ["GrossM",fp(p.gm),""],["RSI",p.rsi,parseFloat(p.rsi||50)>70?A:parseFloat(p.rsi||50)<35?G:""],
+       ["Vs50MA",fp(p.vs50ma),cc(p.vs50ma)],["NetM",fp(p.nm),parseFloat(p.nm||0)>0?G:R],
+       ["52W hi",fp(p.vs52h),cc(p.vs52h)],["Beta",fd(p.beta||0,1),""]]
+      .map(([l,v,c])=>`<div style="padding:5px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:7px;color:${M};text-transform:uppercase">${l}</div><div style="font-size:10px;font-weight:600;color:${c||"inherit"}">${v}</div>`).join("")}
+  </div>
+  <div class="card-body">
+    <div style="padding:8px;background:var(--card2);border-radius:6px;margin-bottom:8px">
+      <div style="font-size:8px;font-weight:700;color:${P};text-transform:uppercase;margin-bottom:3px">Victor's Thesis</div>
+      <div style="font-size:11px;line-height:1.6">${p.why_buy||"N/A"}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="padding:8px;background:#052e16;border-radius:6px;border:1px solid #166534">
+        <div style="font-size:7px;font-weight:700;color:#4ade80;text-transform:uppercase;margin-bottom:2px">Technical Setup</div>
+        <div style="font-size:10px;color:#86efac;line-height:1.5">${p.technical_read||"N/A"}</div>
+      </div>
+      <div style="padding:8px;background:#0c1a3e;border-radius:6px;border:1px solid #1e40af">
+        <div style="font-size:7px;font-weight:700;color:#60a5fa;text-transform:uppercase;margin-bottom:2px">Key Catalyst</div>
+        <div style="font-size:10px;color:#93c5fd;line-height:1.5">${p.catalyst||"N/A"}</div>
+      </div>
+      <div style="padding:8px;background:#2d1b00;border-radius:6px;border:1px solid #92400e">
+        <div style="font-size:7px;font-weight:700;color:#fbbf24;text-transform:uppercase;margin-bottom:2px">Macro Tailwind</div>
+        <div style="font-size:10px;color:#fcd34d;line-height:1.5">${p.macro_factor||"N/A"}</div>
+      </div>
+      <div style="padding:8px;background:#1a0a0a;border-radius:6px;border:1px solid #7f1d1d">
+        <div style="font-size:7px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:2px">Risks</div>
+        <div style="font-size:10px;color:#fca5a5;line-height:1.5">${p.risks||"N/A"}</div>
       </div>
     </div>
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <div style="min-width:50px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:${col};line-height:1">${sc2}</div>
-          <div style="font-size:8px;color:${M}">/ 100</div>
-        </div>
-        <div style="flex:1">${scoreBar(bd,col)}</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)">
-      ${[["Entry",[`$${fd(p.entry_low)}`,`$${fd(p.entry_high)}`].join("--"),B,""],
-         ["1M Target",`$${fd(p.t1m)}`,G,fp(p.upr_1m)+" "+p.prob_1m+"%"],
-         ["6M Target",`$${fd(p.t6m)}`,G,fp(p.upr_6m)+" "+p.prob_6m+"%"],
-         ["1Y Target",`$${fd(p.t1y)}`,parseFloat(p.upr_1y||0)>0?G:R,fp(p.upr_1y)+" "+p.prob_1y+"%"],
-         ["Stop Loss",`$${fd(p.stop)}`,R,"RR: "+fd(p.rr_ratio,1)+"x"],
-         ["Analyst Tgt",`$${fd(p.atgt)}`,P,p.nans+" analysts"]]
-        .map(([l,v,c,s])=>`<div style="padding:8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:8px;color:${M};text-transform:uppercase;margin-bottom:2px">${l}</div><div style="font-size:11px;font-weight:700;color:${c}">${v}</div>${s?`<div style="font-size:9px;color:${M}">${s}</div>`:""}`)
-        .join("")}
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border);background:#1a2540">
-      ${[["P/E",fd(p.pe)+"x",""],["Fwd P/E",fd(p.fwd_pe)+"x",""],["Rev G",fp(p.rev_g),parseFloat(p.rev_g||0)>15?G:""],
-         ["Gross M",fp(p.gm),""],["Net M",fp(p.nm),""],["RSI",p.rsi,parseFloat(p.rsi||50)>70?A:parseFloat(p.rsi||50)<35?G:""],
-         ["Vs 50MA",fp(p.vs50ma),chgCol(p.vs50ma)],["Vs 52Whi",fp(p.vs52h),chgCol(p.vs52h)]]
-        .map(([l,v,c])=>`<div style="padding:6px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:8px;color:${M};text-transform:uppercase">${l}</div><div style="font-size:11px;font-weight:600;color:${c||"inherit"}">${v}</div>`)
-        .join("")}
-    </div>
-    <div class="card-detail">
-      <div style="margin-bottom:8px;padding:8px;background:var(--card2);border-radius:6px">
-        <div style="font-size:9px;font-weight:700;color:${P};text-transform:uppercase;margin-bottom:4px">Victor's Thesis</div>
-        <div style="color:var(--text)">${p.why_buy||"N/A"}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div style="padding:8px;background:#052e16;border-radius:6px;border:1px solid #166534">
-          <div style="font-size:8px;font-weight:700;color:#4ade80;text-transform:uppercase;margin-bottom:3px">Technical</div>
-          <div style="color:#86efac">${p.technical_read||"N/A"}</div>
-        </div>
-        <div style="padding:8px;background:#0c1a3e;border-radius:6px;border:1px solid #1e40af">
-          <div style="font-size:8px;font-weight:700;color:#60a5fa;text-transform:uppercase;margin-bottom:3px">Catalyst</div>
-          <div style="color:#93c5fd">${p.catalyst||"N/A"}</div>
-        </div>
-        <div style="padding:8px;background:#2d1b00;border-radius:6px;border:1px solid #92400e">
-          <div style="font-size:8px;font-weight:700;color:#fbbf24;text-transform:uppercase;margin-bottom:3px">Macro</div>
-          <div style="color:#fcd34d">${p.macro_factor||"N/A"}</div>
-        </div>
-      </div>
-      <div style="margin-top:8px;padding:8px;background:#1a0a0a;border-radius:6px;border:1px solid #7f1d1d">
-        <span style="font-size:8px;font-weight:700;color:${R};text-transform:uppercase">Risks: </span>
-        <span style="color:#fca5a5">${p.risks||"N/A"}</span>
-      </div>
-      ${sd.desc?`<div style="margin-top:8px;padding:8px;background:var(--card2);border-radius:6px;font-size:10px;color:${M};line-height:1.6"><span style="font-size:8px;font-weight:700;color:${B};text-transform:uppercase">About: </span>${sd.desc}</div>`:""}
-    </div>
-  </div>`;
-}
-
-function toggleDetail(card){
-  card.querySelector(".card-detail").classList.toggle("open");
+    ${sd.desc?`<div style="font-size:9px;color:${M};padding:6px 8px;background:var(--card2);border-radius:5px;line-height:1.5"><span style="font-size:8px;font-weight:700;color:${B};text-transform:uppercase">About: </span>${sd.desc}</div>`:""}
+    ${sd.employees?`<div style="font-size:9px;color:${M};margin-top:4px">Employees: ${sd.employees.toLocaleString()} &middot; Inst: ${sd.inst||"?"}% &middot; Short: ${sd.short_pct||"?"}%</div>`:""}
+  </div>
+</div>`;
 }
 
 function renderPicks(){
   const el=document.getElementById("picks");
-  if(!PICKS.length){el.innerHTML=`<div class="empty" style="margin-top:12px">No high-conviction picks today.</div>`;return;}
-  const gr=PICKS.filter(p=>(p.category||"").toUpperCase()=="GROWTH");
-  const ba=PICKS.filter(p=>(p.category||"").toUpperCase()!="GROWTH");
-  let html="";
-  if(gr.length){
-    html+=`<div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${P};border-radius:2px"></span>Growth Picks</div>
-    <div class="section-sub">${gr.length} high-conviction -- click card for full thesis</div>
-    <div class="picks-grid">${gr.map((p,i)=>renderPickCard(p,i+1)).join("")}</div>`;
-  }
-  if(ba.length){
-    html+=`<div class="section-hdr" style="margin-top:20px"><span style="display:inline-block;width:4px;height:22px;background:${B};border-radius:2px"></span>Balanced Picks</div>
-    <div class="section-sub">${ba.length} solid setups</div>
-    <div class="picks-grid">${ba.map((p,i)=>renderPickCard(p,i+1)).join("")}</div>`;
-  }
+  const themes=[...new Set(TOP10.map(p=>p.theme||"Other"))].sort();
+  const themeFilter=`<div style="margin-bottom:8px;display:flex;gap:5px;flex-wrap:wrap"><span style="font-size:9px;color:${M};align-self:center">Theme:</span>
+    ${["ALL",...themes].map(t=>`<button class="fb ${fTheme===t?"active":""}" onclick="setTheme('${t}')" style="${t!="ALL"?`border-color:${THEME_COLS[t]||M};`:""}">${t}</button>`).join("")}</div>`;
+
+  if(!TOP10.length){el.innerHTML=`<div style="text-align:center;padding:40px;color:${M}">No picks today.</div>`;return;}
+
+  const gr=TOP10.filter(p=>(p.category||"").toUpperCase()=="GROWTH"&&(fTheme=="ALL"||p.theme==fTheme));
+  const ba=TOP10.filter(p=>(p.category||"").toUpperCase()!="GROWTH"&&(fTheme=="ALL"||p.theme==fTheme));
+  let html=themeFilter;
+  if(gr.length) html+=`<div class="sh"><span style="width:3px;height:20px;background:${P};border-radius:2px;display:inline-block"></span>Growth Picks</div><div class="ss">${gr.length} picks &middot; click any card for full thesis</div><div class="grid">${gr.map((p,i)=>renderCard(p,i+1)).join("")}</div>`;
+  if(ba.length) html+=`<div class="sh" style="margin-top:16px"><span style="width:3px;height:20px;background:${B};border-radius:2px;display:inline-block"></span>Balanced / Value Picks</div><div class="ss">${ba.length} picks</div><div class="grid">${ba.map((p,i)=>renderCard(p,i+1)).join("")}</div>`;
   el.innerHTML=html;
 }
+function setTheme(t){fTheme=t;renderPicks();}
 
-// WATCHLIST -- sortable, filterable, sector-grouped
-function getWatchlistData(){
-  return WATCHLIST.filter(w=>{
-    if(filterSig!="ALL" && w.signal!==filterSig) return false;
-    if(filterCat!="ALL" && (w.category||"").toUpperCase()!==filterCat) return false;
-    if(searchQ && !(w.ticker||"").includes(searchQ.toUpperCase()) && !(w.name||"").toUpperCase().includes(searchQ.toUpperCase()) && !(w.sector||"").toUpperCase().includes(searchQ.toUpperCase())) return false;
+// Watchlist table
+function getFiltered(){
+  return WATCH.filter(w=>{
+    if(fSig!="ALL"&&w.signal!==fSig) return false;
+    if(fCat!="ALL"&&(w.category||"").toUpperCase()!==fCat) return false;
+    if(srch&&![(w.ticker||""),(w.name||""),(w.sector||""),(w.industry||"")].some(v=>v.toUpperCase().includes(srch.toUpperCase()))) return false;
     return true;
   });
 }
-
-function sortData(data){
-  if(!sortCol) return data;
-  return [...data].sort((a,b)=>{
-    let va=a[sortCol],vb=b[sortCol];
-    if(typeof va==="string") return sortDir*va.localeCompare(vb||"");
-    return sortDir*(parseFloat(va||0)-parseFloat(vb||0));
-  });
-}
-
-function watchlistRow(w){
-  const sc2=w.score||0,col=scoreCol(sc2),chgC=chgCol(w.chg_pct);
-  const upr=parseFloat(w.upr_1y||0);
-  const sd=STOCKS[w.ticker]||{};
+function doSort(k){sortK===k?sortD*=-1:(sortK=k,sortD=1);renderWatch();}
+function watchRow(w){
+  const s=w.score||0,col=scr(s),chgC=cc(w.chg_pct),upr=parseFloat(w.upr_1y||0);
+  const sd=SD[w.ticker]||{};
   return `<tr>
-    <td class="company-cell">
-      <div class="company-name">${w.ticker}</div>
-      <div class="company-sub">${(w.name||"").substring(0,28)}</div>
-      <div class="company-sub" style="color:#475569">${w.industry||w.sector||""}</div>
-      <div class="company-desc">${sd.desc||""}</div>
-      <span class="tag" style="${catStyle(w.category)}">${w.category||""}</span>
-    </td>
-    <td><div style="font-weight:700">$${fd(w.price)}</div><div style="font-size:10px;color:${chgC}">${fp(w.chg_pct)}</div></td>
-    <td><span class="signal-badge" style="${sigStyle(w.signal)}">${w.signal}</span></td>
-    <td class="score-cell"><div class="score-num" style="color:${col}">${sc2}</div><div class="score-sub">/ 100</div></td>
-    <td style="color:${B};font-size:11px">$${fd(w.entry_low)} -- $${fd(w.entry_high)}</td>
-    <td><div style="color:${upr>0?G:R};font-weight:700">$${fd(w.t1y)}</div><div style="font-size:10px;color:${upr>0?G:R}">${fp(w.upr_1y)}</div></td>
+    <td class="co"><div class="cn">${w.ticker}</div><div class="cs">${(w.name||"").substring(0,24)}</div>
+      <div class="cs" style="color:#475569">${w.industry||w.sector||""}</div>
+      <div class="cd">${sd.desc||""}</div>
+      <span class="tag" style="${cs(w.category)}">${w.category}</span></td>
+    <td><div style="font-weight:700">$${fd(w.price)}</div><div style="font-size:9px;color:${chgC}">${fp(w.chg_pct)}</div></td>
+    <td><span class="sig" style="${ss(w.signal)}">${w.signal}</span></td>
+    <td style="text-align:center"><div style="font-size:15px;font-weight:800;color:${col}">${s}</div><div style="font-size:8px;color:${M}">/100</div></td>
+    <td style="color:${B};font-size:10px">$${fd(w.entry_low)}--$${fd(w.entry_high)}</td>
+    <td><div style="color:${upr>0?G:R};font-weight:700">$${fd(w.t1y)}</div><div style="font-size:9px;color:${upr>0?G:R}">${fp(w.upr_1y)}</div></td>
     <td style="color:${R}">$${fd(w.stop)}</td>
     <td>${fd(w.pe)}x</td>
     <td>${fd(w.fwd_pe)}x</td>
@@ -297,100 +253,70 @@ function watchlistRow(w){
     <td style="color:${parseFloat(w.gm||0)>50?"#22c55e":"inherit"}">${fp(w.gm)}</td>
     <td style="color:${parseFloat(w.nm||0)>0?G:R}">${fp(w.nm)}</td>
     <td style="color:${parseFloat(w.rsi||50)>70?A:parseFloat(w.rsi||50)<35?G:"inherit"}">${w.rsi}</td>
-    <td style="color:${chgCol(w.vs50ma)}">${fp(w.vs50ma)}</td>
-    <td style="color:${chgCol(w.vs200ma)}">${fp(w.vs200ma)}</td>
-    <td style="color:${parseFloat(w.volr||1)>1.3?G:"inherit"}">${fd(w.volr)}x</td>
+    <td style="color:${cc(w.vs50ma)}">${fp(w.vs50ma)}</td>
+    <td style="color:${cc(w.vs200ma)}">${fp(w.vs200ma)}</td>
     <td>$${fd(w.atgt)}</td>
     <td>${w.nans||"?"}</td>
-    <td style="color:${M};font-size:11px;font-style:italic;white-space:normal;min-width:180px">${w.note||""}</td>
+    <td style="color:${M};font-style:italic;white-space:normal;min-width:160px;font-size:10px">${w.note||""}</td>
   </tr>`;
 }
-
-function renderWatchlist(){
-  const el=document.getElementById("watchlist");
-  const cols=[
-    ["company-cell","Stock","ticker"],["price","Price","price"],["signal","Signal","signal"],
-    ["score","Score","score"],["entry","Entry Range","entry_low"],["t1y","1Y Target","t1y"],
-    ["stop","Stop","stop"],["pe","P/E","pe"],["fwd_pe","Fwd P/E","fwd_pe"],
-    ["rev_g","Rev Gr","rev_g"],["gm","Gross M","gm"],["nm","Net M","nm"],
-    ["rsi","RSI","rsi"],["vs50ma","Vs 50MA","vs50ma"],["vs200ma","Vs 200MA","vs200ma"],
-    ["volr","Vol Ratio","volr"],["atgt","Analyst Tgt","atgt"],["nans","# Analysts","nans"],
-    ["note","Victor's Note","note"]
-  ];
-  const thead=cols.map(([id,label,key])=>
-    `<th id="th-${id}" onclick="doSort('${key}')">${label}</th>`
-  ).join("");
-
-  const data=sortData(getWatchlistData());
-
-  // Group by sector
+function renderWatch(){
+  const el=document.getElementById("watch");
+  const data=sortK?[...getFiltered()].sort((a,b)=>{let va=a[sortK],vb=b[sortK];return typeof va==="string"?sortD*va.localeCompare(vb||""):sortD*(parseFloat(va||0)-parseFloat(vb||0))}):getFiltered();
   const sectors={};
-  data.forEach(w=>{
-    const s=w.sector||"Other";
-    if(!sectors[s]) sectors[s]=[];
-    sectors[s].push(w);
+  data.forEach(w=>{const s=w.sector||"Other";if(!sectors[s])sectors[s]=[];sectors[s].push(w);});
+  let body="";
+  Object.entries(sectors).sort(([a],[b])=>a.localeCompare(b)).forEach(([sec,rows])=>{
+    body+=`<tr class="srow"><td colspan=18>${SECTOR_ICONS[sec]||"[?]"} ${sec} (${rows.length})</td></tr>`;
+    body+=rows.map(watchRow).join("");
   });
-
-  let bodyHtml="";
-  const sectorIcons={
-    "Technology":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><rect x=2 y=3 width=20 height=14 rx=2/><line x1=8 y1=21 x2=16 y2=21/><line x1=12 y1=17 x2=12 y2=21/></svg>",
-    "Healthcare":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>",
-    "Financial Services":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><line x1=12 y1=1 x2=12 y2=23/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>",
-    "Consumer Cyclical":"<svg width=12 height=12 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><circle cx=9 cy=21 r=1/><circle cx=20 cy=21 r=1/><path d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/></svg>",
-  };
-
-  Object.entries(sectors).sort(([a],[b])=>a.localeCompare(b)).forEach(([sector,rows])=>{
-    const icon=sectorIcons[sector]||"";
-    bodyHtml+=`<tr><td colspan="19"><div class="sector-header">${icon} ${sector} <span style="color:#475569;font-weight:400">(${rows.length} stocks)</span></div></td></tr>`;
-    bodyHtml+=rows.map(watchlistRow).join("");
-  });
-
-  const signals=["ALL",...new Set(WATCHLIST.map(w=>w.signal).filter(Boolean))];
+  const cols=[["co","Stock","ticker"],["p","Price","price"],["sig","Signal","signal"],["sc","Score","score"],
+    ["er","Entry","entry_low"],["t1","1Y Target","t1y"],["st","Stop","stop"],["pe","P/E","pe"],
+    ["fp2","Fwd P/E","fwd_pe"],["rg","Rev Gr","rev_g"],["gm","Gross M","gm"],["nm","Net M","nm"],
+    ["rs","RSI","rsi"],["v5","Vs 50MA","vs50ma"],["v2","Vs 200MA","vs200ma"],
+    ["at","Analyst Tgt","atgt"],["na","# Ana","nans"],["nt","Victor's Note","note"]];
+  const thead=cols.map(([id,lbl,key])=>`<th id="th${id}" onclick="doSort('${key}')">${lbl}</th>`).join("");
+  const sigs=["ALL",...new Set(WATCH.map(w=>w.signal).filter(Boolean))];
   const cats=["ALL","GROWTH","BALANCED","VALUE"];
-  const filterBtns=signals.map(s=>`<button class="filter-btn ${filterSig===s?"active":""}" onclick="setFilter('sig','${s}')">${s}</button>`).join("");
-  const catBtns=cats.map(c=>`<button class="filter-btn ${filterCat===c?"active":""}" onclick="setFilter('cat','${c}')">${c}</button>`).join("");
-
   el.innerHTML=`
-    <div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${A};border-radius:2px"></span>Your Watchlist</div>
-    <div class="section-sub">${WATCHLIST.length} stocks tracked &middot; click column headers to sort &middot; grouped by sector</div>
-    <div class="filter-row">
-      <input class="search-box" placeholder="Search ticker / name / sector..." oninput="setSearch(this.value)" value="${searchQ}">
-      ${filterBtns}
-      <span style="color:#475569;font-size:10px">|</span>
-      ${catBtns}
+    <div class="sh" style="margin-top:6px"><span style="width:3px;height:20px;background:${A};border-radius:2px;display:inline-block"></span>Your Watchlist</div>
+    <div class="ss">${WATCH.length} stocks &middot; click headers to sort &middot; grouped by sector</div>
+    <div class="frow">
+      <input class="sb" placeholder="Search..." oninput="srch=this.value;renderWatch()" value="${srch}">
+      ${sigs.map(s=>`<button class="fb ${fSig===s?"active":""}" onclick="fSig='${s}';renderWatch()">${s}</button>`).join("")}
+      <span style="color:#334155">|</span>
+      ${cats.map(c=>`<button class="fb ${fCat===c?"active":""}" onclick="fCat='${c}';renderWatch()">${c}</button>`).join("")}
     </div>
-    <div class="tbl-wrap">
-      <table><thead><tr>${thead}</tr></thead><tbody>${bodyHtml || '<tr><td colspan=19 style="text-align:center;padding:24px;color:#64748b">No stocks match filter</td></tr>'}</tbody></table>
-    </div>`;
-  // Re-apply sort indicators
-  if(sortCol){
-    const el2=document.querySelector(`th[onclick="doSort('${sortCol}')"]`);
-    if(el2) el2.classList.add(sortDir>0?"sort-asc":"sort-desc");
-  }
+    <div class="twrap"><table><thead><tr>${thead}</tr></thead><tbody>${body||'<tr><td colspan=18 style="text-align:center;padding:20px;color:#64748b">No stocks match</td></tr>'}</tbody></table></div>`;
+  if(sortK){const th=document.querySelector(`th[onclick="doSort('${sortK}')"]`);if(th)th.classList.add(sortD>0?"sa":"sd");}
 }
 
-function doSort(col){
-  if(sortCol===col){sortDir*=-1;}else{sortCol=col;sortDir=1;}
-  renderWatchlist();
+// Market themes tab
+function renderThemes(){
+  const themes={
+    "AI & Semiconductors":{color:THEME_COLS.AI,desc:"AI infrastructure spending is in a multi-year supercycle. Hyperscalers (MSFT, GOOGL, AMZN, META) are spending $300B+ on AI capex in 2025. NVIDIA dominates GPU market with 80%+ share. ARM, AVGO, SMCI, MRVL riding the wave.",tickers:["NVDA","AMD","AVGO","ARM","SMCI","MRVL","INTC","QCOM"]},
+    "Cybersecurity":{color:THEME_COLS.Cybersecurity,desc:"Every AI deployment creates new attack surfaces. Global cybersecurity spend projected to reach $300B by 2027. Zero-trust architecture, cloud security, and AI-driven threat detection are fastest-growing segments. Post-breach spending accelerating.",tickers:["CRWD","PANW","ZS","FTNT","OKTA","S","CYBR"]},
+    "Cloud & SaaS":{color:THEME_COLS.Cloud,desc:"Cloud migration still in early innings globally. AI is accelerating SaaS adoption as companies retool workflows. Hyperscalers growing 20-25% YoY. Database and observability tools seeing renewed demand.",tickers:["MSFT","GOOGL","AMZN","ORCL","SNOW","DDOG","MDB","NOW"]},
+    "Healthcare & GLP-1":{color:THEME_COLS.Healthcare,desc:"GLP-1 drugs (Ozempic, Wegovy) are once-in-a-generation products. Eli Lilly and Novo Nordisk addressing obesity, diabetes, potentially heart disease and Alzheimer's. Medtech innovation + aging demographics = long runway.",tickers:["LLY","UNH","ABBV","ISRG","MRNA"]},
+  };
+  const el=document.getElementById("info");
+  el.innerHTML=`<div class="sh" style="margin-top:6px">Market Themes & Investment Theses</div>
+    <div class="ss">Macro tailwinds driving long-term sector returns &middot; Data as of ${TODAY}</div>
+    ${Object.entries(themes).map(([name,t])=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;border-left:4px solid ${t.color}">
+      <div style="font-size:13px;font-weight:700;color:${t.color};margin-bottom:6px">${name}</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px">${t.desc}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${t.tickers.map(tk=>{const sd=SD[tk]||{};const p=sd.price||0;const chg=sd.chg_pct||0;const rg=sd.rev_g||0;
+          return `<div style="padding:6px 10px;background:var(--card2);border-radius:6px;border:1px solid ${t.color}33;cursor:pointer" onclick="document.querySelector('.nb[onclick*=watch]').click();srch='${tk}';renderWatch()">
+            <div style="font-size:11px;font-weight:700">${tk}</div>
+            ${p?`<div style="font-size:9px;color:${cc(chg)}">${p?("$"+p.toFixed(2)):"N/A"} ${fp(chg)}</div>`:""}`+
+            (rg?`<div style="font-size:9px;color:${parseFloat(rg)>15?"#22c55e":M}">RevG ${fp(rg,0)}</div>`:"")+"</div>";
+        }).join("")}
+      </div>
+    </div>`).join("")}`;
 }
-function setFilter(type,val){
-  if(type==="sig") filterSig=val; else filterCat=val;
-  renderWatchlist();
-}
-function setSearch(v){searchQ=v;renderWatchlist();}
 
-function renderScan(){
-  const el=document.getElementById("scan");
-  if(!SCAN.length){el.innerHTML=`<div class="empty" style="margin-top:12px">No scan data.</div>`;return;}
-  const items=SCAN.map(b=>{
-    const col={BULLISH:G,BEARISH:R,NEUTRAL:A}[b.bias]||M;
-    return `<div class="brief-chip"><span style="font-weight:800;color:${col}">${b.ticker}</span><span style="color:${M};font-size:10px">${b.reason||""}</span></div>`;
-  }).join("");
-  el.innerHTML=`<div class="section-hdr" style="margin-top:8px"><span style="display:inline-block;width:4px;height:22px;background:${M};border-radius:2px"></span>Full Scan Brief</div>
-  <div class="section-sub">${SCAN.length} stocks scanned today</div>
-  <div class="brief-grid">${items}</div>`;
-}
-
-renderBadges(); renderMarket(); renderPicks(); renderWatchlist(); renderScan();
+renderBadges();renderMarket();renderPicks();renderWatch();renderThemes();
 </script>
 </body></html>
