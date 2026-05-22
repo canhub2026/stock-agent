@@ -127,7 +127,7 @@ def call_claude(prompt, label):
     print(f"  -> Claude: {label}...")
     payload = json.dumps({
         "model": "claude-sonnet-4-5",
-        "max_tokens": 3500,
+        "max_tokens": 2000,
         "messages": [{"role":"user","content":prompt}]
     }).encode("utf-8")
     req = urllib.request.Request(
@@ -171,19 +171,12 @@ def call_claude(prompt, label):
 
 def discovery_prompt(data_json, mkt):
     return (
-        f"You are Victor Kane, Wall St quant analyst, 25 years experience. Date:{TODAY}. "
-        f"Market: S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
-        f"LIVE STOCK DATA (from yfinance):\n{data_json}\n\n"
-        f"TASK: Select the 3-4 BEST buying opportunities. For each pick:\n"
-        f"- Score 0-100: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10)\n"
-        f"- Only include if score >= 65\n"
-        f"- GROWTH = rev_g > 20%, BALANCED = rev_g 5-20%\n"
-        f"- Set realistic entry range, targets (1m/6m/1y), stop loss\n"
-        f"- For WHY_BUY: write 2-3 sentences explaining the investment thesis clearly. "
-        f"  Include: what the company does, why NOW is a good entry, key catalyst or trend driving it. "
-        f"  Be specific -- mention actual numbers from the data.\n"
-        f"- For RISKS: 2 specific risks that could invalidate this thesis\n\n"
-        f"Reply ONLY with this JSON, no other text:\n"
+        f"Victor Kane, quant analyst. Date:{TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
+        f"STOCK DATA:\n{data_json}\n\n"
+        f"Select 2-3 best BUY setups. Score: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). Min 65.\n"
+        f"GROWTH=rev_g>20%, BALANCED=5-20%.\n"
+        f"STRICT LIMITS: why_buy MAX 25 words. technical_read MAX 15 words. risks MAX 15 words. catalyst MAX 10 words. macro_factor MAX 10 words.\n\n"
+        f"JSON only:\n"
         f'{{"top_picks":['
         f'{{"ticker":"","name":"","category":"GROWTH","sector":"",'
         f'"price":0,"chg_pct":0,"signal":"BUY","score":0,'
@@ -194,35 +187,31 @@ def discovery_prompt(data_json, mkt):
         f'"de":0,"cash_b":0,"mktcap_b":0,'
         f'"rsi":0,"vs50ma":0,"vs200ma":0,"volr":0,"wk52h":0,"wk52l":0,"vs52h":0,'
         f'"cons":"","atgt":0,"nans":0,"inst":0,"earn":"",'
-        f'"why_buy":"2-3 sentence thesis with specific data points",'
-        f'"technical_read":"1-2 sentences on chart setup and key levels",'
-        f'"risks":"Risk1; Risk2",'
-        f'"catalyst":"key upcoming catalyst",'
-        f'"macro_factor":"relevant macro/sector tailwind"}}],'
-        f'"macro_summary":"2-sentence market overview with specific observations",'
-        f'"risk_level":"LOW|MODERATE|HIGH",'
-        f'"sector_rotation":"which sectors seeing inflows today and why",'
-        f'"market_mood":"BULLISH|NEUTRAL|BEARISH",'
-        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH|NEUTRAL|BEARISH","reason":"1 sentence"}}]}}'
+        f'"why_buy":"25 words max: company role, entry reason, key number",'
+        f'"technical_read":"15 words max: chart level and signal",'
+        f'"risks":"Risk1 10 words; Risk2 10 words",'
+        f'"catalyst":"10 words max",'
+        f'"macro_factor":"10 words max"}}],'
+        f'"macro_summary":"20 words max market overview",'
+        f'"risk_level":"MODERATE",'
+        f'"sector_rotation":"15 words max",'
+        f'"market_mood":"NEUTRAL",'
+        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","reason":"5 words max"}}]}}'
     )
 
 
 def watchlist_prompt(data_json, mkt):
     return (
-        f"You are Victor Kane, Wall St quant analyst. Date:{TODAY}. "
-        f"S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
-        f"WATCHLIST DATA:\n{data_json}\n\n"
-        f"TASK: Analyse each stock. For each:\n"
-        f"- Score 0-100, give signal (STRONG BUY/BUY/WATCH/HOLD/AVOID)\n"
-        f"- Set entry range, 1-year target, stop loss\n"
-        f"- Write 2-sentence note: what you see in the data AND a specific action recommendation. "
-        f"  Reference actual numbers (RSI, PE, revenue growth, price vs target, etc.)\n\n"
-        f"Reply ONLY with this JSON:\n"
-        f'{{"watchlist":[{{"ticker":"","name":"","category":"GROWTH|BALANCED",'
+        f"Victor Kane, quant analyst. Date:{TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n\n"
+        f"WATCHLIST:\n{data_json}\n\n"
+        f"Score each 0-100. Signal: STRONG BUY/BUY/WATCH/HOLD/AVOID. Set entry, 1y target, stop.\n"
+        f"STRICT: note MAX 20 words. Reference 1-2 specific numbers.\n\n"
+        f"JSON only:\n"
+        f'{{"watchlist":[{{"ticker":"","name":"","category":"GROWTH",'
         f'"price":0,"chg_pct":0,"signal":"WATCH","score":0,'
         f'"entry_low":0,"entry_high":0,"t1y":0,"stop":0,"upr_1y":0,'
         f'"pe":0,"rsi":0,"wk52h":0,"wk52l":0,"atgt":0,"cons":"",'
-        f'"note":"2-sentence analysis with specific data points and clear action"}}]}}'
+        f'"note":"20 words max with specific data"}}]}}'
     )
 
 # =============================================================================
@@ -586,9 +575,10 @@ def main():
     print(f"  -> S&P {mkt['sp']:+.2f}% | Nasdaq {mkt['nq']:+.2f}% | VIX {mkt['vix']:.1f}")
 
     # Discovery: deduplicated list excluding personal tickers
-    disc_tickers  = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:12]
-    watch_tickers = ALL_PERSONAL[:12]
-    all_tickers   = list(dict.fromkeys(disc_tickers + watch_tickers))
+    disc_tickers  = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:6]
+    watch_tickers = ALL_PERSONAL[:8]
+    watch_tickers2= ALL_PERSONAL[8:14]  # second batch
+    all_tickers   = list(dict.fromkeys(disc_tickers + watch_tickers + watch_tickers2))
 
     print(f"\n  Discovery: {disc_tickers}")
     print(f"  Watchlist: {watch_tickers}")
@@ -615,14 +605,22 @@ def main():
     if not picks:
         print("  -> WARNING: no picks returned. Check API response above.")
 
-    # Step 2b -- watchlist
+    # Step 2b -- watchlist batch 1
     watchlist = []
     if watch_tickers:
-        print("\n[Step 2b] Watchlist analysis...")
+        print("\n[Step 2b] Watchlist batch 1...")
         time.sleep(8)
-        w_report  = call_claude(watchlist_prompt(to_json(watch_tickers), mkt), "watchlist")
+        w_report  = call_claude(watchlist_prompt(to_json(watch_tickers), mkt), "watchlist-1")
         watchlist = w_report.get("watchlist", [])
-        print(f"  -> {len(watchlist)} watchlist stocks analysed")
+        print(f"  -> {len(watchlist)} stocks")
+
+    # Step 2c -- watchlist batch 2
+    if watch_tickers2:
+        print("\n[Step 2c] Watchlist batch 2...")
+        time.sleep(8)
+        w2_report  = call_claude(watchlist_prompt(to_json(watch_tickers2), mkt), "watchlist-2")
+        watchlist += w2_report.get("watchlist", [])
+        print(f"  -> {len(watchlist)} total watchlist stocks")
 
     growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
     balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
