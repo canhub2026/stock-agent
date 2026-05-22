@@ -53,7 +53,9 @@ Step 3: Score each (technical30+fundamental25+catalyst20+macro15+rr10). Only inc
 
 {watchlist_line}
 
-Return ONLY valid JSON (no markdown, no backticks):
+CRITICAL: Your entire response must be a single valid JSON object. No text before or after. No markdown. No backticks. No comments. Use only straight double quotes. No trailing commas.
+
+JSON structure to fill:
 {{"report_date":"{TODAY}","macro_summary":"Victor 2-sentence market read","risk_level":"LOW|MODERATE|HIGH","sector_rotation":"one line","market_mood":"BULLISH|NEUTRAL|BEARISH","vix":0.0,"sp500_pct":0.0,"nasdaq_pct":0.0,"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","sector":"","current_price":0.0,"price_change_today_pct":0.0,"signal":"STRONG BUY|BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0.0,"entry_range_high":0.0,"target_1m":0.0,"target_6m":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1m_pct":0.0,"upside_6m_pct":0.0,"upside_1y_pct":0.0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0.0,"pe_ratio":0.0,"forward_pe":0.0,"peg_ratio":0.0,"ps_ratio":0.0,"ev_ebitda":0.0,"eps_ttm":0.0,"eps_growth_yoy_pct":0.0,"market_cap_b":0.0,"revenue_growth_yoy_pct":0.0,"revenue_growth_qoq_pct":0.0,"gross_margin_pct":0.0,"operating_margin_pct":0.0,"net_margin_pct":0.0,"fcf_yield_pct":0.0,"roe_pct":0.0,"debt_to_equity":0.0,"cash_position_b":0.0,"earnings_streak":"","last_earnings_surprise_pct":0.0,"guidance":"Raised|Maintained|Lowered|N/A","volume_today":0,"avg_volume_30d":0,"volume_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"price_vs_52h_pct":0.0,"rsi_14":0,"macd_signal":"BULLISH|NEUTRAL|BEARISH","macd_histogram":"POSITIVE|NEGATIVE","price_vs_50ma":0.0,"price_vs_200ma":0.0,"ma_signal":"","chart_pattern":"","support_level":0.0,"resistance_level":0.0,"analyst_consensus":"","analyst_avg_target":0.0,"num_analysts":0,"insider_activity":"Buying|Selling|Neutral","institutional_ownership_pct":0.0,"institutional_change":"Increasing|Decreasing|Stable","next_earnings_est":"","catalyst_summary":"2 sentences","geopolitical_factor":"1 sentence","technical_analysis":"Victor 3-sentence technical read with exact levels","fundamental_analysis":"Victor 3-sentence fundamental read","victor_verdict":"Victor 2-sentence blunt verdict","why_now":"2 sentences","risks":"2 specific risks","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","current_price":0.0,"price_change_today_pct":0.0,"signal":"STRONG BUY|BUY|WATCH|AVOID","confidence_score":0,"entry_range_low":0.0,"entry_range_high":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1y_pct":0.0,"pe_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0.0,"victor_note":"Victor 1-sentence note","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH|NEUTRAL|BEARISH","note":"one line","category":"GROWTH|BALANCED"}}],"disclaimer":"For educational purposes only. Not financial advice."}}"""
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -97,7 +99,7 @@ def call_claude(prompt, label="Claude API"):
             "Content-Type": "application/json",
             "x-api-key": ANTHROPIC_API_KEY,
             "anthropic-version": "2023-06-01",
-            "anthropic-beta": "web-search-2025-03-05,interleaved-thinking-2025-05-14"
+            "anthropic-beta": "web-search-2025-03-05"
         },
         method="POST"
     )
@@ -116,23 +118,62 @@ def call_claude(prompt, label="Claude API"):
             full_text += block.get("text", "")
 
     full_text = full_text.strip()
+
     # Strip markdown fences
     if "```" in full_text:
         parts = full_text.split("```")
         for part in parts:
-            if part.startswith("json"):
-                part = part[4:]
-            part = part.strip()
-            if part.startswith("{"):
-                full_text = part
+            p = part.strip()
+            if p.startswith("json"):
+                p = p[4:].strip()
+            if p.startswith("{"):
+                full_text = p
                 break
 
+    # Extract JSON object
     start = full_text.find("{")
     end   = full_text.rfind("}") + 1
     if start == -1 or end == 0:
-        raise ValueError(f"No JSON found in {label} response.\nRaw: {full_text[:500]}")
+        raise ValueError(f"No JSON found in response.\nRaw: {full_text[:300]}")
 
-    return json.loads(full_text[start:end])
+    json_str = full_text[start:end]
+
+    # Attempt direct parse first
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError:
+        pass
+
+    # Fallback: clean common issues Claude introduces
+    import re
+    # Remove trailing commas before } or ]
+    json_str = re.sub(r',\s*([}\]])', r'\1', json_str)
+    # Replace smart quotes
+    json_str = json_str.replace('\u201c', '"').replace('\u201d', '"')
+    json_str = json_str.replace('\u2018', "'").replace('\u2019', "'")
+    # Remove control characters
+    json_str = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', json_str)
+
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError as e:
+        # Last resort: try to salvage partial JSON with just top-level fields
+        print(f"  ⚠ JSON parse error: {e}. Attempting partial recovery...")
+        # Return minimal valid structure so email still sends
+        return {
+            "report_date": TODAY,
+            "macro_summary": "Report generation encountered a formatting issue. Data below may be partial.",
+            "risk_level": "MODERATE",
+            "sector_rotation": "N/A",
+            "market_mood": "NEUTRAL",
+            "vix": 0,
+            "sp500_pct": 0,
+            "nasdaq_pct": 0,
+            "top_picks": [],
+            "watchlist_analysis": [],
+            "full_scan_brief": [],
+            "disclaimer": "For educational purposes only. Not financial advice."
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
