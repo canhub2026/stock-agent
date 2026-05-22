@@ -1,35 +1,28 @@
-name: Victor Kane — Daily Stock Report
+name: Victor Kane -- Daily Stock Report
 
 on:
-  # ── Automatic daily schedule ────────────────────────────────────────────────
-  # 7:00 AM Eastern Time
-  # EDT (summer, Mar–Nov): UTC-4  → 11:00 UTC
-  # EST (winter, Nov–Mar): UTC-5  → 12:00 UTC
-  # Running at 11:00 UTC covers EDT (exact) and is 1hr early for EST — fine for pre-market
   schedule:
-    - cron: "0 11 * * 1-5"   # Mon–Fri, 11:00 UTC = 7:00 AM EDT
-
-  # ── Manual trigger with optional extra tickers ──────────────────────────────
-  # Go to: Repo → Actions → Victor Kane — Daily Stock Report → Run workflow
-  # You can type extra tickers in the input field below
+    - cron: "0 11 * * 1-5"   # Mon-Fri 7:00 AM EDT
   workflow_dispatch:
     inputs:
       extra_tickers:
-        description: "Extra tickers to analyse (comma-separated, e.g. TSLA, AMZN, SOFI)"
+        description: "Extra tickers (comma-separated)"
         required: false
         default: ""
       note:
-        description: "Optional note (shown in logs, e.g. 'checking earnings plays')"
+        description: "Optional note"
         required: false
         default: ""
+
+permissions:
+  contents: write   # needed to push index.html to docs/
 
 jobs:
   run-analysis:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python 3.11
@@ -39,20 +32,16 @@ jobs:
 
       - name: Log run info
         run: |
-          echo "======================================"
+          echo "=============================="
           echo "  Victor Kane Stock Agent"
           echo "  Date: $(date -u '+%Y-%m-%d %H:%M UTC')"
           echo "  Trigger: ${{ github.event_name }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "  Extra tickers: ${{ github.event.inputs.extra_tickers }}"
-            echo "  Note: ${{ github.event.inputs.note }}"
-          fi
-          echo "======================================"
+          echo "=============================="
 
       - name: Install dependencies
         run: pip install yfinance --quiet --break-system-packages
 
-      - name: Run Victor Kane analysis
+      - name: Run analysis
         env:
           ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
           EMAIL_FROM:         ${{ secrets.EMAIL_FROM }}
@@ -60,4 +49,6 @@ jobs:
           EMAIL_TO:           ${{ secrets.EMAIL_TO }}
           PERSONAL_WATCHLIST: ${{ vars.PERSONAL_WATCHLIST }}
           EXTRA_TICKERS:      ${{ github.event.inputs.extra_tickers }}
+          GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:  ${{ github.repository }}
         run: python src/analyze.py
