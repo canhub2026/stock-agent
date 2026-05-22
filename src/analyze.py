@@ -158,19 +158,6 @@ def trim_for_claude(stock_data):
     return trimmed
 
 
-def build_analysis_prompt(stock_data_json, market_overview, personal_tickers):
-    watchlist_note = f"Personal watchlist (MUST include ALL in watchlist_analysis): {', '.join(personal_tickers)}" if personal_tickers else ""
-    return f"""Victor Kane, elite quant analyst. Date:{TODAY}. S&P{market_overview['sp500_pct']:+.2f}% Nasdaq{market_overview['nasdaq_pct']:+.2f}% VIX{market_overview['vix']:.1f}
-{watchlist_note}
-
-DATA:{stock_data_json}
-
-Score each: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). GROWTH=rev>20%,BALANCED=5-20%.
-top_picks=score>=65 only. Keep ALL text fields to 1 sentence. Be concise.
-
-JSON only, no other text:
-{{"report_date":"{TODAY}","macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL","vix":{market_overview['vix']},"sp500_pct":{market_overview['sp500_pct']},"nasdaq_pct":{market_overview['nasdaq_pct']},"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"","current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"","volume_today":0,"avg_volume_30d":0,"volume_ratio":0,"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"","next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"","technical_analysis":"","fundamental_analysis":"","victor_verdict":"","why_now":"","risks":"","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"BALANCED","current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0,"victor_note":"","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],"disclaimer":"For educational purposes only. Not financial advice."}}"""
-
 
 def call_claude_analysis(prompt):
     """Call Claude WITHOUT web search - pure analysis of pre-fetched data."""
@@ -548,6 +535,64 @@ def send_email(html, subject):
 
 
 # =============================================================================
+# PROMPTS - split into two small calls to avoid truncation
+# =============================================================================
+def build_discovery_prompt(discovery_json, market):
+    return (
+        f"You are Victor Kane, elite quant analyst. Date:{TODAY}. "
+        f"S&P{market['sp500_pct']:+.2f}% Nasdaq{market['nasdaq_pct']:+.2f}% VIX{market['vix']:.1f}\n\n"
+        f"MARKET DATA for these stocks:\n{discovery_json}\n\n"
+        f"Task: Find the TOP 3-4 best BUY opportunities from this data.\n"
+        f"Score 0-100: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10)\n"
+        f"GROWTH=rev_growth>20%, BALANCED=5-20%. Only include score>=65.\n"
+        f"Keep ALL text fields under 15 words. No fluff.\n\n"
+        f"Return ONLY valid JSON, nothing else:\n"
+        f'{{"report_date":"{TODAY}","macro_summary":"1 sentence","risk_level":"MODERATE",'
+        f'"sector_rotation":"1 sentence","market_mood":"NEUTRAL",'
+        f'"vix":{market["vix"]},"sp500_pct":{market["sp500_pct"]},"nasdaq_pct":{market["nasdaq_pct"]},'
+        f'"top_picks":[{{"ticker":"","company_name":"","category":"GROWTH","sector":"",'
+        f'"current_price":0,"price_change_today_pct":0,"signal":"BUY","confidence_score":0,'
+        f'"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},'
+        f'"entry_range_low":0,"entry_range_high":0,"target_1m":0,"target_6m":0,"target_1y":0,'
+        f'"stop_loss":0,"upside_1m_pct":0,"upside_6m_pct":0,"upside_1y_pct":0,'
+        f'"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,'
+        f'"risk_reward_ratio":0,"pe_ratio":0,"forward_pe":0,"peg_ratio":0,"ps_ratio":0,"ev_ebitda":0,'
+        f'"eps_ttm":0,"eps_growth_yoy_pct":0,"market_cap_b":0,"revenue_growth_yoy_pct":0,'
+        f'"revenue_growth_qoq_pct":0,"gross_margin_pct":0,"operating_margin_pct":0,"net_margin_pct":0,'
+        f'"fcf_yield_pct":0,"roe_pct":0,"debt_to_equity":0,"cash_position_b":0,'
+        f'"earnings_streak":"","last_earnings_surprise_pct":0,"guidance":"",'
+        f'"volume_today":0,"avg_volume_30d":0,"volume_ratio":0,'
+        f'"week52_high":0,"week52_low":0,"price_vs_52h_pct":0,"rsi_14":0,'
+        f'"macd_signal":"","macd_histogram":"","price_vs_50ma":0,"price_vs_200ma":0,'
+        f'"ma_signal":"","chart_pattern":"","support_level":0,"resistance_level":0,'
+        f'"analyst_consensus":"","analyst_avg_target":0,"num_analysts":0,'
+        f'"insider_activity":"","institutional_ownership_pct":0,"institutional_change":"",'
+        f'"next_earnings_est":"","catalyst_summary":"","geopolitical_factor":"",'
+        f'"technical_analysis":"","fundamental_analysis":"","victor_verdict":"",'
+        f'"why_now":"","risks":"","is_personal_watchlist":false}}],'
+        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","note":"","category":"GROWTH"}}],'
+        f'"disclaimer":"For educational purposes only. Not financial advice."}}'
+    )
+
+
+def build_watchlist_prompt(watchlist_json, market):
+    return (
+        f"You are Victor Kane, elite quant analyst. Date:{TODAY}. "
+        f"S&P{market['sp500_pct']:+.2f}% Nasdaq{market['nasdaq_pct']:+.2f}% VIX{market['vix']:.1f}\n\n"
+        f"WATCHLIST DATA:\n{watchlist_json}\n\n"
+        f"Task: Analyse each stock. Score 0-100. Give signal and 1-sentence note.\n"
+        f"Keep victor_note under 15 words.\n\n"
+        f"Return ONLY valid JSON, nothing else:\n"
+        f'{{"watchlist_analysis":[{{"ticker":"","company_name":"","category":"GROWTH",'
+        f'"current_price":0,"price_change_today_pct":0,"signal":"WATCH","confidence_score":0,'
+        f'"entry_range_low":0,"entry_range_high":0,"target_1y":0,"stop_loss":0,"upside_1y_pct":0,'
+        f'"pe_ratio":0,"week52_high":0,"week52_low":0,"rsi_14":0,'
+        f'"analyst_consensus":"","analyst_avg_target":0,'
+        f'"victor_note":"","is_personal_watchlist":true}}]}}'
+    )
+
+
+# =============================================================================
 # MAIN
 # =============================================================================
 def main():
@@ -555,33 +600,80 @@ def main():
     if ALL_PERSONAL: print(f"  Watchlist: {', '.join(ALL_PERSONAL)}")
     print(f"{'='*60}\n")
 
-    # Step 1 -- Fetch real market data (no API needed)
+    # Step 1 -- Fetch market data
     print("[Step 1] Fetching market data via yfinance...")
     market = fetch_market_overview()
     print(f"  -> S&P {market['sp500_pct']:+.2f}% | Nasdaq {market['nasdaq_pct']:+.2f}% | VIX {market['vix']:.1f}")
 
-    # Use personal watchlist + defaults; cap at 15 to keep Claude prompt small
-    tickers = list(dict.fromkeys(ALL_PERSONAL + DEFAULT_TICKERS))[:15]
-    stock_data = fetch_stock_data(tickers)
+    # Broad market discovery list (different from personal watchlist)
+    # Includes high-growth, momentum, and value stocks across sectors
+    DISCOVERY_LIST = [
+        "NVDA","META","MSFT","GOOGL","AMZN",  # mega cap tech
+        "PLTR","ARM","CRWD","SNOW","DDOG",     # growth tech
+        "AMD","AVGO","TSM","SMCI","ANET",      # semiconductors
+        "TSLA","UBER","LYFT","ABNB","SHOP",    # consumer/mobility
+        "LLY","UNH","ABBV","JNJ","MRK",        # healthcare
+        "JPM","GS","BAC","V","MA",             # financials
+        "XOM","CVX","NEE","SO","DUK",          # energy/utilities
+        "CAT","DE","GE","HON","RTX",           # industrials
+    ]
 
-    # Step 2 -- Claude analysis (NO web search -- just analyzing pre-fetched data)
-    print("\n[Step 2] Victor Kane analysis via Claude...")
-    trimmed    = trim_for_claude(stock_data)
-    stock_json = json.dumps(trimmed, separators=(',', ':'))  # compact, no spaces
-    prompt     = build_analysis_prompt(stock_json, market, ALL_PERSONAL)
-    report     = call_claude_analysis(prompt)
+    # Remove tickers already in personal watchlist to avoid duplication
+    discovery_tickers = [t for t in DISCOVERY_LIST if t not in ALL_PERSONAL][:12]
+    watchlist_tickers = ALL_PERSONAL[:12]  # cap watchlist at 12
 
-    picks    = report.get("top_picks",[])
-    growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
-    balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
+    print(f"  -> Discovery scan: {len(discovery_tickers)} tickers")
+    print(f"  -> Personal watchlist: {len(watchlist_tickers)} tickers")
+
+    # Fetch data for both sets
+    all_tickers = list(dict.fromkeys(discovery_tickers + watchlist_tickers))
+    stock_data  = fetch_stock_data(all_tickers)
+    trimmed     = trim_for_claude(stock_data)
+
+    # Step 2a -- Discovery analysis (finds best picks from broad market)
+    print("\n[Step 2a] Victor Kane -- Market discovery scan...")
+    disc_data   = {t: trimmed[t] for t in discovery_tickers if t in trimmed}
+    disc_json   = json.dumps(disc_data, separators=(',', ':'))
+    disc_prompt = build_discovery_prompt(disc_json, market)
+    disc_report = call_claude_analysis(disc_prompt)
+
+    picks       = disc_report.get("top_picks", [])
+    scan_brief  = disc_report.get("full_scan_brief", [])
+    growth      = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
+    balanced    = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
     print(f"  -> {len(picks)} picks: {len(growth)} growth, {len(balanced)} balanced")
+
+    # Step 2b -- Watchlist analysis (your personal tickers)
+    watchlist_analysis = []
+    if watchlist_tickers:
+        print("\n[Step 2b] Victor Kane -- Personal watchlist analysis...")
+        time.sleep(5)  # small pause between calls
+        watch_data   = {t: trimmed[t] for t in watchlist_tickers if t in trimmed}
+        watch_json   = json.dumps(watch_data, separators=(',', ':'))
+        watch_prompt = build_watchlist_prompt(watch_json, market)
+        watch_report = call_claude_analysis(watch_prompt)
+        watchlist_analysis = watch_report.get("watchlist_analysis", [])
+        print(f"  -> {len(watchlist_analysis)} watchlist stocks analysed")
+
+    # Merge into final report
+    report = {
+        "report_date":    TODAY,
+        "macro_summary":  disc_report.get("macro_summary", ""),
+        "risk_level":     disc_report.get("risk_level", "MODERATE"),
+        "sector_rotation":disc_report.get("sector_rotation", ""),
+        "market_mood":    disc_report.get("market_mood", "NEUTRAL"),
+        "top_picks":      picks,
+        "watchlist_analysis": watchlist_analysis,
+        "full_scan_brief":    scan_brief,
+        "disclaimer":     "For educational purposes only. Not financial advice.",
+    }
 
     # Step 3 -- Build + send email
     print("\n[Step 3] Building and sending email...")
     html    = build_email(report, market)
-    mood    = report.get("market_mood","?")
-    risk    = report.get("risk_level","?")
-    subject = f"_ Victor Kane -- {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}"
+    mood    = report.get("market_mood", "?")
+    risk    = report.get("risk_level", "?")
+    subject = f"Victor Kane -- {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk: {risk}"
     send_email(html, subject)
 
     print(f"\n{'='*60}\n  Done -- report sent to {EMAIL_TO}\n{'='*60}\n")
