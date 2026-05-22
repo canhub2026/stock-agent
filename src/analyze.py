@@ -111,10 +111,10 @@ def fetch_market():
 # =============================================================================
 # CLAUDE CALLS
 # =============================================================================
-def call_claude(prompt, label):
+def call_claude(prompt, label, max_tokens=1800):
     print(f"  -> Claude: {label}...")
     payload = json.dumps({
-        "model":"claude-sonnet-4-5","max_tokens":2000,
+        "model":"claude-sonnet-4-5","max_tokens":max_tokens,
         "messages":[{"role":"user","content":prompt}]
     }).encode("utf-8")
     req = urllib.request.Request(
@@ -152,22 +152,20 @@ def discovery_prompt(data_json, mkt):
     return (
         f"Victor Kane, quant analyst. {TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n"
         f"DATA:\n{data_json}\n\n"
-        f"Pick 2-3 best BUY setups. Score: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). Min 65.\n"
-        f"GROWTH=rev_g>20%. BALANCED=5-20%.\n"
-        f"STRICT word limits: why_buy=25w, technical_read=15w, risks=15w, catalyst=10w, macro_factor=10w.\n\n"
+        f"Pick the 2 best BUY setups. Score: technical(30)+fundamental(25)+catalyst(20)+macro(15)+rr(10). Min 65.\n"
+        f"GROWTH=rev_g>20%. BALANCED=5-20%. ALL text fields HARD LIMIT 10 words.\n\n"
         f"JSON only:\n"
         f'{{"top_picks":[{{"ticker":"","name":"","category":"GROWTH","sector":"",'
         f'"price":0,"chg_pct":0,"signal":"BUY","score":0,'
         f'"score_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro":0,"rr":0}},'
         f'"entry_low":0,"entry_high":0,"t1m":0,"t6m":0,"t1y":0,"stop":0,'
         f'"upr_1m":0,"upr_6m":0,"upr_1y":0,"prob_1m":0,"prob_6m":0,"prob_1y":0,"rr_ratio":0,'
-        f'"pe":0,"fwd_pe":0,"peg":0,"eps_g":0,"rev_g":0,"gm":0,"om":0,"nm":0,"roe":0,'
-        f'"de":0,"cash_b":0,"mktcap_b":0,"rsi":0,"vs50ma":0,"vs200ma":0,"volr":0,'
-        f'"wk52h":0,"wk52l":0,"vs52h":0,"cons":"","atgt":0,"nans":0,"inst":0,"earn":"",'
+        f'"pe":0,"fwd_pe":0,"rev_g":0,"gm":0,"nm":0,"mktcap_b":0,'
+        f'"rsi":0,"vs50ma":0,"vs200ma":0,"wk52h":0,"wk52l":0,"vs52h":0,'
+        f'"cons":"","atgt":0,"nans":0,"earn":"",'
         f'"why_buy":"","technical_read":"","risks":"","catalyst":"","macro_factor":""}}],'
-        f'"macro_summary":"20w max","risk_level":"MODERATE","sector_rotation":"15w max",'
-        f'"market_mood":"NEUTRAL",'
-        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","reason":"5w max"}}]}}'
+        f'"macro_summary":"","risk_level":"MODERATE","sector_rotation":"","market_mood":"NEUTRAL",'
+        f'"full_scan_brief":[{{"ticker":"","bias":"BULLISH","reason":""}}]}}'
     )
 
 def watchlist_prompt(data_json, mkt):
@@ -175,22 +173,29 @@ def watchlist_prompt(data_json, mkt):
         f"Victor Kane. {TODAY}. S&P{mkt['sp']:+.2f}% Nasdaq{mkt['nq']:+.2f}% VIX{mkt['vix']:.1f}\n"
         f"WATCHLIST:\n{data_json}\n\n"
         f"Score each 0-100. Signal: STRONG BUY/BUY/WATCH/HOLD/AVOID. Entry range, 1y target, stop.\n"
-        f"note=20w max, specific numbers only.\n\n"
+        f"note = EXACTLY 10 words, include 2 specific numbers.\n\n"
         f"JSON only:\n"
         f'{{"watchlist":[{{"ticker":"","name":"","category":"GROWTH",'
         f'"price":0,"chg_pct":0,"signal":"WATCH","score":0,'
         f'"entry_low":0,"entry_high":0,"t1y":0,"stop":0,"upr_1y":0,'
         f'"pe":0,"rsi":0,"wk52h":0,"wk52l":0,"atgt":0,"cons":"",'
-        f'"note":"20w max"}}]}}'
+        f'"note":""}}]}}'
     )
 
 # =============================================================================
 # GITHUB PAGES -- publish HTML report
 # =============================================================================
 def publish_to_github(html_content):
-    """Push index.html to gh-pages branch via GitHub API."""
+    """Save index.html to docs/ folder and push via GitHub API."""
+    # Always save locally first (for Pages artifact upload)
+    import os as _os
+    _os.makedirs("docs", exist_ok=True)
+    with open("docs/index.html", "w", encoding="utf-8") as fh:
+        fh.write(html_content)
+    print("  -> Saved docs/index.html")
+
     if not GITHUB_TOKEN or not GITHUB_REPO:
-        print("  -> No GitHub token/repo, skipping Pages publish")
+        print("  -> No GitHub token, skipping API push")
         return None
 
     import base64
@@ -201,14 +206,11 @@ def publish_to_github(html_content):
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "stock-agent"
     }
-
-    # Get current file SHA if exists (needed for update)
     sha = None
     try:
         req = urllib.request.Request(api, headers=headers)
         with urllib.request.urlopen(req, timeout=30) as r:
-            existing = json.loads(r.read().decode())
-            sha = existing.get("sha")
+            sha = json.loads(r.read().decode()).get("sha")
     except:
         pass
 
@@ -220,12 +222,14 @@ def publish_to_github(html_content):
     req = urllib.request.Request(api, data=json.dumps(body).encode(), headers=headers, method="PUT")
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
-            print(f"  -> Published to GitHub Pages")
             owner, repo = GITHUB_REPO.split("/")
-            return f"https://{owner}.github.io/{repo}/"
+            url = f"https://{owner}.github.io/{repo}/"
+            print(f"  -> Published to GitHub Pages: {url}")
+            return url
     except Exception as e:
-        print(f"  -> GitHub Pages publish failed: {e}")
-        return None
+        print(f"  -> GitHub API push failed: {e}")
+        owner, repo = GITHUB_REPO.split("/")
+        return f"https://{owner}.github.io/{repo}/"
 
 # =============================================================================
 # HTML REPORT BUILDER
@@ -578,7 +582,7 @@ renderScan();
 # =============================================================================
 # SEND EMAIL WITH LINK
 # =============================================================================
-def send_email(subject, url, picks, mkt, macro):
+def send_email(subject, html_report, picks, mkt, macro):
     growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
     balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
     risk     = macro.get("risk_level","MODERATE")
@@ -598,33 +602,26 @@ def send_email(subject, url, picks, mkt, macro):
           <td style="padding:10px 12px;font-size:11px;color:#64748b;font-style:italic">{str(p.get('why_buy',''))[:60]}...</td>
         </tr>"""
 
-    link_section = ""
-    if url:
-        link_section = f"""
-        <div style="text-align:center;margin:24px 0">
-          <a href="{url}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#6366f1);
-            color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:14px;font-weight:700;
-            letter-spacing:.02em">Open Full Interactive Report</a>
-          <div style="font-size:11px;color:#94a3b8;margin-top:8px">{url}</div>
-        </div>"""
-
-    html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+    body_html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
   <div style="max-width:700px;margin:0 auto">
-    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 28px;border-radius:0 0 0 0">
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:24px 28px">
       <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.15em;margin-bottom:3px">Quant Signal Agent</div>
       <div style="font-size:22px;font-weight:800;color:#fff">Victor Kane Daily Report</div>
       <div style="font-size:11px;color:#64748b;margin-top:3px">{TODAY} &middot; {NOW}</div>
       <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
         <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;font-weight:600;color:{risk_col}">Risk: {risk}</span>
-        <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;color:#fff">{len(picks)} picks</span>
+        <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;color:#fff">{len(picks)} picks ({len(growth)}G/{len(balanced)}B)</span>
         <span style="padding:5px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:11px;color:#94a3b8">S&P {'+' if mkt.get('sp',0)>=0 else ''}{mkt.get('sp',0):.2f}% &middot; VIX {mkt.get('vix','?')}</span>
       </div>
     </div>
     <div style="background:#fff;padding:20px 28px">
       <p style="font-size:13px;color:#374151;line-height:1.7;margin:0 0 16px">{macro.get('macro_summary','')}</p>
-      {link_section}
-      {"<div style='margin:20px 0'><div style='font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px'>Today Top Picks</div><table style='width:100%;border-collapse:collapse'><thead><tr style='background:#f8fafc;border-bottom:2px solid #e2e8f0'><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Ticker</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Company</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Price</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Score</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>1Y Target</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Thesis</th></tr></thead><tbody>" + top_picks_html + "</tbody></table></div>" if picks else "<div style='padding:16px;text-align:center;color:#94a3b8;font-size:13px;background:#f8fafc;border-radius:8px'>No high-conviction picks today.</div>"}
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 16px;margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:4px">Open the attached file for the full interactive report</div>
+        <div style="font-size:11px;color:#3b82f6">Save report.html and open it in any browser -- tabs, charts, full detail, dark theme</div>
+      </div>
+      {"<div style='margin:20px 0'><div style='font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px'>Top Picks Summary</div><table style='width:100%;border-collapse:collapse'><thead><tr style='background:#f8fafc;border-bottom:2px solid #e2e8f0'><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Ticker</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Company</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Price</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Score</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>1Y Target</th><th style='padding:8px 12px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase'>Thesis</th></tr></thead><tbody>" + top_picks_html + "</tbody></table></div>" if picks else "<div style='padding:16px;text-align:center;color:#94a3b8;font-size:13px;background:#f8fafc;border-radius:8px'>No high-conviction picks today.</div>"}
     </div>
     <div style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
       <div style="font-size:10px;color:#94a3b8;line-height:1.7">For educational purposes only. Not financial advice.<br>Data: yfinance &middot; Analysis: Claude AI &middot; {NOW}</div>
@@ -632,16 +629,30 @@ def send_email(subject, url, picks, mkt, macro):
   </div>
 </body></html>"""
 
-    msg = MIMEMultipart("alternative")
+    from email.mime.base import MIMEBase
+    from email import encoders
+
+    msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"]    = EMAIL_FROM
     msg["To"]      = EMAIL_TO
-    msg.attach(MIMEText(html, "html"))
+
+    # Email body (summary)
+    msg.attach(MIMEText(body_html, "html"))
+
+    # HTML report as attachment
+    attachment = MIMEBase("text", "html")
+    attachment.set_payload(html_report.encode("utf-8"))
+    encoders.encode_base64(attachment)
+    attachment.add_header("Content-Disposition", "attachment",
+                          filename=f"victor-kane-{TODAY}.html")
+    msg.attach(attachment)
+
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as srv:
         srv.login(EMAIL_FROM, EMAIL_PASSWORD)
         srv.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
-    print(f"  -> Email sent to {EMAIL_TO}")
+    print(f"  -> Email + HTML attachment sent to {EMAIL_TO}")
 
 # =============================================================================
 # MAIN
@@ -655,13 +666,14 @@ def main():
     mkt = fetch_market()
     print(f"  -> S&P {mkt['sp']:+.2f}% | Nasdaq {mkt['nq']:+.2f}% | VIX {mkt['vix']:.1f}")
 
-    disc_tickers   = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:6]
-    watch_tickers  = ALL_PERSONAL[:8]
-    watch_tickers2 = ALL_PERSONAL[8:14]
-    all_tickers    = list(dict.fromkeys(disc_tickers + watch_tickers + watch_tickers2))
+    disc_tickers   = [t for t in DISCOVERY_UNIVERSE if t not in ALL_PERSONAL][:5]
+    watch_tickers  = ALL_PERSONAL[:5]
+    watch_tickers2 = ALL_PERSONAL[5:10]
+    watch_tickers3 = ALL_PERSONAL[10:14]
+    all_tickers    = list(dict.fromkeys(disc_tickers + ALL_PERSONAL))
 
     print(f"\n  Discovery: {disc_tickers}")
-    print(f"  Watchlist: {watch_tickers + watch_tickers2}")
+    print(f"  Watchlist: {ALL_PERSONAL}")
     stock_data = fetch_stock_data(all_tickers)
 
     def to_json(tickers):
@@ -669,7 +681,7 @@ def main():
         return json.dumps(d, separators=(',',':'))
 
     print("\n[Step 2a] Discovery -- Victor Kane finding top picks...")
-    d_report   = call_claude(discovery_prompt(to_json(disc_tickers), mkt), "discovery")
+    d_report   = call_claude(discovery_prompt(to_json(disc_tickers), mkt), "discovery", max_tokens=1400)
     picks      = d_report.get("top_picks", [])
     scan_brief = d_report.get("full_scan_brief", [])
     macro      = {
@@ -681,26 +693,17 @@ def main():
     print(f"  -> {len(picks)} picks, {len(scan_brief)} scan items")
 
     watchlist = []
-    if watch_tickers:
-        print("\n[Step 2b] Watchlist batch 1...")
+    for batch_num, batch in enumerate([watch_tickers, watch_tickers2, watch_tickers3], start=1):
+        if not batch: continue
+        print(f"\n[Step 2{chr(96+batch_num+1)}] Watchlist batch {batch_num} ({', '.join(batch)})...")
         time.sleep(8)
-        w1 = call_claude(watchlist_prompt(to_json(watch_tickers), mkt), "watchlist-1")
-        watchlist += w1.get("watchlist", [])
-        print(f"  -> {len(watchlist)} stocks")
-
-    if watch_tickers2:
-        print("\n[Step 2c] Watchlist batch 2...")
-        time.sleep(8)
-        w2 = call_claude(watchlist_prompt(to_json(watch_tickers2), mkt), "watchlist-2")
-        watchlist += w2.get("watchlist", [])
-        print(f"  -> {len(watchlist)} total")
+        wr = call_claude(watchlist_prompt(to_json(batch), mkt), f"watchlist-{batch_num}", max_tokens=1500)
+        new_items = wr.get("watchlist", [])
+        watchlist += new_items
+        print(f"  -> {len(new_items)} stocks (total {len(watchlist)})")
 
     print("\n[Step 3] Building interactive HTML report...")
     html = build_html(picks, watchlist, scan_brief, macro, mkt)
-
-    url = publish_to_github(html)
-    if url:
-        print(f"  -> Live at: {url}")
 
     growth   = [p for p in picks if str(p.get("category","")).upper()=="GROWTH"]
     balanced = [p for p in picks if str(p.get("category","")).upper()!="GROWTH"]
@@ -708,8 +711,8 @@ def main():
     risk     = macro.get("risk_level","?")
     subject  = f"Victor Kane {TODAY} | {len(picks)} picks ({len(growth)}G/{len(balanced)}B) | {mood} | Risk:{risk}"
 
-    print("\n[Step 4] Sending email...")
-    send_email(subject, url, picks, mkt, macro)
+    print("\n[Step 4] Sending email with HTML attachment...")
+    send_email(subject, html, picks, mkt, macro)
 
     print(f"\n{'='*55}\n  Done -- sent to {EMAIL_TO}\n{'='*55}\n")
 
