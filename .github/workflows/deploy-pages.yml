@@ -9,10 +9,6 @@ on:
         description: "Extra tickers (comma-separated)"
         required: false
         default: ""
-      note:
-        description: "Optional note"
-        required: false
-        default: ""
 
 permissions:
   contents: write
@@ -20,22 +16,23 @@ permissions:
   id-token: write
 
 jobs:
-  run-analysis:
+  run-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: pip install yfinance --quiet --break-system-packages
 
-      - name: Run analysis
+      - name: Run Victor Kane analysis
         env:
           ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
           EMAIL_FROM:         ${{ secrets.EMAIL_FROM }}
@@ -47,26 +44,14 @@ jobs:
           GITHUB_REPOSITORY:  ${{ github.repository }}
         run: python src/analyze.py
 
-  deploy-pages:
-    needs: run-analysis
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload docs folder
+      - name: Upload docs to Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: './docs'
 
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deploy
         uses: actions/deploy-pages@v4
