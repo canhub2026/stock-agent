@@ -102,182 +102,22 @@ Return ONLY valid JSON (no markdown, no backticks):
 # PHASE 2 PROMPT — Deep Analysis (Victor Kane persona)
 # ─────────────────────────────────────────────────────────────────────────────
 def build_analysis_prompt(tickers, macro_context, personal_status):
-    personal_context = ""
-    if ALL_PERSONAL:
-        personal_context = f"""
-PERSONAL WATCHLIST TICKERS (user always tracks these — include them in analysis
-even if they don't rank as top picks, they must appear in the watchlist_analysis section):
-{", ".join(ALL_PERSONAL)}
-"""
+    macro_brief = f"mood={macro_context.get('market_mood','?')} vix={macro_context.get('vix','?')} fed={macro_context.get('fed_note','?')}"
+    personal_line = f"Personal watchlist tickers (include in watchlist_analysis): {', '.join(ALL_PERSONAL)}" if ALL_PERSONAL else ""
 
-    return f"""
-Today is {TODAY}. You are Victor Kane — 25 years on Wall Street, former head of
-quantitative equities at a top-tier hedge fund. You called NVDA at $12, TSLA at $18,
-AMD at $6. You are known for being brutally precise, never vague, always giving exact
-levels. You do not tolerate weak setups. Your minimum R:R is 2.5:1.
+    return f"""Date: {TODAY}. You are Victor Kane, elite quant analyst, 25yr Wall St veteran.
+Macro: {macro_brief}
+{personal_line}
 
-MACRO CONTEXT FROM PRE-MARKET SCAN:
-{json.dumps(macro_context, indent=2)}
+Use web_search to get LIVE data. Analyse ONLY these tickers: {", ".join(tickers)}
 
-{personal_context}
+Scoring (0-100): technical(30) + fundamental(25) + catalyst(20) + macro(15) + rr(10).
+STRONG BUY>=80, BUY>=65. GROWTH=rev growth>20%/yr. BALANCED=5-20%/yr.
 
-TICKERS TO DEEPLY ANALYSE (use web_search to get LIVE data for each):
-{", ".join(tickers)}
+Return ONLY valid JSON, no markdown:
+{{"report_date":"{TODAY}","generated_at":"{NOW}","macro_summary":"Victor 2-sentence market read","risk_level":"LOW|MODERATE|HIGH","sector_rotation":"one line","top_picks":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","sector":"","current_price":0.0,"price_change_today_pct":0.0,"signal":"STRONG BUY|BUY|WATCH|AVOID","confidence_score":0,"confidence_breakdown":{{"technical":0,"fundamental":0,"catalyst":0,"macro_alignment":0,"risk_reward":0}},"entry_range_low":0.0,"entry_range_high":0.0,"target_1m":0.0,"target_6m":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1m_pct":0.0,"upside_6m_pct":0.0,"upside_1y_pct":0.0,"target_1m_probability_pct":0,"target_6m_probability_pct":0,"target_1y_probability_pct":0,"risk_reward_ratio":0.0,"pe_ratio":0.0,"forward_pe":0.0,"peg_ratio":0.0,"ps_ratio":0.0,"ev_ebitda":0.0,"eps_ttm":0.0,"eps_growth_yoy_pct":0.0,"market_cap_b":0.0,"revenue_growth_yoy_pct":0.0,"revenue_growth_qoq_pct":0.0,"gross_margin_pct":0.0,"operating_margin_pct":0.0,"net_margin_pct":0.0,"fcf_yield_pct":0.0,"roe_pct":0.0,"debt_to_equity":0.0,"cash_position_b":0.0,"earnings_streak":"","last_earnings_surprise_pct":0.0,"guidance":"Raised|Maintained|Lowered|N/A","volume_today":0,"avg_volume_30d":0,"volume_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"price_vs_52h_pct":0.0,"rsi_14":0,"macd_signal":"BULLISH|NEUTRAL|BEARISH","macd_histogram":"POSITIVE|NEGATIVE","price_vs_50ma":0.0,"price_vs_200ma":0.0,"ma_signal":"","chart_pattern":"","support_level":0.0,"resistance_level":0.0,"analyst_consensus":"","analyst_avg_target":0.0,"num_analysts":0,"insider_activity":"Buying|Selling|Neutral","institutional_ownership_pct":0.0,"institutional_change":"Increasing|Decreasing|Stable","next_earnings_est":"","catalyst_summary":"2 sentences","geopolitical_factor":"1 sentence","technical_analysis":"Victor 3-sentence technical read with exact levels","fundamental_analysis":"Victor 3-sentence fundamental read","victor_verdict":"Victor 2-sentence blunt verdict","why_now":"2 sentences why this entry now","risks":"2 specific risks","is_personal_watchlist":false}}],"watchlist_analysis":[{{"ticker":"","company_name":"","category":"GROWTH|BALANCED","current_price":0.0,"price_change_today_pct":0.0,"signal":"","confidence_score":0,"entry_range_low":0.0,"entry_range_high":0.0,"target_1y":0.0,"stop_loss":0.0,"upside_1y_pct":0.0,"pe_ratio":0.0,"week52_high":0.0,"week52_low":0.0,"rsi_14":0,"analyst_consensus":"","analyst_avg_target":0.0,"victor_note":"Victor 1-sentence note","is_personal_watchlist":true}}],"full_scan_brief":[{{"ticker":"","bias":"BULLISH|NEUTRAL|BEARISH","note":"one line","category":"GROWTH|BALANCED"}}],"disclaimer":"For educational purposes only. Not financial advice."}}
 
-For EVERY ticker, search for:
-- Current price, today's change, pre-market move
-- P/E ratio, forward P/E, PEG ratio, P/S ratio, EV/EBITDA
-- Market cap, enterprise value
-- Revenue (last 4 quarters + YoY growth), gross margin, operating margin, net income, EPS
-- Free cash flow, cash on balance sheet, total debt, debt/equity ratio
-- Last 4 earnings: beat or miss and by how much, guidance raised/lowered
-- RSI(14), MACD, 50-day MA, 200-day MA, current price vs both MAs
-- 52-week high and low, current price position
-- Volume today vs 30-day average
-- Analyst consensus, average price target, number of analysts
-- Insider buying/selling last 90 days
-- Institutional ownership % and recent change
-- Recent news and upcoming catalysts
-- Chart pattern (cup & handle, flag, breakout, consolidation, etc.)
-
-CLASSIFICATION RULES:
-- GROWTH: High-growth companies (revenue growth >20% YoY), often tech/biotech/emerging.
-  Higher volatility, higher upside. Examples: NVDA, PLTR, CRWD, ARM, SMCI.
-- BALANCED: Solid companies with strong fundamentals, moderate growth (5–20% YoY),
-  lower volatility. Examples: AAPL, MSFT, GOOGL, JPM, BRK.B.
-
-CONFIDENCE SCORING (0–100):
-- Technical setup quality: 30 points max
-- Fundamental strength: 25 points max
-- Catalyst clarity: 20 points max
-- Macro alignment: 15 points max
-- Risk/reward ratio: 10 points max
-Score each component explicitly. Only recommend BUY if total >= 65.
-STRONG BUY requires >= 80.
-
-Return ONLY valid JSON (no markdown, no backticks, no extra text):
-{{
-  "report_date": "{TODAY}",
-  "generated_at": "{NOW}",
-  "macro_summary": "3-sentence market overview in Victor's voice — direct, no fluff",
-  "risk_level": "LOW|MODERATE|HIGH",
-  "sector_rotation": "which sectors seeing money flow in vs out today",
-  "top_picks": [
-    {{
-      "ticker": "XXXX",
-      "company_name": "Full Company Name",
-      "category": "GROWTH|BALANCED",
-      "sector": "Technology|Healthcare|Energy|etc",
-      "current_price": 0.00,
-      "price_change_today_pct": 0.0,
-      "signal": "STRONG BUY|BUY|WATCH|AVOID",
-      "confidence_score": 0,
-      "confidence_breakdown": {{
-        "technical": 0,
-        "fundamental": 0,
-        "catalyst": 0,
-        "macro_alignment": 0,
-        "risk_reward": 0
-      }},
-      "entry_range_low": 0.00,
-      "entry_range_high": 0.00,
-      "target_1m": 0.00,
-      "target_6m": 0.00,
-      "target_1y": 0.00,
-      "stop_loss": 0.00,
-      "upside_1m_pct": 0.0,
-      "upside_6m_pct": 0.0,
-      "upside_1y_pct": 0.0,
-      "target_1m_probability_pct": 0,
-      "target_6m_probability_pct": 0,
-      "target_1y_probability_pct": 0,
-      "risk_reward_ratio": 0.0,
-      "pe_ratio": 0.0,
-      "forward_pe": 0.0,
-      "peg_ratio": 0.0,
-      "ps_ratio": 0.0,
-      "ev_ebitda": 0.0,
-      "eps_ttm": 0.00,
-      "eps_growth_yoy_pct": 0.0,
-      "market_cap_b": 0.0,
-      "revenue_growth_yoy_pct": 0.0,
-      "revenue_growth_qoq_pct": 0.0,
-      "gross_margin_pct": 0.0,
-      "operating_margin_pct": 0.0,
-      "net_margin_pct": 0.0,
-      "fcf_yield_pct": 0.0,
-      "roe_pct": 0.0,
-      "debt_to_equity": 0.0,
-      "cash_position_b": 0.0,
-      "earnings_streak": "beat/miss last 4Q e.g. Beat Beat Beat Miss",
-      "last_earnings_surprise_pct": 0.0,
-      "guidance": "Raised|Maintained|Lowered|N/A",
-      "volume_today": 0,
-      "avg_volume_30d": 0,
-      "volume_ratio": 0.0,
-      "week52_high": 0.00,
-      "week52_low": 0.00,
-      "price_vs_52h_pct": 0.0,
-      "rsi_14": 0,
-      "macd_signal": "BULLISH|NEUTRAL|BEARISH",
-      "macd_histogram": "POSITIVE|NEGATIVE",
-      "price_vs_50ma": 0.0,
-      "price_vs_200ma": 0.0,
-      "ma_signal": "GOLDEN CROSS|ABOVE BOTH|ABOVE 200 ONLY|BELOW BOTH|DEATH CROSS",
-      "chart_pattern": "Cup & Handle|Bull Flag|Breakout|Consolidation|Ascending Triangle|etc",
-      "support_level": 0.00,
-      "resistance_level": 0.00,
-      "analyst_consensus": "Strong Buy|Buy|Hold|Sell",
-      "analyst_avg_target": 0.00,
-      "num_analysts": 0,
-      "insider_activity": "Buying|Selling|Neutral",
-      "institutional_ownership_pct": 0.0,
-      "institutional_change": "Increasing|Decreasing|Stable",
-      "next_earnings_est": "YYYY-MM-DD or Q3 2025",
-      "catalyst_summary": "Key upcoming catalyst 2 sentences",
-      "geopolitical_factor": "Relevant macro/geopolitical factor 1-2 sentences",
-      "technical_analysis": "Victor's detailed technical read — 4-5 sentences, exact levels, pattern, confirmation signals",
-      "fundamental_analysis": "Victor's fundamental take — 4-5 sentences, what the numbers say, quality of the business",
-      "victor_verdict": "Victor's personal 3-sentence statement — his exact recommendation, entry rationale, what he's watching for",
-      "why_now": "Why THIS week is the right entry — specific, not generic — 2-3 sentences",
-      "risks": "Top 2 risks that could invalidate the thesis — specific, not generic",
-      "is_personal_watchlist": false
-    }}
-  ],
-  "watchlist_analysis": [
-    {{
-      "ticker": "XXX",
-      "company_name": "Full Name",
-      "category": "GROWTH|BALANCED",
-      "current_price": 0.00,
-      "price_change_today_pct": 0.0,
-      "signal": "STRONG BUY|BUY|WATCH|AVOID",
-      "confidence_score": 0,
-      "entry_range_low": 0.00,
-      "entry_range_high": 0.00,
-      "target_1y": 0.00,
-      "stop_loss": 0.00,
-      "upside_1y_pct": 0.0,
-      "pe_ratio": 0.0,
-      "week52_high": 0.00,
-      "week52_low": 0.00,
-      "rsi_14": 0,
-      "analyst_consensus": "Strong Buy|Buy|Hold|Sell",
-      "analyst_avg_target": 0.00,
-      "victor_note": "Victor's 2-sentence take on this stock today",
-      "is_personal_watchlist": true
-    }}
-  ],
-  "full_scan_brief": [
-    {{"ticker": "XXX", "bias": "BULLISH|NEUTRAL|BEARISH", "note": "one line", "category": "GROWTH|BALANCED"}}
-  ],
-  "disclaimer": "For educational purposes only. Not financial advice. Always do your own research."
-}}
-
-Include ALL personal watchlist tickers in watchlist_analysis.
-Include top picks in top_picks (only STRONG BUY and BUY signals, confidence >= 65).
-Separate GROWTH and BALANCED clearly via the category field.
-"""
+Rules: top_picks = BUY/STRONG BUY signals only (confidence>=65). All personal watchlist tickers go in watchlist_analysis even if not top picks."""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -287,7 +127,7 @@ def call_claude(prompt, label="Claude API"):
     print(f"  → {label}...")
     payload = json.dumps({
         "model": "claude-sonnet-4-5",
-        "max_tokens": 8000,
+        "max_tokens": 4000,
         "tools": [{"type": "web_search_20250305", "name": "web_search"}],
         "messages": [{"role": "user", "content": prompt}]
     }).encode("utf-8")
@@ -976,15 +816,15 @@ def main():
     print(f"  → Discovered {len(discovered)} tickers: {', '.join(discovered)}")
     print(f"  → Market mood: {macro.get('market_mood','?')} | VIX: {macro.get('vix','?')}")
 
-    # Combine — cap at 16 total to stay within rate limits
-    # Priority: top discovered (8) + personal watchlist (up to 8)
-    top_discovered = discovered[:8]
-    personal_capped = ALL_PERSONAL[:8]
+    # Combine — cap at 8 total to stay within rate limits on free tier
+    # Priority: top discovered (4) + personal watchlist (up to 4)
+    top_discovered = discovered[:4]
+    personal_capped = ALL_PERSONAL[:4]
     all_tickers = list(dict.fromkeys(top_discovered + personal_capped))
     print(f"  → Tickers for deep analysis: {len(all_tickers)} — {', '.join(all_tickers)}")
 
-    # Phase 2 — Deep Analysis in batches of 8
-    BATCH_SIZE = 8
+    # Phase 2 — Deep Analysis in batches of 4
+    BATCH_SIZE = 4
     batches = [all_tickers[i:i+BATCH_SIZE] for i in range(0, len(all_tickers), BATCH_SIZE)]
     print(f"\n[Phase 2] Deep analysis in {len(batches)} batch(es) of up to {BATCH_SIZE} tickers...")
 
@@ -992,8 +832,8 @@ def main():
     for i, batch in enumerate(batches):
         print(f"  → Batch {i+1}/{len(batches)}: {', '.join(batch)}")
         if i > 0:
-            print(f"  → Pausing 65s between batches to respect rate limits...")
-            time.sleep(65)
+            print(f"  → Pausing 90s between batches to respect rate limits...")
+            time.sleep(90)
         prompt = build_analysis_prompt(batch, macro, personal_status)
         result = call_claude_with_retry(prompt, f"Deep analysis batch {i+1}")
         batch_reports.append(result)
